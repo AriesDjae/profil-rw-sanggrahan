@@ -69,6 +69,14 @@ export async function simpanBerkas(
     return hasil.url;
   }
 
+  // Di Vercel sistem berkas hanya-baca, jadi kegagalan dijelaskan apa adanya
+  // alih-alih memunculkan galat sistem berkas yang membingungkan pengurus.
+  if (process.env.VERCEL) {
+    throw new Error(
+      "Penyimpanan berkas belum disiapkan pada lingkungan ini. Hubungkan Vercel Blob, lalu coba lagi.",
+    );
+  }
+
   const dir = path.join(process.cwd(), "public", "unggahan", aman);
   await mkdir(dir, { recursive: true });
   const buffer = Buffer.from(await berkas.arrayBuffer());
