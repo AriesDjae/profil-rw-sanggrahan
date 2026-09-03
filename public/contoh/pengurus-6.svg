@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 900" width="900" height="900" role="img" aria-label="Purwanto">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0369a1"/>
+      <stop offset="100%" stop-color="#0ea5e9"/>
+    </linearGradient>
+  </defs>
+  <rect width="900" height="900" fill="url(#g)"/>
+  <circle cx="519" cy="800" r="178" fill="#0ea5e9" opacity="0.10"/>
+  <circle cx="797" cy="228" r="71" fill="#bae6fd" opacity="0.15"/>
+  <circle cx="273" cy="707" r="252" fill="#ffffff" opacity="0.10"/>
+  <circle cx="666" cy="628" r="74" fill="#0ea5e9" opacity="0.13"/>
+  <circle cx="267" cy="545" r="274" fill="#bae6fd" opacity="0.09"/>
+  <circle cx="131" cy="80" r="167" fill="#ffffff" opacity="0.10"/>
+  <circle cx="80" cy="823" r="255" fill="#0ea5e9" opacity="0.14"/>
+  <rect x="704" y="826" width="169" height="172" rx="14" fill="#bae6fd" opacity="0.19"/>
+  <rect x="519" y="679" width="166" height="128" rx="14" fill="#bae6fd" opacity="0.13"/>
+  <rect x="607" y="846" width="91" height="243" rx="14" fill="#bae6fd" opacity="0.11"/>
+  <rect x="302" y="634" width="264" height="191" rx="14" fill="#bae6fd" opacity="0.19"/>
+  <text x="450" y="476" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="120" font-weight="700" fill="#ffffff" opacity="0.85">P</text>
+</svg>

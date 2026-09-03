@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 900" width="900" height="900" role="img" aria-label="dr. Indah Permatasari">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1d4ed8"/>
+      <stop offset="100%" stop-color="#3b82f6"/>
+    </linearGradient>
+  </defs>
+  <rect width="900" height="900" fill="url(#g)"/>
+  <circle cx="76" cy="248" r="99" fill="#3b82f6" opacity="0.23"/>
+  <circle cx="68" cy="756" r="200" fill="#bfdbfe" opacity="0.21"/>
+  <circle cx="224" cy="483" r="262" fill="#ffffff" opacity="0.21"/>
+  <circle cx="65" cy="717" r="275" fill="#3b82f6" opacity="0.19"/>
+  <circle cx="780" cy="115" r="218" fill="#bfdbfe" opacity="0.17"/>
+  <circle cx="624" cy="597" r="114" fill="#ffffff" opacity="0.09"/>
+  <circle cx="821" cy="354" r="222" fill="#3b82f6" opacity="0.22"/>
+  <rect x="358" y="511" width="277" height="205" rx="14" fill="#bfdbfe" opacity="0.16"/>
+  <rect x="578" y="729" width="151" height="124" rx="14" fill="#bfdbfe" opacity="0.20"/>
+  <rect x="112" y="597" width="154" height="122" rx="14" fill="#bfdbfe" opacity="0.11"/>
+  <rect x="796" y="545" width="117" height="228" rx="14" fill="#bfdbfe" opacity="0.13"/>
+  <text x="450" y="476" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="120" font-weight="700" fill="#ffffff" opacity="0.85">DIP</text>
+</svg>

@@ -30,9 +30,20 @@ try {
   const b = await masuk(browser, "bendaharart07@rw05sanggrahan.id");
   cek("Bendahara dapat masuk ke panel", b.page.url().includes("/admin"));
 
-  await b.page.goto(`${DASAR}/admin/keuangan?status=DRAFT`);
-  const tautanDraf = b.page.locator('a:has-text("Buka")').first();
-  cek("Bendahara punya laporan draf", (await tautanDraf.count()) > 0);
+  // Laporan yang masih bisa disunting bendahara: draf, atau yang dikembalikan
+  // untuk revisi. Menerima keduanya membuat uji ini dapat dijalankan berulang
+  // tanpa harus mengisi ulang data contoh lebih dulu.
+  let tautanDraf;
+  for (const status of ["DRAFT", "DITOLAK"]) {
+    await b.page.goto(`${DASAR}/admin/keuangan?status=${status}`);
+    const kandidat = b.page.locator('a:has-text("Buka")').first();
+    if ((await kandidat.count()) > 0) {
+      tautanDraf = kandidat;
+      break;
+    }
+  }
+  cek("Bendahara punya laporan yang dapat disunting", Boolean(tautanDraf));
+  if (!tautanDraf) throw new Error("tidak ada laporan draf/ditolak untuk RT 07");
   await tautanDraf.click();
   await b.page.waitForURL(/\/admin\/keuangan\/\d+/);
   const urlLaporan = b.page.url();

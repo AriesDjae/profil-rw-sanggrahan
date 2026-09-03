@@ -35,11 +35,13 @@ export default async function DaftarWargaAdmin({
     ...(rtFilter ? { rtId: rtFilter } : {}),
     ...(cari
       ? {
+          // PostgreSQL membedakan huruf besar-kecil pada contains,
+          // sehingga pencarian nama warga disetel tidak peka huruf.
           OR: [
-            { nama: { contains: cari } },
+            { nama: { contains: cari, mode: "insensitive" as const } },
             { nik: { contains: cari } },
             { noKk: { contains: cari } },
-            { alamat: { contains: cari } },
+            { alamat: { contains: cari, mode: "insensitive" as const } },
           ],
         }
       : {}),
@@ -49,7 +51,13 @@ export default async function DaftarWargaAdmin({
     db.warga.findMany({
       where,
       include: { rt: { select: { nomor: true } } },
-      orderBy: [{ rtId: "asc" }, { noKk: "asc" }, { nama: "asc" }],
+      // PostgreSQL menaruh NULL di akhir. Warga yang belum punya nomor KK
+      // justru perlu terlihat lebih dulu agar datanya cepat dilengkapi.
+      orderBy: [
+        { rtId: "asc" },
+        { noKk: { sort: "asc", nulls: "first" } },
+        { nama: "asc" },
+      ],
       skip: (halaman - 1) * PER_HALAMAN,
       take: PER_HALAMAN,
     }),

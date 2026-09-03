@@ -57,9 +57,17 @@ async function periksa(page, nama, ukuran, jalur) {
   const onConsole = (m) => {
     if (m.type() === "error") galatKonsol.push(m.text());
   };
-  const onFailed = (r) => gagalMuat.push(`${r.url()} (${r.failure()?.errorText})`);
+  // Prefetch Next.js (_rsc) yang dibatalkan saat pengguna berpindah halaman
+  // adalah perilaku normal, bukan kegagalan yang perlu dilaporkan.
+  const abaikanPermintaan = (url, galat = "") =>
+    url.includes("_rsc=") || galat.includes("ERR_ABORTED");
+  const onFailed = (r) => {
+    const galat = r.failure()?.errorText ?? "";
+    if (abaikanPermintaan(r.url(), galat)) return;
+    gagalMuat.push(`${r.url()} (${galat})`);
+  };
   const onResponse = (r) => {
-    if (r.status() >= 400 && !r.url().includes("/_next/")) {
+    if (r.status() >= 400 && !r.url().includes("/_next/") && !abaikanPermintaan(r.url())) {
       gagalMuat.push(`${r.status()} ${r.url()}`);
     }
   };
