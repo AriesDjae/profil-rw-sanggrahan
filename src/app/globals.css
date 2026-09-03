@@ -7,8 +7,8 @@
   --color-brand-200: #b9cfc0;
   --color-brand-300: #8db09a;
   --color-brand-400: #5c8e72;
-  --color-brand-500: #367054;
-  --color-brand-600: #1f5a46;
+  --color-brand-500: #2f7d5c;
+  --color-brand-600: #21654e;
   --color-brand-700: #17493a;
   --color-brand-800: #133b30;
   --color-brand-900: #0f2e26;
@@ -18,14 +18,14 @@
   --color-aksen-50: #fdf6e7;
   --color-aksen-100: #f9e9c2;
   --color-aksen-200: #f3d68c;
-  --color-aksen-400: #e0a320;
+  --color-aksen-400: #eaad24;
   --color-aksen-600: #b87c0e;
   --color-aksen-800: #7a5209;
 
   /* Kertas, tinta, dan garis buku kas */
-  --color-kertas: #f5f6f1;
+  --color-kertas: #fafaf6;
   --color-tinta: #12211c;
-  --color-garis: #d9dcd2;
+  --color-garis: #e2e5db;
 
   /* Slot warna grafik (tervalidasi untuk keterbacaan buta warna) */
   --color-seri-1: #2a78d6;
@@ -64,6 +64,20 @@ body {
 .motif-kawung {
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'><g fill='none' stroke='white' stroke-opacity='0.16' stroke-width='1.1'><circle cx='0' cy='0' r='11'/><circle cx='48' cy='0' r='11'/><circle cx='0' cy='48' r='11'/><circle cx='48' cy='48' r='11'/><circle cx='24' cy='24' r='11'/></g></svg>");
   background-size: 48px 48px;
+}
+
+/* Kartu: sudut membulat sedang, garis tipis, bayangan hanya saat disentuh.
+   Dipakai untuk isi yang perlu cepat dipindai di layar ponsel. */
+.kartu {
+  background-color: #fff;
+  border: 1px solid var(--color-garis);
+  border-radius: 0.875rem;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.kartu:hover {
+  border-color: var(--color-brand-200);
+  box-shadow: 0 6px 20px -12px rgba(18, 33, 28, 0.35);
 }
 
 /* Bidang hijau tua untuk kepala halaman dalam */

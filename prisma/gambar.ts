@@ -10,14 +10,14 @@ import path from "node:path";
  */
 
 const PALET = [
-  ["#133b30", "#1f5a46", "#8db09a"], // hijau pekarangan
-  ["#17493a", "#367054", "#b9cfc0"], // hijau lumut
-  ["#7a5209", "#b87c0e", "#f3d68c"], // kunyit
-  ["#0f2e26", "#2f6b52", "#a8c6b2"], // hijau teduh
-  ["#8a4218", "#b5622c", "#e8c39c"], // genteng bata
-  ["#1f5a46", "#5c8e72", "#dce7df"], // hijau muda
-  ["#133b30", "#b87c0e", "#e6d3a3"], // hijau dan kunyit
-  ["#0a1f1a", "#1f5a46", "#8db09a"], // hijau malam
+  ["#2f8f6b", "#7fd0ae", "#eaf8f1"], // hijau pekarangan siang
+  ["#2b7fc4", "#8fc7ee", "#e9f3fb"], // langit
+  ["#d9a021", "#f5d68a", "#fdf6e4"], // kunyit
+  ["#4a9d5f", "#a8dfb2", "#eefaf0"], // daun muda
+  ["#c9622f", "#f0a878", "#fdeee4"], // genteng
+  ["#1f8f86", "#86d9d1", "#e8f8f6"], // air
+  ["#8a9f2f", "#cfe08a", "#f6faea"], // sawah
+  ["#b8752a", "#eec08a", "#fcf2e6"], // tanah hangat
 ];
 
 function acak(seed: number) {
@@ -68,7 +68,7 @@ export function svgHias(judul: string, indeks: number, lebar = 1200, tinggi = 67
   </defs>
   <rect width="${lebar}" height="${tinggi}" fill="url(#g)"/>
   ${bentuk.join("\n  ")}
-  <text x="${Math.round(lebar * 0.06)}" y="${Math.round(tinggi * 0.88)}" font-family="Segoe UI, Arial, sans-serif" font-size="${Math.round(tinggi * 0.09)}" font-weight="700" letter-spacing="4" fill="#ffffff" opacity="0.22">${escapeXml(inisial)}</text>
+  <text x="${Math.round(lebar * 0.06)}" y="${Math.round(tinggi * 0.88)}" font-family="Segoe UI, Arial, sans-serif" font-size="${Math.round(tinggi * 0.09)}" font-weight="700" letter-spacing="4" fill="#0f2e26" opacity="0.20">${escapeXml(inisial)}</text>
 </svg>`;
 }
 

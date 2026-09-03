@@ -65,26 +65,49 @@ export default async function Beranda() {
 
   return (
     <>
-      {/* Kepala papan: identitas kampung dan angka pokoknya */}
-      <section className="mx-auto max-w-6xl px-4 pt-10 pb-8 sm:pt-14">
-        <h1 className="judul text-[2.4rem] leading-[0.98] text-brand-950 sm:text-[3.4rem]">
-          {pengaturan.namaRw}
-        </h1>
-        <p className="mt-3 max-w-xl text-[17px] leading-relaxed text-tinta/70">
-          {pengaturan.tagline}
-        </p>
+      {/* Kepala halaman: sambutan berwarna, angka pokok, dan pintasan tugas */}
+      <section className="bidang-hijau text-white">
+        <div className="motif-kawung">
+          <div className="mx-auto max-w-6xl px-4 py-12 sm:py-16">
+            <h1 className="judul text-[2.4rem] leading-[1] text-white sm:text-[3.4rem]">
+              {pengaturan.namaRw}
+            </h1>
+            <p className="mt-4 max-w-xl text-[17px] leading-relaxed text-brand-100">
+              {pengaturan.deskripsi || pengaturan.tagline}
+            </p>
 
-        <dl className="mt-9 grid grid-cols-2 border-t border-garis sm:grid-cols-4">
-          {angkaKampung.map((a) => (
-            <div
-              key={a.label}
-              className="border-b border-garis py-4 pr-4 sm:border-b-0 sm:border-r sm:last:border-r-0 sm:pl-4 sm:first:pl-0"
-            >
-              <dd className="judul angka-kas text-[1.75rem] text-brand-900">{a.nilai}</dd>
-              <dt className="mt-1 text-[13px] text-tinta/60">{a.label}</dt>
+            {/* Pintasan: empat hal yang paling sering dicari warga */}
+            <div className="mt-8 flex flex-wrap gap-2.5">
+              {[
+                { href: "/keuangan", label: "Laporan kas RT", utama: true },
+                { href: "/kegiatan", label: "Agenda kegiatan" },
+                { href: "/data-warga", label: "Data warga" },
+                { href: "/profil", label: "Pengurus & kontak" },
+              ].map((t) => (
+                <Link
+                  key={t.href}
+                  href={t.href}
+                  className={`rounded-xl px-5 py-3 text-sm font-semibold transition ${
+                    t.utama
+                      ? "bg-aksen-400 text-brand-950 hover:bg-aksen-200"
+                      : "border border-white/30 text-white hover:bg-white/10"
+                  }`}
+                >
+                  {t.label}
+                </Link>
+              ))}
             </div>
-          ))}
-        </dl>
+
+            <dl className="mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-2xl bg-white/15 sm:grid-cols-4">
+              {angkaKampung.map((a) => (
+                <div key={a.label} className="bg-brand-800/95 px-5 py-4">
+                  <dd className="judul angka-kas text-[1.7rem] text-white">{a.nilai}</dd>
+                  <dt className="mt-1 text-[13px] text-brand-200">{a.label}</dt>
+                </div>
+              ))}
+            </dl>
+          </div>
+        </div>
       </section>
 
       {/* Sorotan kabar */}
@@ -94,11 +117,11 @@ export default async function Beranda() {
       {pengumuman.length > 0 && (
         <section className="mx-auto max-w-6xl px-4 py-12">
           <h2 className="judul text-lg text-brand-950">Pengumuman</h2>
-          <ul className="mt-4 grid gap-px bg-garis sm:grid-cols-3">
+          <ul className="mt-4 grid gap-4 sm:grid-cols-3">
             {pengumuman.map((p) => (
               <li
                 key={p.id}
-                className={`p-5 ${p.penting ? "bg-aksen-50" : "bg-white"}`}
+                className={`kartu p-5 ${p.penting ? "border-aksen-200 bg-aksen-50" : ""}`}
               >
                 {p.penting && (
                   <p className="mb-2 text-[12px] font-semibold text-aksen-800">
@@ -258,12 +281,12 @@ export default async function Beranda() {
             tautan="/galeri"
             labelTautan="Semua album"
           />
-          <div className="grid grid-cols-2 gap-px bg-garis sm:grid-cols-3 lg:grid-cols-6">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
             {foto.map((f) => (
               <Link
                 key={f.id}
                 href={`/galeri/${f.album.slug}`}
-                className="group relative aspect-square overflow-hidden bg-white"
+                className="group relative aspect-square overflow-hidden rounded-xl border border-garis bg-white"
               >
                 <img
                   src={f.url}
@@ -282,7 +305,7 @@ export default async function Beranda() {
 
       {/* Ajakan */}
       <section className="mx-auto max-w-6xl px-4 pb-20">
-        <div className="bidang-hijau">
+        <div className="overflow-hidden rounded-2xl bidang-hijau">
           <div className="motif-kawung px-6 py-14 text-center sm:px-12">
             <h2 className="judul mx-auto max-w-2xl text-[1.75rem] text-white sm:text-[2.15rem]">
               Punya usulan, keluhan, atau kabar untuk warga?

@@ -1,21 +1,21 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="Kerja Bakti Saluran Air 5">
   <defs>
     <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#8a4218"/>
-      <stop offset="100%" stop-color="#b5622c"/>
+      <stop offset="0%" stop-color="#c9622f"/>
+      <stop offset="100%" stop-color="#f0a878"/>
     </linearGradient>
   </defs>
   <rect width="1200" height="675" fill="url(#g)"/>
-  <circle cx="1085" cy="201" r="83" fill="#b5622c" opacity="0.12"/>
-  <circle cx="911" cy="132" r="132" fill="#e8c39c" opacity="0.21"/>
+  <circle cx="1085" cy="201" r="83" fill="#f0a878" opacity="0.12"/>
+  <circle cx="911" cy="132" r="132" fill="#fdeee4" opacity="0.21"/>
   <circle cx="407" cy="418" r="245" fill="#ffffff" opacity="0.23"/>
-  <circle cx="623" cy="201" r="160" fill="#b5622c" opacity="0.15"/>
-  <circle cx="701" cy="173" r="239" fill="#e8c39c" opacity="0.10"/>
+  <circle cx="623" cy="201" r="160" fill="#f0a878" opacity="0.15"/>
+  <circle cx="701" cy="173" r="239" fill="#fdeee4" opacity="0.10"/>
   <circle cx="937" cy="26" r="129" fill="#ffffff" opacity="0.15"/>
-  <circle cx="649" cy="401" r="204" fill="#b5622c" opacity="0.20"/>
-  <rect x="446" y="597" width="97" height="82" rx="14" fill="#e8c39c" opacity="0.16"/>
-  <rect x="1040" y="394" width="238" height="197" rx="14" fill="#e8c39c" opacity="0.22"/>
-  <rect x="448" y="578" width="240" height="191" rx="14" fill="#e8c39c" opacity="0.19"/>
-  <rect x="364" y="611" width="236" height="233" rx="14" fill="#e8c39c" opacity="0.19"/>
-  <text x="72" y="594" font-family="Segoe UI, Arial, sans-serif" font-size="61" font-weight="700" letter-spacing="4" fill="#ffffff" opacity="0.22">KBS</text>
+  <circle cx="649" cy="401" r="204" fill="#f0a878" opacity="0.20"/>
+  <rect x="446" y="597" width="97" height="82" rx="14" fill="#fdeee4" opacity="0.16"/>
+  <rect x="1040" y="394" width="238" height="197" rx="14" fill="#fdeee4" opacity="0.22"/>
+  <rect x="448" y="578" width="240" height="191" rx="14" fill="#fdeee4" opacity="0.19"/>
+  <rect x="364" y="611" width="236" height="233" rx="14" fill="#fdeee4" opacity="0.19"/>
+  <text x="72" y="594" font-family="Segoe UI, Arial, sans-serif" font-size="61" font-weight="700" letter-spacing="4" fill="#0f2e26" opacity="0.20">KBS</text>
 </svg>

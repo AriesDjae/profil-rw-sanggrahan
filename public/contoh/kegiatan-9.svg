@@ -1,21 +1,21 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="Rapat Persiapan Peringatan HUT Kemerdekaan">
   <defs>
     <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#0f2e26"/>
-      <stop offset="100%" stop-color="#2f6b52"/>
+      <stop offset="0%" stop-color="#4a9d5f"/>
+      <stop offset="100%" stop-color="#a8dfb2"/>
     </linearGradient>
   </defs>
   <rect width="1200" height="675" fill="url(#g)"/>
-  <circle cx="907" cy="585" r="194" fill="#2f6b52" opacity="0.22"/>
-  <circle cx="243" cy="606" r="140" fill="#a8c6b2" opacity="0.15"/>
+  <circle cx="907" cy="585" r="194" fill="#a8dfb2" opacity="0.22"/>
+  <circle cx="243" cy="606" r="140" fill="#eefaf0" opacity="0.15"/>
   <circle cx="255" cy="475" r="269" fill="#ffffff" opacity="0.24"/>
-  <circle cx="352" cy="133" r="189" fill="#2f6b52" opacity="0.17"/>
-  <circle cx="695" cy="321" r="254" fill="#a8c6b2" opacity="0.16"/>
+  <circle cx="352" cy="133" r="189" fill="#a8dfb2" opacity="0.17"/>
+  <circle cx="695" cy="321" r="254" fill="#eefaf0" opacity="0.16"/>
   <circle cx="71" cy="482" r="153" fill="#ffffff" opacity="0.20"/>
-  <circle cx="552" cy="481" r="273" fill="#2f6b52" opacity="0.17"/>
-  <rect x="970" y="406" width="159" height="95" rx="14" fill="#a8c6b2" opacity="0.19"/>
-  <rect x="423" y="392" width="268" height="255" rx="14" fill="#a8c6b2" opacity="0.11"/>
-  <rect x="510" y="504" width="196" height="174" rx="14" fill="#a8c6b2" opacity="0.17"/>
-  <rect x="1100" y="544" width="145" height="186" rx="14" fill="#a8c6b2" opacity="0.13"/>
-  <text x="72" y="594" font-family="Segoe UI, Arial, sans-serif" font-size="61" font-weight="700" letter-spacing="4" fill="#ffffff" opacity="0.22">RPP</text>
+  <circle cx="552" cy="481" r="273" fill="#a8dfb2" opacity="0.17"/>
+  <rect x="970" y="406" width="159" height="95" rx="14" fill="#eefaf0" opacity="0.19"/>
+  <rect x="423" y="392" width="268" height="255" rx="14" fill="#eefaf0" opacity="0.11"/>
+  <rect x="510" y="504" width="196" height="174" rx="14" fill="#eefaf0" opacity="0.17"/>
+  <rect x="1100" y="544" width="145" height="186" rx="14" fill="#eefaf0" opacity="0.13"/>
+  <text x="72" y="594" font-family="Segoe UI, Arial, sans-serif" font-size="61" font-weight="700" letter-spacing="4" fill="#0f2e26" opacity="0.20">RPP</text>
 </svg>

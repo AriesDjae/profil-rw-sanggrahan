@@ -1,21 +1,21 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="Posyandu dan Pemeriksaan Lansia 2">
   <defs>
     <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#0a1f1a"/>
-      <stop offset="100%" stop-color="#1f5a46"/>
+      <stop offset="0%" stop-color="#b8752a"/>
+      <stop offset="100%" stop-color="#eec08a"/>
     </linearGradient>
   </defs>
   <rect width="1200" height="675" fill="url(#g)"/>
-  <circle cx="495" cy="462" r="225" fill="#1f5a46" opacity="0.09"/>
-  <circle cx="1139" cy="528" r="261" fill="#8db09a" opacity="0.11"/>
+  <circle cx="495" cy="462" r="225" fill="#eec08a" opacity="0.09"/>
+  <circle cx="1139" cy="528" r="261" fill="#fcf2e6" opacity="0.11"/>
   <circle cx="342" cy="249" r="256" fill="#ffffff" opacity="0.19"/>
-  <circle cx="1021" cy="268" r="141" fill="#1f5a46" opacity="0.20"/>
-  <circle cx="184" cy="526" r="182" fill="#8db09a" opacity="0.17"/>
+  <circle cx="1021" cy="268" r="141" fill="#eec08a" opacity="0.20"/>
+  <circle cx="184" cy="526" r="182" fill="#fcf2e6" opacity="0.17"/>
   <circle cx="394" cy="414" r="76" fill="#ffffff" opacity="0.15"/>
-  <circle cx="436" cy="50" r="171" fill="#1f5a46" opacity="0.12"/>
-  <rect x="1184" y="631" width="205" height="116" rx="14" fill="#8db09a" opacity="0.13"/>
-  <rect x="1118" y="432" width="224" height="193" rx="14" fill="#8db09a" opacity="0.15"/>
-  <rect x="989" y="392" width="112" height="269" rx="14" fill="#8db09a" opacity="0.20"/>
-  <rect x="1023" y="543" width="278" height="70" rx="14" fill="#8db09a" opacity="0.12"/>
-  <text x="72" y="594" font-family="Segoe UI, Arial, sans-serif" font-size="61" font-weight="700" letter-spacing="4" fill="#ffffff" opacity="0.22">PDP</text>
+  <circle cx="436" cy="50" r="171" fill="#eec08a" opacity="0.12"/>
+  <rect x="1184" y="631" width="205" height="116" rx="14" fill="#fcf2e6" opacity="0.13"/>
+  <rect x="1118" y="432" width="224" height="193" rx="14" fill="#fcf2e6" opacity="0.15"/>
+  <rect x="989" y="392" width="112" height="269" rx="14" fill="#fcf2e6" opacity="0.20"/>
+  <rect x="1023" y="543" width="278" height="70" rx="14" fill="#fcf2e6" opacity="0.12"/>
+  <text x="72" y="594" font-family="Segoe UI, Arial, sans-serif" font-size="61" font-weight="700" letter-spacing="4" fill="#0f2e26" opacity="0.20">PDP</text>
 </svg>
