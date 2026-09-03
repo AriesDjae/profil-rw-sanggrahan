@@ -1,13 +1,14 @@
 // Skema database Website Profil RW Sanggrahan
-// Catatan: SQLite tidak mendukung enum, sehingga kolom status memakai String
-// dengan daftar nilai yang dikunci lewat konstanta di src/lib/konstanta.ts
+// Kolom status memakai String, bukan enum, agar nilainya terkunci di satu
+// tempat (src/lib/konstanta.ts) dan penambahan status baru tidak memerlukan
+// migrasi tipe. Basis data: PostgreSQL (Neon di lingkungan demo).
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 

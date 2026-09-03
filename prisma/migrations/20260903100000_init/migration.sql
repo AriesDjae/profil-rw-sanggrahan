@@ -1,17 +1,22 @@
+-- CreateSchema
+CREATE SCHEMA IF NOT EXISTS "public";
+
 -- CreateTable
 CREATE TABLE "Rt" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "id" SERIAL NOT NULL,
     "nomor" TEXT NOT NULL,
     "nama" TEXT NOT NULL,
     "wilayah" TEXT,
     "jumlahKk" INTEGER NOT NULL DEFAULT 0,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Rt_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "User" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "id" SERIAL NOT NULL,
     "nama" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "passwordHash" TEXT NOT NULL,
@@ -21,14 +26,15 @@ CREATE TABLE "User" (
     "foto" TEXT,
     "aktif" BOOLEAN NOT NULL DEFAULT true,
     "rtId" INTEGER,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL,
-    CONSTRAINT "User_rtId_fkey" FOREIGN KEY ("rtId") REFERENCES "Rt" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Berita" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "id" SERIAL NOT NULL,
     "judul" TEXT NOT NULL,
     "slug" TEXT NOT NULL,
     "ringkasan" TEXT NOT NULL,
@@ -36,22 +42,23 @@ CREATE TABLE "Berita" (
     "gambar" TEXT,
     "kategori" TEXT NOT NULL DEFAULT 'Umum',
     "status" TEXT NOT NULL DEFAULT 'DRAFT',
-    "terbitAt" DATETIME,
+    "terbitAt" TIMESTAMP(3),
     "dilihat" INTEGER NOT NULL DEFAULT 0,
     "penulisId" INTEGER,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL,
-    CONSTRAINT "Berita_penulisId_fkey" FOREIGN KEY ("penulisId") REFERENCES "User" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Berita_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Kegiatan" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "id" SERIAL NOT NULL,
     "judul" TEXT NOT NULL,
     "slug" TEXT NOT NULL,
     "deskripsi" TEXT NOT NULL,
-    "mulai" DATETIME NOT NULL,
-    "selesai" DATETIME,
+    "mulai" TIMESTAMP(3) NOT NULL,
+    "selesai" TIMESTAMP(3),
     "lokasi" TEXT NOT NULL,
     "penyelenggara" TEXT,
     "kategori" TEXT NOT NULL DEFAULT 'Umum',
@@ -59,54 +66,60 @@ CREATE TABLE "Kegiatan" (
     "kontak" TEXT,
     "status" TEXT NOT NULL DEFAULT 'DRAFT',
     "dibuatOlehId" INTEGER,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL,
-    CONSTRAINT "Kegiatan_dibuatOlehId_fkey" FOREIGN KEY ("dibuatOlehId") REFERENCES "User" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Kegiatan_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Pengumuman" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "id" SERIAL NOT NULL,
     "judul" TEXT NOT NULL,
     "isi" TEXT NOT NULL,
     "penting" BOOLEAN NOT NULL DEFAULT false,
-    "mulai" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "berakhir" DATETIME,
+    "mulai" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "berakhir" TIMESTAMP(3),
     "aktif" BOOLEAN NOT NULL DEFAULT true,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Pengumuman_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Album" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "id" SERIAL NOT NULL,
     "nama" TEXT NOT NULL,
     "slug" TEXT NOT NULL,
     "deskripsi" TEXT,
-    "tanggal" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL
+    "tanggal" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Album_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Foto" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "id" SERIAL NOT NULL,
     "albumId" INTEGER NOT NULL,
     "url" TEXT NOT NULL,
     "judul" TEXT,
     "urutan" INTEGER NOT NULL DEFAULT 0,
-    CONSTRAINT "Foto_albumId_fkey" FOREIGN KEY ("albumId") REFERENCES "Album" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+
+    CONSTRAINT "Foto_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Warga" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "id" SERIAL NOT NULL,
     "nama" TEXT NOT NULL,
     "nik" TEXT,
     "noKk" TEXT,
     "jenisKelamin" TEXT NOT NULL,
     "tempatLahir" TEXT,
-    "tanggalLahir" DATETIME,
+    "tanggalLahir" TIMESTAMP(3),
     "agama" TEXT,
     "pendidikan" TEXT,
     "pekerjaan" TEXT,
@@ -114,14 +127,15 @@ CREATE TABLE "Warga" (
     "hubungan" TEXT NOT NULL DEFAULT 'ANGGOTA',
     "alamat" TEXT,
     "rtId" INTEGER NOT NULL,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL,
-    CONSTRAINT "Warga_rtId_fkey" FOREIGN KEY ("rtId") REFERENCES "Rt" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Warga_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "LaporanKeuangan" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "id" SERIAL NOT NULL,
     "judul" TEXT NOT NULL,
     "bulan" INTEGER NOT NULL,
     "tahun" INTEGER NOT NULL,
@@ -131,49 +145,48 @@ CREATE TABLE "LaporanKeuangan" (
     "catatan" TEXT,
     "dibuatOlehId" INTEGER,
     "verifikasiRtOlehId" INTEGER,
-    "verifikasiRtAt" DATETIME,
+    "verifikasiRtAt" TIMESTAMP(3),
     "catatanRt" TEXT,
     "persetujuanRwOlehId" INTEGER,
-    "persetujuanRwAt" DATETIME,
+    "persetujuanRwAt" TIMESTAMP(3),
     "catatanRw" TEXT,
-    "diajukanAt" DATETIME,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL,
-    CONSTRAINT "LaporanKeuangan_rtId_fkey" FOREIGN KEY ("rtId") REFERENCES "Rt" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT "LaporanKeuangan_dibuatOlehId_fkey" FOREIGN KEY ("dibuatOlehId") REFERENCES "User" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
-    CONSTRAINT "LaporanKeuangan_verifikasiRtOlehId_fkey" FOREIGN KEY ("verifikasiRtOlehId") REFERENCES "User" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
-    CONSTRAINT "LaporanKeuangan_persetujuanRwOlehId_fkey" FOREIGN KEY ("persetujuanRwOlehId") REFERENCES "User" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+    "diajukanAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "LaporanKeuangan_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Transaksi" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "id" SERIAL NOT NULL,
     "laporanId" INTEGER NOT NULL,
-    "tanggal" DATETIME NOT NULL,
+    "tanggal" TIMESTAMP(3) NOT NULL,
     "jenis" TEXT NOT NULL,
     "kategori" TEXT NOT NULL,
     "keterangan" TEXT NOT NULL,
     "jumlah" INTEGER NOT NULL,
     "bukti" TEXT,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT "Transaksi_laporanId_fkey" FOREIGN KEY ("laporanId") REFERENCES "LaporanKeuangan" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Transaksi_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "RiwayatPersetujuan" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "id" SERIAL NOT NULL,
     "laporanId" INTEGER NOT NULL,
     "aksi" TEXT NOT NULL,
     "olehId" INTEGER,
     "catatan" TEXT,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT "RiwayatPersetujuan_laporanId_fkey" FOREIGN KEY ("laporanId") REFERENCES "LaporanKeuangan" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT "RiwayatPersetujuan_olehId_fkey" FOREIGN KEY ("olehId") REFERENCES "User" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "RiwayatPersetujuan_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Pengurus" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "id" SERIAL NOT NULL,
     "nama" TEXT NOT NULL,
     "jabatan" TEXT NOT NULL,
     "level" TEXT NOT NULL DEFAULT 'RW',
@@ -182,12 +195,13 @@ CREATE TABLE "Pengurus" (
     "telepon" TEXT,
     "periode" TEXT,
     "urutan" INTEGER NOT NULL DEFAULT 0,
-    CONSTRAINT "Pengurus_rtId_fkey" FOREIGN KEY ("rtId") REFERENCES "Rt" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+
+    CONSTRAINT "Pengurus_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Pengaturan" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT DEFAULT 1,
+    "id" INTEGER NOT NULL DEFAULT 1,
     "namaRw" TEXT NOT NULL DEFAULT 'RW Sanggrahan',
     "tagline" TEXT NOT NULL DEFAULT 'Guyub, Rukun, Maju Bersama',
     "deskripsi" TEXT NOT NULL DEFAULT '',
@@ -199,7 +213,9 @@ CREATE TABLE "Pengaturan" (
     "email" TEXT NOT NULL DEFAULT '',
     "logo" TEXT,
     "heroFoto" TEXT,
-    "updatedAt" DATETIME NOT NULL
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Pengaturan_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -252,3 +268,43 @@ CREATE INDEX "RiwayatPersetujuan_laporanId_idx" ON "RiwayatPersetujuan"("laporan
 
 -- CreateIndex
 CREATE INDEX "Pengurus_level_urutan_idx" ON "Pengurus"("level", "urutan");
+
+-- AddForeignKey
+ALTER TABLE "User" ADD CONSTRAINT "User_rtId_fkey" FOREIGN KEY ("rtId") REFERENCES "Rt"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Berita" ADD CONSTRAINT "Berita_penulisId_fkey" FOREIGN KEY ("penulisId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Kegiatan" ADD CONSTRAINT "Kegiatan_dibuatOlehId_fkey" FOREIGN KEY ("dibuatOlehId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Foto" ADD CONSTRAINT "Foto_albumId_fkey" FOREIGN KEY ("albumId") REFERENCES "Album"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Warga" ADD CONSTRAINT "Warga_rtId_fkey" FOREIGN KEY ("rtId") REFERENCES "Rt"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "LaporanKeuangan" ADD CONSTRAINT "LaporanKeuangan_rtId_fkey" FOREIGN KEY ("rtId") REFERENCES "Rt"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "LaporanKeuangan" ADD CONSTRAINT "LaporanKeuangan_dibuatOlehId_fkey" FOREIGN KEY ("dibuatOlehId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "LaporanKeuangan" ADD CONSTRAINT "LaporanKeuangan_verifikasiRtOlehId_fkey" FOREIGN KEY ("verifikasiRtOlehId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "LaporanKeuangan" ADD CONSTRAINT "LaporanKeuangan_persetujuanRwOlehId_fkey" FOREIGN KEY ("persetujuanRwOlehId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Transaksi" ADD CONSTRAINT "Transaksi_laporanId_fkey" FOREIGN KEY ("laporanId") REFERENCES "LaporanKeuangan"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "RiwayatPersetujuan" ADD CONSTRAINT "RiwayatPersetujuan_laporanId_fkey" FOREIGN KEY ("laporanId") REFERENCES "LaporanKeuangan"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "RiwayatPersetujuan" ADD CONSTRAINT "RiwayatPersetujuan_olehId_fkey" FOREIGN KEY ("olehId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Pengurus" ADD CONSTRAINT "Pengurus_rtId_fkey" FOREIGN KEY ("rtId") REFERENCES "Rt"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+

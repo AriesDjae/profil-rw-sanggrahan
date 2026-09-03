@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "eslint",
     "db:push": "prisma db push",
@@ -14,10 +14,13 @@
     "uji:alur": "node uji/alur-persetujuan.mjs",
     "uji:tampilan": "node uji/qc-tampilan.mjs",
     "uji:fungsi": "node uji/qc-fungsi.mjs",
-    "uji": "node uji/alur-persetujuan.mjs && node uji/qc-tampilan.mjs && node uji/qc-fungsi.mjs"
+    "uji": "node uji/alur-persetujuan.mjs && node uji/qc-tampilan.mjs && node uji/qc-fungsi.mjs",
+    "postinstall": "prisma generate",
+    "db:deploy": "prisma migrate deploy"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
+    "@vercel/blob": "^2.8.0",
     "bcryptjs": "^3.0.3",
     "jose": "^6.2.10",
     "next": "16.3.4",

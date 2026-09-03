@@ -4,17 +4,20 @@ Portal informasi warga sekaligus panel pengelolaan untuk pengurus RW. Berisi ber
 agenda kegiatan, data kependudukan, galeri, dan **laporan keuangan kas RT dengan alur
 persetujuan berjenjang Bendahara RT → Ketua RT → Ketua RW**.
 
-Dibangun dengan Next.js 16 (App Router + Server Actions), Prisma, SQLite, dan Tailwind CSS 4.
+Dibangun dengan Next.js 16 (App Router + Server Actions), Prisma, PostgreSQL, dan Tailwind CSS 4.
 
 ---
 
 ## Menjalankan
 
+Membutuhkan basis data PostgreSQL. Untuk pengembangan bisa memakai Postgres lokal
+atau basis data gratis dari [Neon](https://neon.tech).
+
 ```bash
 npm install
-cp .env.example .env          # lalu ubah SESSION_SECRET dengan string acak
-npx prisma migrate dev        # menyiapkan basis data SQLite
-npm run db:seed               # mengisi data contoh (opsional, sangat disarankan)
+cp .env.example .env          # isi DATABASE_URL dan SESSION_SECRET
+npx prisma migrate deploy     # menyiapkan tabel
+npm run db:seed               # mengisi data contoh (sangat disarankan)
 npm run dev                   # http://localhost:3000
 ```
 
@@ -26,13 +29,13 @@ npm run build && npm start
 
 ### Berkas lingkungan (`.env`)
 
-| Nama             | Keterangan                                                        |
-| ---------------- | ----------------------------------------------------------------- |
-| `DATABASE_URL`   | Lokasi basis data SQLite, bawaan `file:./dev.db` di folder prisma. |
-| `SESSION_SECRET` | Kunci penanda tangan sesi, **minimal 32 karakter**. Wajib diganti. |
+| Nama | Wajib | Keterangan |
+| --- | --- | --- |
+| `DATABASE_URL` | ya | Alamat PostgreSQL, mis. `postgresql://…?sslmode=require`. |
+| `SESSION_SECRET` | ya | Kunci penanda tangan sesi, **minimal 32 karakter**. |
+| `BLOB_READ_WRITE_TOKEN` | tidak | Bila diisi, unggahan disimpan ke Vercel Blob. Bila kosong, unggahan ditulis ke `public/unggahan` (dipakai saat lokal dan saat dipasang di VPS sendiri). |
 
 ---
-
 ## Akun demo
 
 Seluruh akun contoh memakai kata sandi **`sanggrahan123`**. Ganti melalui
@@ -115,7 +118,7 @@ Galeri · Data Warga · Pengurus · Akun Pengguna · Pengaturan Situs.
 prisma/
   schema.prisma        Skema basis data
   seed.ts              Data contoh (8 RT, 793 jiwa, 32 laporan kas, berita, kegiatan)
-  gambar.ts            Pembuat gambar SVG contoh, agar tanpa aset eksternal
+  gambar.ts            Pembuat gambar SVG contoh (ditulis ke public/contoh)
 src/
   app/
     (publik)/          Halaman untuk warga
@@ -134,7 +137,7 @@ src/
     otorisasi.ts       Pemeriksaan peran dan lingkup RT
     keuangan.ts        Perhitungan kas dan tahapan persetujuan
     kueri.ts           Kueri bersama halaman publik
-    unggah.ts          Penyimpanan berkas ke public/unggahan
+    unggah.ts          Penyimpanan berkas: Vercel Blob atau folder lokal
 uji/
   alur-persetujuan.mjs Uji ujung-ke-ujung alur ACC (Playwright)
   qc-tampilan.mjs      QC tata letak & aksesibilitas lintas ukuran layar
@@ -162,13 +165,41 @@ Bila server berjalan di alamat lain, setel `DASAR`, misalnya
 > untuk mengembalikan data contoh ke keadaan semula.
 
 ---
-## Catatan penerapan
+## Penerapan
 
-- **Basis data.** SQLite cocok untuk satu server. Untuk pindah ke PostgreSQL, ubah
-  `provider` pada `prisma/schema.prisma` dan `DATABASE_URL`, lalu jalankan migrasi ulang.
-- **Unggahan.** Berkas disimpan di `public/unggahan/`. Sertakan folder ini dalam cadangan
-  rutin bersama berkas `prisma/dev.db`.
+### Demo di Vercel
+
+Vercel dipakai sebagai etalase MVP. Dua penyesuaian sudah dilakukan agar berjalan
+di sana, karena sistem berkas Vercel bersifat hanya-baca dan sementara:
+
+- **Basis data** memakai PostgreSQL (Neon), bukan berkas SQLite.
+- **Unggahan berkas** otomatis dialihkan ke Vercel Blob bila
+  `BLOB_READ_WRITE_TOKEN` tersedia; bila tidak, tetap ditulis ke folder lokal.
+- **Gambar contoh** disimpan sebagai berkas statis di `public/contoh` dan ikut
+  di-commit, sehingga tetap tampil tanpa perlu menulis berkas saat dijalankan.
+
+Langkah deploy:
+
+1. Buat basis data di Neon, salin connection string.
+2. Jalankan `npx prisma migrate deploy` dari komputer, diarahkan ke basis data itu.
+3. Isi data contoh dengan `npm run db:seed`.
+4. Di Vercel, impor repositori ini lalu isi environment variable `DATABASE_URL`,
+   `SESSION_SECRET`, dan `BLOB_READ_WRITE_TOKEN`.
+
+Migrasi skema **tidak** dijalankan saat build Vercel. Setelah mengubah
+`schema.prisma`, jalankan `npm run db:deploy` dari komputer sambil diarahkan ke
+basis data produksi.
+
+### Pemasangan sendiri (VPS)
+
+Kode yang sama berjalan di server sendiri tanpa perubahan: cukup sediakan
+PostgreSQL, kosongkan `BLOB_READ_WRITE_TOKEN` agar unggahan memakai folder
+`public/unggahan`, lalu jalankan `npm run build && npm start` di belakang Nginx.
+
+### Catatan lain
+
+- **Cadangan.** Sertakan basis data dan folder `public/unggahan` dalam pencadangan rutin.
 - **Keamanan.** Ganti `SESSION_SECRET` dan seluruh kata sandi demo sebelum dipakai warga.
   Jalankan di belakang HTTPS agar cookie sesi dikirim dengan atribut `secure`.
-- **Data pribadi.** Halaman publik hanya menampilkan angka agregat; nama, NIK, dan alamat
-  warga hanya dapat diakses dari panel pengurus sesuai lingkup perannya.
+- **Data pribadi.** Halaman publik hanya menampilkan angka agregat; nama, NIK, dan
+  alamat warga hanya dapat diakses dari panel pengurus sesuai lingkup perannya.

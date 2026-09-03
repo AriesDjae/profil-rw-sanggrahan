@@ -3,7 +3,10 @@ import path from "node:path";
 
 /**
  * Membuat berkas SVG dekoratif sebagai gambar contoh, supaya proyek tidak
- * bergantung pada aset eksternal. Ganti dengan foto asli lewat panel admin.
+ * bergantung pada aset eksternal. Berkas ditulis ke public/contoh dan ikut
+ * disertakan dalam repositori, sehingga tetap tampil saat di-deploy ke
+ * lingkungan yang sistem berkasnya hanya-baca seperti Vercel.
+ * Ganti dengan foto asli lewat panel admin.
  */
 
 const PALET = [
@@ -77,11 +80,11 @@ function escapeXml(t: string): string {
     .replace(/"/g, "&quot;");
 }
 
-/** Menulis SVG ke public/unggahan/contoh dan mengembalikan URL publiknya. */
+/** Menulis SVG ke public/contoh dan mengembalikan URL publiknya. */
 export function tulisGambar(nama: string, judul: string, indeks: number, rasio: "lanskap" | "kotak" = "lanskap"): string {
-  const dir = path.join(process.cwd(), "public", "unggahan", "contoh");
+  const dir = path.join(process.cwd(), "public", "contoh");
   mkdirSync(dir, { recursive: true });
   const isi = rasio === "kotak" ? svgHias(judul, indeks, 900, 900) : svgHias(judul, indeks);
   writeFileSync(path.join(dir, `${nama}.svg`), isi, "utf8");
-  return `/unggahan/contoh/${nama}.svg`;
+  return `/contoh/${nama}.svg`;
 }
