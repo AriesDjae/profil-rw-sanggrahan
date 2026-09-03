@@ -19,6 +19,8 @@
     "db:deploy": "prisma migrate deploy"
   },
   "dependencies": {
+    "@neon/config": "^0.0.0",
+    "@neon/env": "^0.0.0",
     "@prisma/client": "^6.19.3",
     "@vercel/blob": "^2.8.0",
     "bcryptjs": "^3.0.3",
