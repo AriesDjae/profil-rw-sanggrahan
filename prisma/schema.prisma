@@ -1,0 +1,265 @@
+// Skema database Website Profil RW Sanggrahan
+// Catatan: SQLite tidak mendukung enum, sehingga kolom status memakai String
+// dengan daftar nilai yang dikunci lewat konstanta di src/lib/konstanta.ts
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+/// Daftar RT di bawah RW
+model Rt {
+  id        Int      @id @default(autoincrement())
+  nomor     String   @unique
+  nama      String
+  wilayah   String?
+  jumlahKk  Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  pengguna User[]
+  warga    Warga[]
+  laporan  LaporanKeuangan[]
+  pengurus Pengurus[]
+}
+
+/// Akun pengelola: ADMIN, KETUA_RW, SEKRETARIS, KETUA_RT, BENDAHARA_RT
+model User {
+  id           Int      @id @default(autoincrement())
+  nama         String
+  email        String   @unique
+  passwordHash String
+  peran        String
+  jabatan      String?
+  telepon      String?
+  foto         String?
+  aktif        Boolean  @default(true)
+  rtId         Int?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  rt Rt? @relation(fields: [rtId], references: [id], onDelete: SetNull)
+
+  berita          Berita[]
+  kegiatan        Kegiatan[]
+  laporanDibuat   LaporanKeuangan[] @relation("LaporanDibuatOleh")
+  laporanVerifRt  LaporanKeuangan[] @relation("LaporanVerifikasiRt")
+  laporanSetujuRw LaporanKeuangan[] @relation("LaporanPersetujuanRw")
+  riwayat         RiwayatPersetujuan[]
+
+  @@index([peran])
+}
+
+/// Berita / artikel
+model Berita {
+  id        Int       @id @default(autoincrement())
+  judul     String
+  slug      String    @unique
+  ringkasan String
+  konten    String
+  gambar    String?
+  kategori  String    @default("Umum")
+  status    String    @default("DRAFT")
+  terbitAt  DateTime?
+  dilihat   Int       @default(0)
+  penulisId Int?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  penulis User? @relation(fields: [penulisId], references: [id], onDelete: SetNull)
+
+  @@index([status, terbitAt])
+}
+
+/// Agenda kegiatan
+model Kegiatan {
+  id            Int       @id @default(autoincrement())
+  judul         String
+  slug          String    @unique
+  deskripsi     String
+  mulai         DateTime
+  selesai       DateTime?
+  lokasi        String
+  penyelenggara String?
+  kategori      String    @default("Umum")
+  gambar        String?
+  kontak        String?
+  status        String    @default("DRAFT")
+  dibuatOlehId  Int?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  dibuatOleh User? @relation(fields: [dibuatOlehId], references: [id], onDelete: SetNull)
+
+  @@index([status, mulai])
+}
+
+/// Pengumuman singkat untuk beranda
+model Pengumuman {
+  id        Int       @id @default(autoincrement())
+  judul     String
+  isi       String
+  penting   Boolean   @default(false)
+  mulai     DateTime  @default(now())
+  berakhir  DateTime?
+  aktif     Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+/// Album galeri foto
+model Album {
+  id        Int      @id @default(autoincrement())
+  nama      String
+  slug      String   @unique
+  deskripsi String?
+  tanggal   DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  foto Foto[]
+}
+
+model Foto {
+  id      Int     @id @default(autoincrement())
+  albumId Int
+  url     String
+  judul   String?
+  urutan  Int     @default(0)
+
+  album Album @relation(fields: [albumId], references: [id], onDelete: Cascade)
+
+  @@index([albumId, urutan])
+}
+
+/// Data kependudukan (detail hanya untuk pengelola, publik melihat agregat)
+model Warga {
+  id               Int       @id @default(autoincrement())
+  nama             String
+  nik              String?   @unique
+  noKk             String?
+  jenisKelamin     String
+  tempatLahir      String?
+  tanggalLahir     DateTime?
+  agama            String?
+  pendidikan       String?
+  pekerjaan        String?
+  statusPerkawinan String?
+  hubungan         String    @default("ANGGOTA")
+  alamat           String?
+  rtId             Int
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  rt Rt @relation(fields: [rtId], references: [id], onDelete: Cascade)
+
+  @@index([rtId])
+  @@index([noKk])
+}
+
+/// Laporan kas per RT untuk satu periode (bulan/tahun)
+/// Alur: DRAFT -> DIAJUKAN -> DIVERIFIKASI_RT -> DISETUJUI (tampil publik) | DITOLAK
+model LaporanKeuangan {
+  id        Int     @id @default(autoincrement())
+  judul     String
+  bulan     Int
+  tahun     Int
+  rtId      Int
+  saldoAwal Int     @default(0)
+  status    String  @default("DRAFT")
+  catatan   String?
+
+  dibuatOlehId Int?
+
+  verifikasiRtOlehId Int?
+  verifikasiRtAt     DateTime?
+  catatanRt          String?
+
+  persetujuanRwOlehId Int?
+  persetujuanRwAt     DateTime?
+  catatanRw           String?
+
+  diajukanAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  rt                Rt    @relation(fields: [rtId], references: [id], onDelete: Cascade)
+  dibuatOleh        User? @relation("LaporanDibuatOleh", fields: [dibuatOlehId], references: [id], onDelete: SetNull)
+  verifikasiRtOleh  User? @relation("LaporanVerifikasiRt", fields: [verifikasiRtOlehId], references: [id], onDelete: SetNull)
+  persetujuanRwOleh User? @relation("LaporanPersetujuanRw", fields: [persetujuanRwOlehId], references: [id], onDelete: SetNull)
+
+  transaksi Transaksi[]
+  riwayat   RiwayatPersetujuan[]
+
+  @@unique([rtId, tahun, bulan])
+  @@index([status])
+}
+
+model Transaksi {
+  id         Int      @id @default(autoincrement())
+  laporanId  Int
+  tanggal    DateTime
+  jenis      String
+  kategori   String
+  keterangan String
+  jumlah     Int
+  bukti      String?
+  createdAt  DateTime @default(now())
+
+  laporan LaporanKeuangan @relation(fields: [laporanId], references: [id], onDelete: Cascade)
+
+  @@index([laporanId, tanggal])
+}
+
+/// Jejak audit persetujuan laporan
+model RiwayatPersetujuan {
+  id        Int      @id @default(autoincrement())
+  laporanId Int
+  aksi      String
+  olehId    Int?
+  catatan   String?
+  createdAt DateTime @default(now())
+
+  laporan LaporanKeuangan @relation(fields: [laporanId], references: [id], onDelete: Cascade)
+  oleh    User?           @relation(fields: [olehId], references: [id], onDelete: SetNull)
+
+  @@index([laporanId])
+}
+
+/// Struktur organisasi pengurus RW / RT / lembaga
+model Pengurus {
+  id      Int     @id @default(autoincrement())
+  nama    String
+  jabatan String
+  level   String  @default("RW")
+  rtId    Int?
+  foto    String?
+  telepon String?
+  periode String?
+  urutan  Int     @default(0)
+
+  rt Rt? @relation(fields: [rtId], references: [id], onDelete: SetNull)
+
+  @@index([level, urutan])
+}
+
+/// Pengaturan situs (baris tunggal, id = 1)
+model Pengaturan {
+  id        Int      @id @default(1)
+  namaRw    String   @default("RW Sanggrahan")
+  tagline   String   @default("Guyub, Rukun, Maju Bersama")
+  deskripsi String   @default("")
+  sejarah   String   @default("")
+  visi      String   @default("")
+  misi      String   @default("")
+  alamat    String   @default("")
+  telepon   String   @default("")
+  email     String   @default("")
+  logo      String?
+  heroFoto  String?
+  updatedAt DateTime @updatedAt
+}

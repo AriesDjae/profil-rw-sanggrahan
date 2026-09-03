@@ -1,26 +1,91 @@
 @import "tailwindcss";
 
+@theme {
+  /* Warna merek: hijau-teal, nuansa kampung asri */
+  --color-brand-50: #ecfaf6;
+  --color-brand-100: #d3f2e9;
+  --color-brand-200: #a8e5d5;
+  --color-brand-300: #71d0bb;
+  --color-brand-400: #3db29c;
+  --color-brand-500: #189681;
+  --color-brand-600: #0e7c66;
+  --color-brand-700: #0c6353;
+  --color-brand-800: #0d4f44;
+  --color-brand-900: #0b4139;
+  --color-brand-950: #04251f;
+
+  /* Aksen tanah/amber untuk sorotan */
+  --color-aksen-50: #fef7ec;
+  --color-aksen-100: #fdecd0;
+  --color-aksen-200: #fad7a1;
+  --color-aksen-400: #f0a83b;
+  --color-aksen-600: #c9720d;
+  --color-aksen-800: #8a4c0c;
+
+  /* Slot warna grafik (tervalidasi untuk keterbacaan buta warna) */
+  --color-seri-1: #2a78d6;
+  --color-seri-2: #eb6834;
+  --color-seri-3: #1baf7a;
+  --color-seri-4: #eda100;
+
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+
+  --radius-kartu: 1rem;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --latar: #f7f8f7;
+  --tinta: #14201d;
+  --tinta-lembut: #4b5a56;
+  color-scheme: light;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--latar);
+  color: var(--tinta);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Latar bermotif halus untuk bagian hero */
+.motif-hero {
+  background-image:
+    radial-gradient(circle at 15% 20%, rgba(255, 255, 255, 0.14) 0, transparent 45%),
+    radial-gradient(circle at 85% 10%, rgba(255, 255, 255, 0.1) 0, transparent 40%),
+    linear-gradient(135deg, var(--color-brand-800) 0%, var(--color-brand-600) 55%, var(--color-brand-500) 100%);
+}
+
+.motif-batik {
+  background-image:
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.05) 0 2px, transparent 2px 14px);
+}
+
+/* Isi artikel yang ditulis sebagai teks polos berparagraf */
+.isi-artikel p {
+  margin-bottom: 1.15rem;
+  line-height: 1.85;
+  color: #33403c;
+}
+
+.isi-artikel p:first-of-type {
+  font-size: 1.075rem;
+  color: #1d2b27;
+}
+
+/* Bilah gulir tipis untuk tabel lebar */
+.gulir-halus {
+  scrollbar-width: thin;
+}
+
+@media print {
+  .tanpa-cetak {
+    display: none !important;
+  }
+
+  body {
+    background: #fff;
+  }
 }

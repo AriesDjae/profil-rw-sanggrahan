@@ -39,3 +39,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# basis data lokal (SQLite) dan berkas unggahan pengurus
+/prisma/*.db
+/prisma/*.db-journal
+/public/unggahan
+
+# contoh berkas lingkungan tetap disertakan
+!.env.example
