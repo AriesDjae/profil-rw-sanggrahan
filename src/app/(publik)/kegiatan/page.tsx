@@ -75,7 +75,7 @@ export default async function HalamanKegiatan({
         keterangan="Jadwal resmi kegiatan di lingkungan RW 05. Kehadiran warga sangat diharapkan."
       />
 
-      <div className="mb-8 inline-flex rounded-xl border border-slate-200 bg-white p-1">
+      <div className="mb-8 inline-flex rounded-xl border border-garis bg-white p-1">
         <Link
           href="/kegiatan"
           className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${
@@ -120,7 +120,7 @@ export default async function HalamanKegiatan({
         </div>
       )}
 
-      <p className="mt-12 rounded-2xl border border-slate-200 bg-white px-5 py-4 text-sm text-slate-600">
+      <p className="mt-12 rounded-2xl border border-garis bg-white px-5 py-4 text-sm text-slate-600">
         Ingin mengusulkan kegiatan? Sampaikan kepada Ketua RT masing-masing paling lambat
         satu pekan sebelum pelaksanaan agar dapat dimasukkan ke agenda RW. Data per{" "}
         {tanggalSingkat(new Date())}.

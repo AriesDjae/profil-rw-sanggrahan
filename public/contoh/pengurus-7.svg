@@ -1,21 +1,21 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 900" width="900" height="900" role="img" aria-label="Rangga Adi Pratama">
   <defs>
     <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#7c2d12"/>
-      <stop offset="100%" stop-color="#ea580c"/>
+      <stop offset="0%" stop-color="#0a1f1a"/>
+      <stop offset="100%" stop-color="#1f5a46"/>
     </linearGradient>
   </defs>
   <rect width="900" height="900" fill="url(#g)"/>
-  <circle cx="371" cy="616" r="225" fill="#ea580c" opacity="0.09"/>
-  <circle cx="854" cy="704" r="261" fill="#fed7aa" opacity="0.11"/>
+  <circle cx="371" cy="616" r="225" fill="#1f5a46" opacity="0.09"/>
+  <circle cx="854" cy="704" r="261" fill="#8db09a" opacity="0.11"/>
   <circle cx="256" cy="333" r="256" fill="#ffffff" opacity="0.19"/>
-  <circle cx="766" cy="358" r="141" fill="#ea580c" opacity="0.20"/>
-  <circle cx="138" cy="701" r="182" fill="#fed7aa" opacity="0.17"/>
+  <circle cx="766" cy="358" r="141" fill="#1f5a46" opacity="0.20"/>
+  <circle cx="138" cy="701" r="182" fill="#8db09a" opacity="0.17"/>
   <circle cx="296" cy="552" r="76" fill="#ffffff" opacity="0.15"/>
-  <circle cx="327" cy="66" r="171" fill="#ea580c" opacity="0.12"/>
-  <rect x="888" y="841" width="205" height="116" rx="14" fill="#fed7aa" opacity="0.13"/>
-  <rect x="839" y="575" width="224" height="193" rx="14" fill="#fed7aa" opacity="0.15"/>
-  <rect x="742" y="523" width="112" height="269" rx="14" fill="#fed7aa" opacity="0.20"/>
-  <rect x="767" y="725" width="278" height="70" rx="14" fill="#fed7aa" opacity="0.12"/>
-  <text x="450" y="476" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="120" font-weight="700" fill="#ffffff" opacity="0.85">RAP</text>
+  <circle cx="327" cy="66" r="171" fill="#1f5a46" opacity="0.12"/>
+  <rect x="888" y="841" width="205" height="116" rx="14" fill="#8db09a" opacity="0.13"/>
+  <rect x="839" y="575" width="224" height="193" rx="14" fill="#8db09a" opacity="0.15"/>
+  <rect x="742" y="523" width="112" height="269" rx="14" fill="#8db09a" opacity="0.20"/>
+  <rect x="767" y="725" width="278" height="70" rx="14" fill="#8db09a" opacity="0.12"/>
+  <text x="54" y="792" font-family="Segoe UI, Arial, sans-serif" font-size="81" font-weight="700" letter-spacing="4" fill="#ffffff" opacity="0.22">RAP</text>
 </svg>

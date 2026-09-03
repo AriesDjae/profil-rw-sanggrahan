@@ -126,7 +126,7 @@ export default async function HalamanKeuangan({
       </div>
 
       {/* Penyaring */}
-      <div className="mb-8 space-y-4 rounded-2xl border border-slate-200 bg-white p-5">
+      <div className="mb-8 space-y-4 rounded-2xl border border-garis bg-white p-5">
         <div>
           <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
             Tahun anggaran
@@ -139,7 +139,7 @@ export default async function HalamanKeuangan({
                 className={`rounded-lg px-3.5 py-2 text-sm font-semibold transition ${
                   t === tahun
                     ? "bg-brand-600 text-white"
-                    : "border border-slate-200 text-slate-600 hover:border-brand-300"
+                    : "border border-garis text-slate-600 hover:border-brand-300"
                 }`}
               >
                 {t}
@@ -158,7 +158,7 @@ export default async function HalamanKeuangan({
               className={`rounded-lg px-3.5 py-2 text-sm font-semibold transition ${
                 !rtId
                   ? "bg-brand-600 text-white"
-                  : "border border-slate-200 text-slate-600 hover:border-brand-300"
+                  : "border border-garis text-slate-600 hover:border-brand-300"
               }`}
             >
               Semua RT
@@ -170,7 +170,7 @@ export default async function HalamanKeuangan({
                 className={`rounded-lg px-3.5 py-2 text-sm font-semibold transition ${
                   rtId === rt.id
                     ? "bg-brand-600 text-white"
-                    : "border border-slate-200 text-slate-600 hover:border-brand-300"
+                    : "border border-garis text-slate-600 hover:border-brand-300"
                 }`}
               >
                 RT {rt.nomor}
@@ -188,7 +188,7 @@ export default async function HalamanKeuangan({
       ) : (
         <>
           <div className="grid gap-4 sm:grid-cols-3">
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="rounded-2xl border border-garis bg-white p-5 shadow-sm">
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                 Pemasukan {tahun}
               </p>
@@ -199,7 +199,7 @@ export default async function HalamanKeuangan({
                 {ringkas.length} laporan {rtTerpilih ? rtTerpilih.nama : "seluruh RT"}
               </p>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="rounded-2xl border border-garis bg-white p-5 shadow-sm">
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                 Pengeluaran {tahun}
               </p>
@@ -251,9 +251,9 @@ export default async function HalamanKeuangan({
             <h2 className="mb-4 text-lg font-bold text-slate-900">
               Daftar Laporan Disetujui ({ringkas.length})
             </h2>
-            <div className="overflow-x-auto gulir-halus rounded-2xl border border-slate-200 bg-white">
+            <div className="overflow-x-auto gulir-halus rounded-2xl border border-garis bg-white">
               <table className="w-full min-w-[52rem] text-left text-sm">
-                <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+                <thead className="bg-kertas text-xs uppercase tracking-wide text-slate-500">
                   <tr>
                     <th className="px-4 py-3 font-semibold">Periode</th>
                     <th className="px-4 py-3 font-semibold">RT</th>
@@ -267,7 +267,7 @@ export default async function HalamanKeuangan({
                 </thead>
                 <tbody>
                   {ringkas.map((r) => (
-                    <tr key={r.id} className="border-t border-slate-100 hover:bg-slate-50/60">
+                    <tr key={r.id} className="border-t border-garis hover:bg-kertas/60">
                       <td className="px-4 py-3 font-semibold text-slate-900">
                         {periode(r.bulan, r.tahun)}
                       </td>
@@ -292,7 +292,7 @@ export default async function HalamanKeuangan({
                       <td className="px-4 py-3 text-right">
                         <Link
                           href={`/keuangan/${r.id}`}
-                          className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-brand-700 transition hover:border-brand-300 hover:bg-brand-50"
+                          className="rounded-lg border border-garis px-3 py-2 text-xs font-semibold text-brand-700 transition hover:border-brand-300 hover:bg-brand-50"
                         >
                           Rincian
                         </Link>

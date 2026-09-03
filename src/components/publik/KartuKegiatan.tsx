@@ -14,70 +14,63 @@ export type KegiatanKartu = {
   penyelenggara: string | null;
 };
 
+/**
+ * Satu baris agenda, disusun seperti jadwal ronda: tanggal di kolom kiri,
+ * keterangan di kanan, dipisahkan garis. Kegiatan dalam sepekan ditandai
+ * kunyit agar langsung terlihat.
+ */
 export default function KartuKegiatan({ kegiatan }: { kegiatan: KegiatanKartu }) {
   const mulai = new Date(kegiatan.mulai);
   const hari = selisihHari(mulai);
   const segera = hari >= 0 && hari <= 7;
 
   return (
-    <article className="group flex min-w-0 gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-brand-200 hover:shadow-md sm:p-5">
+    <article className="group flex min-w-0 gap-5 border-t border-garis py-5 first:border-t-0">
       <div
-        className={`grid h-[4.5rem] w-16 shrink-0 place-items-center rounded-xl text-center ${
-          segera ? "bg-brand-600 text-white" : "bg-brand-50 text-brand-800"
+        className={`w-14 shrink-0 border-l-[3px] pl-3 ${
+          segera ? "border-aksen-400" : "border-garis"
         }`}
       >
-        <div>
-          <p className="text-xl font-bold leading-none">{mulai.getDate()}</p>
-          <p className="mt-1 text-[11px] font-semibold uppercase">
-            {NAMA_BULAN[mulai.getMonth()].slice(0, 3)}
-          </p>
-          <p className="text-[10px] opacity-80">{mulai.getFullYear()}</p>
-        </div>
+        <p className="judul text-[1.35rem] leading-none text-brand-900">
+          {mulai.getDate()}
+        </p>
+        <p className="mt-1 text-[11px] font-semibold text-tinta/60">
+          {NAMA_BULAN[mulai.getMonth()].slice(0, 3)}
+        </p>
+        <p className="text-[11px] text-tinta/40">{mulai.getFullYear()}</p>
       </div>
 
       <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-600">
-            {kegiatan.kategori}
-          </span>
-          <span
-            className={`text-[11px] font-semibold ${
-              segera ? "text-brand-700" : "text-slate-400"
-            }`}
+        <h3 className="judul text-[17px] text-brand-950">
+          <Link
+            href={`/kegiatan/${kegiatan.slug}`}
+            className="underline-offset-[5px] hover:underline"
           >
-            {hitungMundur(mulai)}
-          </span>
-        </div>
-
-        <h3 className="mt-1.5 truncate text-base font-bold text-slate-900">
-          <Link href={`/kegiatan/${kegiatan.slug}`} className="transition group-hover:text-brand-700">
             {kegiatan.judul}
           </Link>
         </h3>
 
-        <p className="mt-1 line-clamp-2 text-sm text-slate-600">
+        <p className="mt-1.5 line-clamp-2 text-[15px] leading-relaxed text-tinta/70">
           {potong(kegiatan.deskripsi, 110)}
         </p>
 
-        <dl className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-xs text-slate-500">
-          <div className="flex items-center gap-1.5">
-            <svg aria-hidden width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="12" cy="12" r="9" />
-              <path d="M12 7v5l3 2" strokeLinecap="round" />
-            </svg>
+        <dl className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-[13px] text-tinta/60">
+          <div className="flex items-baseline gap-1.5">
             <dt className="sr-only">Waktu</dt>
             <dd>
-              {jam(mulai)}
-              {kegiatan.selesai ? ` - ${jam(kegiatan.selesai)}` : ""} WIB
+              Pukul {jam(mulai)}
+              {kegiatan.selesai ? `–${jam(kegiatan.selesai)}` : ""}
             </dd>
           </div>
-          <div className="flex min-w-0 items-center gap-1.5">
-            <svg aria-hidden width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M12 21s7-6.2 7-11a7 7 0 10-14 0c0 4.8 7 11 7 11z" />
-              <circle cx="12" cy="10" r="2.5" />
-            </svg>
+          <div className="flex min-w-0 items-baseline gap-1.5">
             <dt className="sr-only">Lokasi</dt>
             <dd className="truncate">{kegiatan.lokasi}</dd>
+          </div>
+          <div className="flex items-baseline gap-1.5">
+            <dt className="sr-only">Hitung mundur</dt>
+            <dd className={segera ? "font-semibold text-aksen-800" : ""}>
+              {hitungMundur(mulai)}
+            </dd>
           </div>
         </dl>
       </div>

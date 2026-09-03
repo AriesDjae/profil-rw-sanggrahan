@@ -1,21 +1,21 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 900" width="900" height="900" role="img" aria-label="Hj. Murniati">
   <defs>
     <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#be123c"/>
-      <stop offset="100%" stop-color="#f43f5e"/>
+      <stop offset="0%" stop-color="#8a4218"/>
+      <stop offset="100%" stop-color="#b5622c"/>
     </linearGradient>
   </defs>
   <rect width="900" height="900" fill="url(#g)"/>
-  <circle cx="814" cy="268" r="83" fill="#f43f5e" opacity="0.12"/>
-  <circle cx="684" cy="175" r="132" fill="#fecdd3" opacity="0.21"/>
+  <circle cx="814" cy="268" r="83" fill="#b5622c" opacity="0.12"/>
+  <circle cx="684" cy="175" r="132" fill="#e8c39c" opacity="0.21"/>
   <circle cx="305" cy="557" r="245" fill="#ffffff" opacity="0.23"/>
-  <circle cx="467" cy="268" r="160" fill="#f43f5e" opacity="0.15"/>
-  <circle cx="526" cy="231" r="239" fill="#fecdd3" opacity="0.10"/>
+  <circle cx="467" cy="268" r="160" fill="#b5622c" opacity="0.15"/>
+  <circle cx="526" cy="231" r="239" fill="#e8c39c" opacity="0.10"/>
   <circle cx="702" cy="35" r="129" fill="#ffffff" opacity="0.15"/>
-  <circle cx="487" cy="535" r="204" fill="#f43f5e" opacity="0.20"/>
-  <rect x="334" y="797" width="97" height="82" rx="14" fill="#fecdd3" opacity="0.16"/>
-  <rect x="780" y="525" width="238" height="197" rx="14" fill="#fecdd3" opacity="0.22"/>
-  <rect x="336" y="771" width="240" height="191" rx="14" fill="#fecdd3" opacity="0.19"/>
-  <rect x="273" y="814" width="236" height="233" rx="14" fill="#fecdd3" opacity="0.19"/>
-  <text x="450" y="476" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="120" font-weight="700" fill="#ffffff" opacity="0.85">HM</text>
+  <circle cx="487" cy="535" r="204" fill="#b5622c" opacity="0.20"/>
+  <rect x="334" y="797" width="97" height="82" rx="14" fill="#e8c39c" opacity="0.16"/>
+  <rect x="780" y="525" width="238" height="197" rx="14" fill="#e8c39c" opacity="0.22"/>
+  <rect x="336" y="771" width="240" height="191" rx="14" fill="#e8c39c" opacity="0.19"/>
+  <rect x="273" y="814" width="236" height="233" rx="14" fill="#e8c39c" opacity="0.19"/>
+  <text x="54" y="792" font-family="Segoe UI, Arial, sans-serif" font-size="81" font-weight="700" letter-spacing="4" fill="#ffffff" opacity="0.22">HM</text>
 </svg>

@@ -68,7 +68,7 @@ export default async function DetailAlbum({
             href={f.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="mb-4 block overflow-hidden rounded-xl border border-slate-200 bg-white"
+            className="mb-4 block overflow-hidden rounded-xl border border-garis bg-white"
           >
             <img
               src={f.url}

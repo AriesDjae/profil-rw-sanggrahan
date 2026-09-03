@@ -35,30 +35,31 @@ export default function Header({
     href === "/" ? path === "/" : path.startsWith(href);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-brand-100 bg-white/90 backdrop-blur tanpa-cetak">
+    <header className="sticky top-0 z-40 border-b border-garis bg-kertas/95 backdrop-blur tanpa-cetak">
       <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3">
         <Link href="/" className="flex items-center gap-3">
           <span
             aria-hidden
-            className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-brand-600 text-sm font-extrabold tracking-tight text-white shadow-sm"
+            className="grid h-10 w-10 shrink-0 place-items-center bg-brand-700 text-[13px] font-bold tracking-tight text-white"
           >
             RW
           </span>
           <span className="leading-tight">
-            <span className="block text-[15px] font-bold text-brand-900">{namaRw}</span>
-            <span className="hidden text-xs text-slate-500 sm:block">{tagline}</span>
+            <span className="judul block text-[15px] text-brand-900">{namaRw}</span>
+            <span className="hidden text-xs text-tinta/55 sm:block">{tagline}</span>
           </span>
         </Link>
 
-        <nav className="ml-auto hidden items-center gap-1 lg:flex">
+        <nav className="ml-auto hidden items-center gap-6 lg:flex">
           {TAUTAN.map((t) => (
             <Link
               key={t.href}
               href={t.href}
-              className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
+              aria-current={aktif(t.href) ? "page" : undefined}
+              className={`border-b-2 py-1 text-sm transition-colors ${
                 aktif(t.href)
-                  ? "bg-brand-50 text-brand-700"
-                  : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                  ? "border-aksen-400 font-semibold text-brand-900"
+                  : "border-transparent text-tinta/70 hover:border-garis hover:text-tinta"
               }`}
             >
               {t.label}
@@ -66,7 +67,7 @@ export default function Header({
           ))}
           <Link
             href={sudahMasuk ? "/admin" : "/masuk"}
-            className="ml-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700"
+            className="bg-brand-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-800"
           >
             {sudahMasuk ? "Panel Pengurus" : "Masuk Pengurus"}
           </Link>
@@ -77,7 +78,7 @@ export default function Header({
           onClick={() => setBuka(!buka)}
           aria-expanded={buka}
           aria-label="Buka menu navigasi"
-          className="ml-auto grid h-10 w-10 place-items-center rounded-lg border border-slate-200 text-slate-700 lg:hidden"
+          className="ml-auto grid h-10 w-10 place-items-center border border-garis text-tinta lg:hidden"
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
             {buka ? (
@@ -97,14 +98,14 @@ export default function Header({
       </div>
 
       {buka && (
-        <div className="border-t border-slate-100 bg-white lg:hidden">
-          <nav className="mx-auto grid max-w-6xl gap-1 px-4 py-3">
+        <div className="border-t border-garis bg-white lg:hidden">
+          <nav className="mx-auto max-w-6xl px-4 py-2">
             {TAUTAN.map((t) => (
               <Link
                 key={t.href}
                 href={t.href}
-                className={`rounded-lg px-3 py-2.5 text-sm font-medium ${
-                  aktif(t.href) ? "bg-brand-50 text-brand-700" : "text-slate-700"
+                className={`block border-b border-garis py-3 text-sm last:border-b-0 ${
+                  aktif(t.href) ? "font-semibold text-brand-800" : "text-tinta/80"
                 }`}
               >
                 {t.label}
@@ -112,7 +113,7 @@ export default function Header({
             ))}
             <Link
               href={sudahMasuk ? "/admin" : "/masuk"}
-              className="mt-1 rounded-lg bg-brand-600 px-3 py-2.5 text-center text-sm font-semibold text-white"
+              className="mt-3 mb-2 block bg-brand-700 px-3 py-3 text-center text-sm font-semibold text-white"
             >
               {sudahMasuk ? "Panel Pengurus" : "Masuk Pengurus"}
             </Link>

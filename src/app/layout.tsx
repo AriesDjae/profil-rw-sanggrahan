@@ -1,10 +1,19 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Bricolage_Grotesque, Instrument_Sans } from "next/font/google";
 
 import "./globals.css";
 
-const jakarta = Plus_Jakarta_Sans({
-  variable: "--font-jakarta",
+// Judul: grotesk dengan karakter poster kampung, rapat dan tegas.
+const judul = Bricolage_Grotesque({
+  variable: "--font-judul",
+  subsets: ["latin"],
+  display: "swap",
+  weight: ["600", "700", "800"],
+});
+
+// Teks: sedikit menyempit, terbaca pada layar kecil dan tabel angka.
+const teks = Instrument_Sans({
+  variable: "--font-teks",
   subsets: ["latin"],
   display: "swap",
 });
@@ -23,7 +32,9 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="id">
-      <body className={`${jakarta.variable} font-sans antialiased`}>{children}</body>
+      <body className={`${judul.variable} ${teks.variable} font-sans antialiased`}>
+        {children}
+      </body>
     </html>
   );
 }

@@ -1,21 +1,21 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="HUT Kemerdekaan RI ke-81 7">
   <defs>
     <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#1d4ed8"/>
-      <stop offset="100%" stop-color="#3b82f6"/>
+      <stop offset="0%" stop-color="#17493a"/>
+      <stop offset="100%" stop-color="#367054"/>
     </linearGradient>
   </defs>
   <rect width="1200" height="675" fill="url(#g)"/>
-  <circle cx="101" cy="186" r="99" fill="#3b82f6" opacity="0.23"/>
-  <circle cx="91" cy="567" r="200" fill="#bfdbfe" opacity="0.21"/>
+  <circle cx="101" cy="186" r="99" fill="#367054" opacity="0.23"/>
+  <circle cx="91" cy="567" r="200" fill="#b9cfc0" opacity="0.21"/>
   <circle cx="299" cy="362" r="262" fill="#ffffff" opacity="0.21"/>
-  <circle cx="86" cy="538" r="275" fill="#3b82f6" opacity="0.19"/>
-  <circle cx="1040" cy="86" r="218" fill="#bfdbfe" opacity="0.17"/>
+  <circle cx="86" cy="538" r="275" fill="#367054" opacity="0.19"/>
+  <circle cx="1040" cy="86" r="218" fill="#b9cfc0" opacity="0.17"/>
   <circle cx="832" cy="448" r="114" fill="#ffffff" opacity="0.09"/>
-  <circle cx="1094" cy="265" r="222" fill="#3b82f6" opacity="0.22"/>
-  <rect x="477" y="383" width="277" height="205" rx="14" fill="#bfdbfe" opacity="0.16"/>
-  <rect x="771" y="547" width="151" height="124" rx="14" fill="#bfdbfe" opacity="0.20"/>
-  <rect x="150" y="448" width="154" height="122" rx="14" fill="#bfdbfe" opacity="0.11"/>
-  <rect x="1061" y="409" width="117" height="228" rx="14" fill="#bfdbfe" opacity="0.13"/>
-  <text x="600" y="363.5" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="120" font-weight="700" fill="#ffffff" opacity="0.85">HKK</text>
+  <circle cx="1094" cy="265" r="222" fill="#367054" opacity="0.22"/>
+  <rect x="477" y="383" width="277" height="205" rx="14" fill="#b9cfc0" opacity="0.16"/>
+  <rect x="771" y="547" width="151" height="124" rx="14" fill="#b9cfc0" opacity="0.20"/>
+  <rect x="150" y="448" width="154" height="122" rx="14" fill="#b9cfc0" opacity="0.11"/>
+  <rect x="1061" y="409" width="117" height="228" rx="14" fill="#b9cfc0" opacity="0.13"/>
+  <text x="72" y="594" font-family="Segoe UI, Arial, sans-serif" font-size="61" font-weight="700" letter-spacing="4" fill="#ffffff" opacity="0.22">HKK</text>
 </svg>

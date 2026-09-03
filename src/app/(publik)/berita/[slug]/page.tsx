@@ -112,7 +112,7 @@ export default async function DetailBerita({
         <Paragraf teks={berita.konten} />
       </div>
 
-      <div className="mt-12 border-t border-slate-200 pt-8">
+      <div className="mt-12 border-t border-garis pt-8">
         <Link
           href="/berita"
           className="inline-flex items-center gap-2 text-sm font-semibold text-brand-700 hover:text-brand-800"

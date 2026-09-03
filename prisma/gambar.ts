@@ -10,14 +10,14 @@ import path from "node:path";
  */
 
 const PALET = [
-  ["#0f766e", "#14b8a6", "#99f6e4"],
-  ["#1d4ed8", "#3b82f6", "#bfdbfe"],
-  ["#b45309", "#f59e0b", "#fde68a"],
-  ["#9333ea", "#a855f7", "#e9d5ff"],
-  ["#be123c", "#f43f5e", "#fecdd3"],
-  ["#15803d", "#22c55e", "#bbf7d0"],
-  ["#0369a1", "#0ea5e9", "#bae6fd"],
-  ["#7c2d12", "#ea580c", "#fed7aa"],
+  ["#133b30", "#1f5a46", "#8db09a"], // hijau pekarangan
+  ["#17493a", "#367054", "#b9cfc0"], // hijau lumut
+  ["#7a5209", "#b87c0e", "#f3d68c"], // kunyit
+  ["#0f2e26", "#2f6b52", "#a8c6b2"], // hijau teduh
+  ["#8a4218", "#b5622c", "#e8c39c"], // genteng bata
+  ["#1f5a46", "#5c8e72", "#dce7df"], // hijau muda
+  ["#133b30", "#b87c0e", "#e6d3a3"], // hijau dan kunyit
+  ["#0a1f1a", "#1f5a46", "#8db09a"], // hijau malam
 ];
 
 function acak(seed: number) {
@@ -68,7 +68,7 @@ export function svgHias(judul: string, indeks: number, lebar = 1200, tinggi = 67
   </defs>
   <rect width="${lebar}" height="${tinggi}" fill="url(#g)"/>
   ${bentuk.join("\n  ")}
-  <text x="${lebar / 2}" y="${tinggi / 2 + 26}" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="120" font-weight="700" fill="#ffffff" opacity="0.85">${escapeXml(inisial)}</text>
+  <text x="${Math.round(lebar * 0.06)}" y="${Math.round(tinggi * 0.88)}" font-family="Segoe UI, Arial, sans-serif" font-size="${Math.round(tinggi * 0.09)}" font-weight="700" letter-spacing="4" fill="#ffffff" opacity="0.22">${escapeXml(inisial)}</text>
 </svg>`;
 }
 

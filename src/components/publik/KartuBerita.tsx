@@ -11,6 +11,14 @@ export type BeritaKartu = {
   terbitAt: Date | null;
 };
 
+/**
+ * Satu kabar dalam daftar. Tanpa kotak berbayang: foto berdiri sendiri di atas
+ * teks, dipisahkan garis tipis seperti kolom pada lembar warta.
+ *
+ * Hanya judulnya yang menjadi tautan, lalu area tautan itu direntangkan ke
+ * seluruh kartu. Dengan begitu pembaca layar mendengar satu tautan yang jelas,
+ * sementara pembaca biasa tetap bisa menekan bagian mana pun termasuk fotonya.
+ */
 export default function KartuBerita({
   berita,
   utama = false,
@@ -20,47 +28,40 @@ export default function KartuBerita({
 }) {
   return (
     <article
-      className={`group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${
-        utama ? "sm:flex" : ""
-      }`}
+      className={`group relative ${utama ? "grid gap-6 sm:grid-cols-2 sm:items-center" : ""}`}
     >
-      <Link href={`/berita/${berita.slug}`} className={utama ? "sm:w-1/2" : "block"}>
-        <div className={`relative overflow-hidden bg-brand-100 ${utama ? "h-56 sm:h-full" : "h-44"}`}>
+      <div className="overflow-hidden bg-brand-100">
+        <div className={utama ? "aspect-[4/3]" : "aspect-[16/10]"}>
           {berita.gambar ? (
             <img
               src={berita.gambar}
               alt=""
               loading="lazy"
-              className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+              className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
             />
           ) : (
-            <div className="h-full w-full bg-gradient-to-br from-brand-600 to-brand-400" />
+            <div className="h-full w-full bg-brand-600" />
           )}
-          <span className="absolute left-3 top-3 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-semibold text-brand-800 shadow-sm">
-            {berita.kategori}
-          </span>
         </div>
-      </Link>
+      </div>
 
-      <div className={`p-5 ${utama ? "sm:w-1/2 sm:p-6" : ""}`}>
-        <p className="text-xs text-slate-500">{tanggal(berita.terbitAt)}</p>
-        <h3 className={`mt-2 font-bold leading-snug text-slate-900 ${utama ? "text-xl" : "text-base"}`}>
-          <Link href={`/berita/${berita.slug}`} className="transition group-hover:text-brand-700">
+      <div className={utama ? "" : "pt-4"}>
+        <p className="text-[13px] text-tinta/55">
+          {berita.kategori}, {tanggal(berita.terbitAt)}
+        </p>
+
+        <h3 className={`judul mt-2 text-brand-950 ${utama ? "text-[1.7rem]" : "text-lg"}`}>
+          <Link
+            href={`/berita/${berita.slug}`}
+            className="underline-offset-[5px] after:absolute after:inset-0 group-hover:underline"
+          >
             {berita.judul}
           </Link>
         </h3>
-        <p className="mt-2 text-sm leading-relaxed text-slate-600">
-          {potong(berita.ringkasan, utama ? 220 : 130)}
+
+        <p className="mt-2.5 text-[15px] leading-relaxed text-tinta/75">
+          {potong(berita.ringkasan, utama ? 200 : 120)}
         </p>
-        <Link
-          href={`/berita/${berita.slug}`}
-          className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-700 hover:text-brand-800"
-        >
-          Baca selengkapnya
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-            <path d="M5 12h14M13 6l6 6-6 6" />
-          </svg>
-        </Link>
       </div>
     </article>
   );

@@ -49,7 +49,7 @@ export default async function HalamanDataWarga({
           className={`rounded-lg px-3.5 py-2 text-sm font-semibold transition ${
             !rtId
               ? "bg-brand-600 text-white"
-              : "border border-slate-200 bg-white text-slate-600 hover:border-brand-300"
+              : "border border-garis bg-white text-slate-600 hover:border-brand-300"
           }`}
         >
           Seluruh RW
@@ -61,7 +61,7 @@ export default async function HalamanDataWarga({
             className={`rounded-lg px-3.5 py-2 text-sm font-semibold transition ${
               rtId === rt.id
                 ? "bg-brand-600 text-white"
-                : "border border-slate-200 bg-white text-slate-600 hover:border-brand-300"
+                : "border border-garis bg-white text-slate-600 hover:border-brand-300"
             }`}
           >
             RT {rt.nomor}
@@ -135,7 +135,7 @@ export default async function HalamanDataWarga({
         )}
       </div>
 
-      <div className="mt-10 rounded-2xl border border-slate-200 bg-white p-6">
+      <div className="mt-10 rounded-2xl border border-garis bg-white p-6">
         <h2 className="text-sm font-bold text-slate-900">Perbarui data Anda</h2>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-slate-600">
           Terdapat perubahan data keluarga (kelahiran, kematian, pindah, atau perubahan

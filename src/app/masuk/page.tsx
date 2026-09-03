@@ -29,8 +29,8 @@ export default async function HalamanMasuk({
 
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
-      <div className="relative hidden motif-hero p-12 text-white lg:flex lg:flex-col lg:justify-between">
-        <div className="absolute inset-0 motif-batik" aria-hidden />
+      <div className="relative hidden bidang-hijau p-12 text-white lg:flex lg:flex-col lg:justify-between">
+        <div className="absolute inset-0 motif-kawung" aria-hidden />
         <Link href="/" className="relative flex items-center gap-3">
           <span className="grid h-11 w-11 place-items-center rounded-xl bg-white/15 text-sm font-extrabold backdrop-blur">
             RW

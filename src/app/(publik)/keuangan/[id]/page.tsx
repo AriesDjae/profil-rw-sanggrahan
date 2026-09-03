@@ -77,7 +77,7 @@ export default async function DetailLaporan({
         <span className="truncate text-slate-700">{periode(laporan.bulan, laporan.tahun)}</span>
       </nav>
 
-      <header className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+      <header className="rounded-3xl border border-garis bg-white p-6 shadow-sm sm:p-8">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800 ring-1 ring-inset ring-emerald-200">
@@ -97,7 +97,7 @@ export default async function DetailLaporan({
           <TombolCetak />
         </div>
 
-        <div className="mt-7 border-t border-slate-100 pt-6">
+        <div className="mt-7 border-t border-garis pt-6">
           <Stepper status={laporan.status} />
         </div>
       </header>
@@ -114,7 +114,7 @@ export default async function DetailLaporan({
             className={`rounded-2xl border p-5 shadow-sm ${
               s.label === "Saldo Akhir"
                 ? "border-brand-100 bg-brand-50"
-                : "border-slate-200 bg-white"
+                : "border-garis bg-white"
             }`}
           >
             <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
@@ -142,14 +142,14 @@ export default async function DetailLaporan({
       )}
 
       <section className="mt-10 grid gap-6 lg:grid-cols-[1.2fr_1fr]">
-        <div className="rounded-2xl border border-slate-200 bg-white p-6">
+        <div className="rounded-2xl border border-garis bg-white p-6">
           <h2 className="mb-5 text-sm font-bold uppercase tracking-wide text-slate-500">
             Jejak Persetujuan
           </h2>
           <JejakPersetujuan jejak={laporan.riwayat} />
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-6">
+        <div className="rounded-2xl border border-garis bg-white p-6">
           <h2 className="mb-5 text-sm font-bold uppercase tracking-wide text-slate-500">
             Pengesahan
           </h2>
@@ -173,7 +173,7 @@ export default async function DetailLaporan({
                 {tanggalWaktu(laporan.verifikasiRtAt)}
               </dd>
               {laporan.catatanRt && (
-                <dd className="mt-2 rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-600">
+                <dd className="mt-2 rounded-lg bg-kertas px-3 py-2 text-xs text-slate-600">
                   “{laporan.catatanRt}”
                 </dd>
               )}
@@ -188,7 +188,7 @@ export default async function DetailLaporan({
                 {tanggalWaktu(laporan.persetujuanRwAt)}
               </dd>
               {laporan.catatanRw && (
-                <dd className="mt-2 rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-600">
+                <dd className="mt-2 rounded-lg bg-kertas px-3 py-2 text-xs text-slate-600">
                   “{laporan.catatanRw}”
                 </dd>
               )}

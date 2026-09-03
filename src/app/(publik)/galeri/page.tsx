@@ -39,7 +39,7 @@ export default async function HalamanGaleri() {
             <Link
               key={a.id}
               href={`/galeri/${a.slug}`}
-              className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+              className="group overflow-hidden rounded-2xl border border-garis bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
             >
               <div className="grid aspect-[4/3] grid-cols-2 gap-0.5 bg-slate-100">
                 {a.foto.slice(0, 4).map((f, i) => (

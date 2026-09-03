@@ -87,7 +87,7 @@ export default async function DetailKegiatan({
         <span className="truncate text-slate-700">{kegiatan.judul}</span>
       </nav>
 
-      <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-3xl border border-garis bg-white shadow-sm">
         {kegiatan.gambar && (
           <img src={kegiatan.gambar} alt="" className="h-56 w-full object-cover sm:h-72" />
         )}
@@ -114,7 +114,7 @@ export default async function DetailKegiatan({
             {kegiatan.judul}
           </h1>
 
-          <dl className="mt-6 grid gap-4 rounded-2xl bg-slate-50 p-5 sm:grid-cols-2">
+          <dl className="mt-6 grid gap-4 rounded-2xl bg-kertas p-5 sm:grid-cols-2">
             {rincian.map((r) => (
               <div key={r.label}>
                 <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">

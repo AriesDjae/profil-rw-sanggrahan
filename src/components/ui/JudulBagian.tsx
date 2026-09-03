@@ -1,5 +1,10 @@
 import Link from "next/link";
 
+/**
+ * Kepala bagian bergaya papan: garis pemisah di atas, label pendek dengan
+ * huruf biasa (bukan kapital renggang), lalu judul. Garis inilah yang
+ * memisahkan bagian, bukan kotak berbayang.
+ */
 export default function JudulBagian({
   kicker,
   judul,
@@ -19,46 +24,48 @@ export default function JudulBagian({
   tingkat?: "h1" | "h2";
 }) {
   const Judul = tingkat;
+
   return (
-    <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-      <div className="max-w-2xl">
-        {kicker && (
-          <p
-            className={`text-xs font-semibold uppercase tracking-[0.14em] ${
-              terang ? "text-brand-200" : "text-brand-600"
-            }`}
-          >
-            {kicker}
-          </p>
-        )}
+    <div className={`mb-8 border-t pt-5 ${terang ? "border-white/25" : "border-garis"}`}>
+      {kicker && (
+        <p
+          className={`mb-3 text-[13px] font-medium ${
+            terang ? "text-aksen-200" : "text-brand-700"
+          }`}
+        >
+          {kicker}
+        </p>
+      )}
+
+      <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-3">
         <Judul
-          className={`mt-2 text-2xl font-bold tracking-tight sm:text-3xl ${
-            terang ? "text-white" : "text-slate-900"
+          className={`judul max-w-2xl text-[1.75rem] sm:text-[2.15rem] ${
+            terang ? "text-white" : "text-brand-950"
           }`}
         >
           {judul}
         </Judul>
-        {keterangan && (
-          <p
-            className={`mt-2 text-sm leading-relaxed ${
-              terang ? "text-brand-200" : "text-slate-600"
+
+        {tautan && (
+          <Link
+            href={tautan}
+            className={`shrink-0 pb-1 text-sm font-semibold underline-offset-4 hover:underline ${
+              terang ? "text-white" : "text-brand-700"
             }`}
           >
-            {keterangan}
-          </p>
+            {labelTautan}
+          </Link>
         )}
       </div>
-      {tautan && (
-        <Link
-          href={tautan}
-          className={`shrink-0 rounded-lg border px-4 py-2 text-sm font-semibold transition ${
-            terang
-              ? "border-white/25 text-white hover:bg-white/10"
-              : "border-brand-200 text-brand-700 hover:bg-brand-50"
+
+      {keterangan && (
+        <p
+          className={`mt-3 max-w-2xl text-[15px] leading-relaxed ${
+            terang ? "text-brand-200" : "text-tinta/70"
           }`}
         >
-          {labelTautan}
-        </Link>
+          {keterangan}
+        </p>
       )}
     </div>
   );

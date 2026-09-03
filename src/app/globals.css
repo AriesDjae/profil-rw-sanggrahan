@@ -1,26 +1,31 @@
 @import "tailwindcss";
 
 @theme {
-  /* Warna merek: hijau-teal, nuansa kampung asri */
-  --color-brand-50: #ecfaf6;
-  --color-brand-100: #d3f2e9;
-  --color-brand-200: #a8e5d5;
-  --color-brand-300: #71d0bb;
-  --color-brand-400: #3db29c;
-  --color-brand-500: #189681;
-  --color-brand-600: #0e7c66;
-  --color-brand-700: #0c6353;
-  --color-brand-800: #0d4f44;
-  --color-brand-900: #0b4139;
-  --color-brand-950: #04251f;
+  /* Hijau resmi RW: warna papan nama dan stempel, bukan teal korporat */
+  --color-brand-50: #eff4f0;
+  --color-brand-100: #dce7df;
+  --color-brand-200: #b9cfc0;
+  --color-brand-300: #8db09a;
+  --color-brand-400: #5c8e72;
+  --color-brand-500: #367054;
+  --color-brand-600: #1f5a46;
+  --color-brand-700: #17493a;
+  --color-brand-800: #133b30;
+  --color-brand-900: #0f2e26;
+  --color-brand-950: #0a1f1a;
 
-  /* Aksen tanah/amber untuk sorotan */
-  --color-aksen-50: #fef7ec;
-  --color-aksen-100: #fdecd0;
-  --color-aksen-200: #fad7a1;
-  --color-aksen-400: #f0a83b;
-  --color-aksen-600: #c9720d;
-  --color-aksen-800: #8a4c0c;
+  /* Kunyit: penanda hal penting, hangat dan khas dapur Indonesia */
+  --color-aksen-50: #fdf6e7;
+  --color-aksen-100: #f9e9c2;
+  --color-aksen-200: #f3d68c;
+  --color-aksen-400: #e0a320;
+  --color-aksen-600: #b87c0e;
+  --color-aksen-800: #7a5209;
+
+  /* Kertas, tinta, dan garis buku kas */
+  --color-kertas: #f5f6f1;
+  --color-tinta: #12211c;
+  --color-garis: #d9dcd2;
 
   /* Slot warna grafik (tervalidasi untuk keterbacaan buta warna) */
   --color-seri-1: #2a78d6;
@@ -28,15 +33,11 @@
   --color-seri-3: #1baf7a;
   --color-seri-4: #eda100;
 
-  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
-
-  --radius-kartu: 1rem;
+  --font-sans: var(--font-teks), ui-sans-serif, system-ui, sans-serif;
+  --font-judul: var(--font-judul), var(--font-teks), ui-sans-serif, sans-serif;
 }
 
 :root {
-  --latar: #f7f8f7;
-  --tinta: #14201d;
-  --tinta-lembut: #4b5a56;
   color-scheme: light;
 }
 
@@ -45,39 +46,84 @@ html {
 }
 
 body {
-  background-color: var(--latar);
-  color: var(--tinta);
+  background-color: var(--color-kertas);
+  color: var(--color-tinta);
   -webkit-font-smoothing: antialiased;
 }
 
-/* Latar bermotif halus untuk bagian hero */
-.motif-hero {
-  background-image:
-    radial-gradient(circle at 15% 20%, rgba(255, 255, 255, 0.14) 0, transparent 45%),
-    radial-gradient(circle at 85% 10%, rgba(255, 255, 255, 0.1) 0, transparent 40%),
-    linear-gradient(135deg, var(--color-brand-800) 0%, var(--color-brand-600) 55%, var(--color-brand-500) 100%);
+/* Judul memakai Bricolage Grotesque dengan spasi rapat */
+.judul {
+  font-family: var(--font-judul);
+  font-weight: 700;
+  letter-spacing: -0.022em;
+  line-height: 1.05;
 }
 
-.motif-batik {
-  background-image:
-    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.05) 0 2px, transparent 2px 14px);
+/* Kawung: motif geometris Jawa berupa lingkaran bersinggungan.
+   Dipakai tipis pada bidang hijau gelap, bukan sebagai hiasan mencolok. */
+.motif-kawung {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'><g fill='none' stroke='white' stroke-opacity='0.16' stroke-width='1.1'><circle cx='0' cy='0' r='11'/><circle cx='48' cy='0' r='11'/><circle cx='0' cy='48' r='11'/><circle cx='48' cy='48' r='11'/><circle cx='24' cy='24' r='11'/></g></svg>");
+  background-size: 48px 48px;
 }
 
-/* Isi artikel yang ditulis sebagai teks polos berparagraf */
+/* Bidang hijau tua untuk kepala halaman dalam */
+.bidang-hijau {
+  background-color: var(--color-brand-800);
+}
+
+/* Isi artikel: baris di bawah 72 karakter, jarak baris longgar */
 .isi-artikel p {
   margin-bottom: 1.15rem;
-  line-height: 1.85;
-  color: #33403c;
+  line-height: 1.8;
+  max-width: 68ch;
+  color: #2b3a34;
 }
 
 .isi-artikel p:first-of-type {
-  font-size: 1.075rem;
-  color: #1d2b27;
+  font-size: 1.0625rem;
+  color: #1a2a24;
 }
 
-/* Bilah gulir tipis untuk tabel lebar */
+/* Angka pada buku kas selalu sejajar */
+.angka-kas {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
 .gulir-halus {
   scrollbar-width: thin;
+}
+
+/* Batang laju slider sorotan */
+@keyframes laju {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.laju-aktif {
+  transform-origin: left;
+  animation: laju linear forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .laju-aktif {
+    animation: none;
+    transform: scaleX(1);
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+  }
 }
 
 @media print {

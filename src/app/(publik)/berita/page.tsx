@@ -70,7 +70,7 @@ export default async function HalamanBerita({
           className={`rounded-full px-4 py-2 text-sm font-medium transition ${
             !kategori
               ? "bg-brand-600 text-white"
-              : "border border-slate-200 bg-white text-slate-600 hover:border-brand-200"
+              : "border border-garis bg-white text-slate-600 hover:border-brand-200"
           }`}
         >
           Semua ({total === 0 && !kategori ? 0 : kategoriTersedia.reduce((a, k) => a + k._count.kategori, 0)})
@@ -84,7 +84,7 @@ export default async function HalamanBerita({
               className={`rounded-full px-4 py-2 text-sm font-medium transition ${
                 kategori === k.kategori
                   ? "bg-brand-600 text-white"
-                  : "border border-slate-200 bg-white text-slate-600 hover:border-brand-200"
+                  : "border border-garis bg-white text-slate-600 hover:border-brand-200"
               }`}
             >
               {k.kategori} ({k._count.kategori})
@@ -120,7 +120,7 @@ export default async function HalamanBerita({
                 className={`grid h-10 w-10 place-items-center rounded-lg text-sm font-semibold transition ${
                   h === halaman
                     ? "bg-brand-600 text-white"
-                    : "border border-slate-200 bg-white text-slate-600 hover:border-brand-300"
+                    : "border border-garis bg-white text-slate-600 hover:border-brand-300"
                 }`}
               >
                 {h}
