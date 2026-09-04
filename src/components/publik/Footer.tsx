@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { UMKM } from "@/lib/tautanLuar";
+
 export default function Footer({
   namaRw,
   alamat,
@@ -29,6 +31,41 @@ export default function Footer({
               Papan informasi warga yang dikelola pengurus RW. Laporan kas yang
               tampil di sini sudah diperiksa Ketua RT dan disahkan Ketua RW.
             </p>
+
+            {/*
+              Urusan usaha warga punya situsnya sendiri. Warga yang mencarinya
+              di sini diantar ke sana, bukan dibiarkan menutup tab.
+            */}
+            <a
+              href={UMKM.url}
+              className="mt-8 inline-flex max-w-sm items-start gap-3 border border-white/25 px-4 py-4 transition hover:border-aksen-400 hover:bg-white/5"
+            >
+              <span className="min-w-0">
+                <span className="block text-xs font-semibold tracking-widest text-brand-300 uppercase">
+                  Situs warga lainnya
+                </span>
+                <span className="judul mt-2 block text-base text-white">
+                  {UMKM.nama}
+                </span>
+                <span className="mt-1 block text-sm text-brand-200">
+                  {UMKM.keterangan}
+                </span>
+              </span>
+              <svg
+                aria-hidden
+                className="mt-1 shrink-0 text-aksen-400"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M7 17L17 7M9 7h8v8" />
+              </svg>
+            </a>
           </div>
 
           <div>

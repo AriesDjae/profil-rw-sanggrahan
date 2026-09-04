@@ -112,6 +112,19 @@ Galeri · Data Warga · Pengurus · Akun Pengguna · Pengaturan Situs.
 
 ---
 
+## Situs warga yang bersebelahan
+
+Urusan usaha warga punya situsnya sendiri:
+**[Usaha Warga Sanggrahan](https://umkm-sanggrahan.vercel.app)** — registri UMKM
+dan jasa warga RW 1 dan RW 3, dengan basis data dan panel pengurusnya sendiri.
+Kedua situs berdiri terpisah tetapi melayani warga yang sama, jadi kop dan kaki
+halaman keduanya saling menautkan.
+
+Alamat tujuannya ada di `src/lib/tautanLuar.ts`, dan bisa ditimpa lewat env
+`NEXT_PUBLIC_URL_UMKM` tanpa mengubah kode.
+
+---
+
 ## Struktur proyek
 
 ```

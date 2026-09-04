@@ -4,6 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 
+import { UMKM } from "@/lib/tautanLuar";
+
 const TAUTAN = [
   { href: "/", label: "Beranda" },
   { href: "/profil", label: "Profil" },
@@ -17,11 +19,9 @@ const TAUTAN = [
 export default function Header({
   namaRw,
   tagline,
-  sudahMasuk,
 }: {
   namaRw: string;
   tagline: string;
-  sudahMasuk: boolean;
 }) {
   const path = usePathname();
   const [menu, setMenu] = useState({ buka: false, path });
@@ -65,11 +65,35 @@ export default function Header({
               {t.label}
             </Link>
           ))}
+          {/*
+            Tautan keluar ke situs warga yang satunya. Diberi garis pemisah dan
+            panah keluar supaya jelas ini meninggalkan situs ini.
+          */}
+          <a
+            href={UMKM.url}
+            className="flex items-center gap-1.5 border-l border-garis py-1 pl-6 text-sm text-tinta/70 transition hover:text-brand-800"
+          >
+            {UMKM.ringkas}
+            <svg
+              aria-hidden
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M7 17L17 7M9 7h8v8" />
+            </svg>
+            <span className="sr-only">(situs terpisah)</span>
+          </a>
           <Link
-            href={sudahMasuk ? "/admin" : "/masuk"}
+            href="/masuk"
             className="bg-brand-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-800"
           >
-            {sudahMasuk ? "Panel Pengurus" : "Masuk Pengurus"}
+            Masuk Pengurus
           </Link>
         </nav>
 
@@ -111,11 +135,18 @@ export default function Header({
                 {t.label}
               </Link>
             ))}
+            <a
+              href={UMKM.url}
+              className="block border-b border-garis py-3 text-sm text-tinta/80"
+            >
+              {UMKM.nama} &rarr;
+              <span className="sr-only">(situs terpisah)</span>
+            </a>
             <Link
-              href={sudahMasuk ? "/admin" : "/masuk"}
+              href="/masuk"
               className="mt-3 mb-2 block bg-brand-700 px-3 py-3 text-center text-sm font-semibold text-white"
             >
-              {sudahMasuk ? "Panel Pengurus" : "Masuk Pengurus"}
+              Masuk Pengurus
             </Link>
           </nav>
         </div>
