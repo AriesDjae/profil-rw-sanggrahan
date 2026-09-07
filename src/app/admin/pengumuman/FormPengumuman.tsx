@@ -13,10 +13,13 @@ import {
   TombolSimpan,
 } from "@/components/admin/Formulir";
 
+import PilihRw, { type OpsiRw } from "@/components/admin/PilihRw";
+
 import { simpanPengumuman, type Hasil } from "./aksi";
 
 export type PengumumanAwal = {
   id: number;
+  rwId: number | null;
   judul: string;
   isi: string;
   penting: boolean;
@@ -26,9 +29,13 @@ export type PengumumanAwal = {
 
 export default function FormPengumuman({
   awal,
+  rwList,
+  rwTerkunci,
   onSelesai,
 }: {
   awal?: PengumumanAwal;
+  rwList: OpsiRw[];
+  rwTerkunci: OpsiRw | null;
   onSelesai?: () => void;
 }) {
   const [status, aksi] = useActionState<Hasil, FormData>(simpanPengumuman, {});
@@ -48,6 +55,13 @@ export default function FormPengumuman({
     >
       {awal && <input type="hidden" name="id" value={awal.id} />}
       <PesanGalat pesan={status.galat} />
+
+      <PilihRw
+        rwList={rwList}
+        rwTerkunci={rwTerkunci}
+        nilaiAwal={awal?.rwId}
+        keterangan="Pengumuman satu RW hanya tampil di laman RW itu."
+      />
       <PesanSukses pesan={status.sukses} />
 
       <Teks

@@ -1,6 +1,6 @@
 import KepalaHalaman from "@/components/admin/KepalaHalaman";
 import { PERAN_KONTEN } from "@/lib/konstanta";
-import { wajibPeran } from "@/lib/otorisasi";
+import { opsiRw, wajibPeran } from "@/lib/otorisasi";
 
 import FormBerita from "../FormBerita";
 
@@ -8,7 +8,8 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Tulis Berita" };
 
 export default async function BeritaBaru() {
-  await wajibPeran(PERAN_KONTEN);
+  const pengguna = await wajibPeran(PERAN_KONTEN);
+  const { rwList, rwTerkunci } = await opsiRw(pengguna);
 
   return (
     <div className="max-w-3xl">
@@ -18,7 +19,7 @@ export default async function BeritaBaru() {
         kembali={{ href: "/admin/berita", label: "Kembali ke daftar berita" }}
       />
       <div className="rounded-2xl border border-slate-200 bg-white p-6">
-        <FormBerita awal={null} />
+        <FormBerita awal={null} rwList={rwList} rwTerkunci={rwTerkunci} />
       </div>
     </div>
   );

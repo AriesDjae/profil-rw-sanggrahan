@@ -1,31 +1,37 @@
 import Footer from "@/components/publik/Footer";
 import Header from "@/components/publik/Header";
 import { ambilPengaturan } from "@/lib/pengaturan";
-import { penggunaSaatIni } from "@/lib/sesi";
+import { daftarRw } from "@/lib/rw";
 
+/**
+ * Layout ini sengaja tidak membaca cookie sesi. Sekali sebuah layout membaca
+ * cookie, seluruh halaman di bawahnya berubah menjadi dinamis dan kehilangan
+ * cache. Pengurus yang sudah masuk tetap tidak dirugikan: tautan "Masuk
+ * Pengurus" menuju /masuk, dan halaman itu langsung mengalihkan mereka ke
+ * panel bila sesinya masih berlaku.
+ */
 export default async function LayoutPublik({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [pengaturan, pengguna] = await Promise.all([
-    ambilPengaturan(),
-    penggunaSaatIni(),
-  ]);
+  const [pengaturan, rwList] = await Promise.all([ambilPengaturan(), daftarRw()]);
+  const nav = rwList.map((r) => ({ nomor: r.nomor, nama: r.nama }));
 
   return (
     <div className="flex min-h-screen flex-col">
       <Header
-        namaRw={pengaturan.namaRw}
+        namaKampung={pengaturan.namaKampung}
         tagline={pengaturan.tagline}
-        sudahMasuk={Boolean(pengguna)}
+        daftarRw={nav}
       />
       <main className="flex-1">{children}</main>
       <Footer
-        namaRw={pengaturan.namaRw}
+        namaKampung={pengaturan.namaKampung}
         alamat={pengaturan.alamat}
         telepon={pengaturan.telepon}
         email={pengaturan.email}
+        daftarRw={nav}
       />
     </div>
   );

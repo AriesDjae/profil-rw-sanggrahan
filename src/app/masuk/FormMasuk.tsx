@@ -45,7 +45,7 @@ export default function FormMasuk({ next }: { next?: string }) {
           autoComplete="username"
           required
           defaultValue={status.email}
-          placeholder="nama@rw05sanggrahan.id"
+          placeholder="nama@sanggrahan.id"
           className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-200"
         />
       </div>

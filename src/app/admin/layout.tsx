@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import Sidebar, { type ItemMenu } from "@/components/admin/Sidebar";
 import { db } from "@/lib/db";
 import { LABEL_PERAN, PERAN, STATUS_LAPORAN } from "@/lib/konstanta";
-import { wajibMasuk } from "@/lib/otorisasi";
+import { lingkupRw, wajibMasuk } from "@/lib/otorisasi";
 
 import { keluar } from "../masuk/aksi";
 
@@ -28,7 +28,10 @@ export default async function LayoutAdmin({
   const ketuaRt = pengguna.peran === PERAN.KETUA_RT;
   const bendahara = pengguna.peran === PERAN.BENDAHARA_RT;
 
-  // Jumlah laporan yang menunggu tindakan pengguna ini
+  // Jumlah laporan yang menunggu tindakan pengguna ini. Ketua RW hanya dihitungkan
+  // kas RW-nya sendiri; angka se-kampung akan menyuruhnya menyetujui laporan yang
+  // tidak boleh ia sentuh.
+  const rwSaya = lingkupRw(pengguna);
   let menunggu = 0;
   if (ketuaRt && pengguna.rtId) {
     menunggu = await db.laporanKeuangan.count({
@@ -36,7 +39,10 @@ export default async function LayoutAdmin({
     });
   } else if (pengguna.peran === PERAN.KETUA_RW || pengguna.peran === PERAN.ADMIN) {
     menunggu = await db.laporanKeuangan.count({
-      where: { status: STATUS_LAPORAN.DIVERIFIKASI_RT },
+      where: {
+        status: STATUS_LAPORAN.DIVERIFIKASI_RT,
+        ...(rwSaya === null ? {} : { rt: { rwId: rwSaya } }),
+      },
     });
   }
 
@@ -77,7 +83,13 @@ export default async function LayoutAdmin({
     );
   }
 
-  const lingkup = pengguna.rt ? pengguna.rt.nama : "Seluruh RW";
+  // Baris kecil di bawah judul laci navigasi. Ini satu-satunya tempat pengurus
+  // melihat batas kewenangannya tanpa harus membuka halaman apa pun.
+  const lingkup = pengguna.rt
+    ? `${pengguna.rt.nama} · ${pengguna.rw?.nama ?? "-"}`
+    : rwSaya === null
+      ? "Seluruh kampung"
+      : (pengguna.rw?.nama ?? "RW Anda");
 
   return (
     <div className="flex min-h-screen flex-col bg-slate-50 lg:flex-row">
@@ -96,7 +108,7 @@ export default async function LayoutAdmin({
             </p>
             <p className="text-xs text-slate-500">
               {LABEL_PERAN[pengguna.peran] ?? pengguna.peran}
-              {pengguna.rt ? ` · ${pengguna.rt.nama}` : " · Lingkup seluruh RW"}
+              {` · Lingkup ${lingkup}`}
               {bendahara ? " · Penyusun laporan kas" : ""}
             </p>
           </div>

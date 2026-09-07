@@ -6,7 +6,7 @@ import Kosong from "@/components/ui/Kosong";
 import { db } from "@/lib/db";
 import { hitungMundur, jam, tanggalSingkat } from "@/lib/format";
 import { PERAN_KONTEN } from "@/lib/konstanta";
-import { wajibPeran } from "@/lib/otorisasi";
+import { lintasRw, saringRw, wajibPeran } from "@/lib/otorisasi";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Kegiatan" };
@@ -30,11 +30,15 @@ export default async function DaftarKegiatanAdmin({
 }: {
   searchParams: Promise<{ pesan?: string }>;
 }) {
-  await wajibPeran(PERAN_KONTEN);
+  const pengguna = await wajibPeran(PERAN_KONTEN);
   const sp = await searchParams;
 
+  const semuaRw = lintasRw(pengguna);
+
   const kegiatan = await db.kegiatan.findMany({
+    where: saringRw(pengguna),
     orderBy: { mulai: "desc" },
+    include: { rw: { select: { nama: true } } },
     take: 100,
   });
 
@@ -56,6 +60,14 @@ export default async function DaftarKegiatanAdmin({
 
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
+          <Lencana
+            anak={k.rw?.nama ?? "Seluruh kampung"}
+            warna={
+              k.rw
+                ? "bg-brand-50 text-brand-800 ring-brand-200"
+                : "bg-aksen-50 text-aksen-800 ring-aksen-200"
+            }
+          />
           <Lencana anak={k.kategori} warna="bg-slate-100 text-slate-600 ring-slate-200" />
           <Lencana
             anak={LABEL_STATUS[k.status] ?? k.status}
@@ -92,7 +104,11 @@ export default async function DaftarKegiatanAdmin({
     <>
       <KepalaHalaman
         judul="Agenda Kegiatan"
-        keterangan="Kelola jadwal kegiatan warga. Hanya kegiatan berstatus terbit yang tampil pada agenda publik."
+        keterangan={
+          semuaRw
+            ? "Kelola jadwal kegiatan ketiga RW. Hanya kegiatan berstatus terbit yang tampil pada agenda publik."
+            : `Kelola jadwal kegiatan ${pengguna.rw?.nama ?? "RW Anda"}. Kegiatan tingkat kampung ikut tampil karena muncul di agenda RW Anda.`
+        }
         aksi={
           <Link
             href="/admin/kegiatan/baru"

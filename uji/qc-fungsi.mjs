@@ -52,7 +52,7 @@ const anonimCtx = await browser.newContext({ viewport: { width: 1440, height: 90
 const publik = await anonimCtx.newPage();
 
 try {
-  const { ctx, page } = await masuk(browser, "admin@rw05sanggrahan.id");
+  const { ctx, page } = await masuk(browser, "admin@sanggrahan.id");
 
   /* ------------------------------------------------------------------ */
   bagian("Berita: tulis, terbitkan, sunting, hapus");
@@ -130,7 +130,7 @@ try {
   await page.fill('input[name="judul"]', judulKegiatan);
   await page.fill('input[name="mulai"]', "2026-12-20T08:00");
   await page.fill('input[name="selesai"]', "2026-12-20T07:00"); // sengaja salah
-  await page.fill('input[name="lokasi"]', "Balai RW 05");
+  await page.fill('input[name="lokasi"]', "Balai RW 01");
   await page.fill('textarea[name="deskripsi"]', "Keterangan kegiatan uji otomatis yang memadai.");
   await page.selectOption('select[name="status"]', "TERBIT");
   await page.click('button:has-text("Simpan kegiatan")');
@@ -331,7 +331,7 @@ try {
   /* ------------------------------------------------------------------ */
   bagian("Akun pengguna: buat, masuk, nonaktifkan, hapus");
   await page.goto(`${DASAR}/admin/pengguna`);
-  const emailBaru = `uji${TANDA.toLowerCase()}@rw05sanggrahan.id`;
+  const emailBaru = `uji${TANDA.toLowerCase()}@sanggrahan.id`;
   await page.fill('input[name="nama"]', `Bendahara Uji ${TANDA}`);
   await page.fill('input[name="email"]', emailBaru);
   await page.selectOption('select[name="peran"]', "BENDAHARA_RT");
@@ -384,7 +384,7 @@ try {
 
   // Kata sandi salah
   await pNonaktif.goto(`${DASAR}/masuk`);
-  await pNonaktif.fill("#email", "admin@rw05sanggrahan.id");
+  await pNonaktif.fill("#email", "admin@sanggrahan.id");
   await pNonaktif.fill("#kataSandi", "salah-sekali");
   await pNonaktif.click('button[type="submit"]');
   await pNonaktif.waitForSelector('p[role="alert"]', { timeout: 15000 });
@@ -405,8 +405,8 @@ try {
   await page.goto(`${DASAR}/admin/pengaturan`);
   const taglineAsli = await page.inputValue('input[name="tagline"]');
   await page.fill('input[name="tagline"]', `Tagline Uji ${TANDA}`);
-  await page.click('button:has-text("Simpan pengaturan")');
-  await page.waitForSelector("text=Pengaturan situs tersimpan", { timeout: 15000 });
+  await page.click('button:has-text("Simpan pengaturan kampung")');
+  await page.waitForSelector("text=Pengaturan kampung tersimpan", { timeout: 15000 });
   await publik.goto(`${DASAR}/`);
   cek(
     "tagline baru tampil di situs warga",
@@ -414,19 +414,22 @@ try {
   );
   await page.goto(`${DASAR}/admin/pengaturan`);
   await page.fill('input[name="tagline"]', taglineAsli);
-  await page.click('button:has-text("Simpan pengaturan")');
-  await page.waitForSelector("text=Pengaturan situs tersimpan", { timeout: 15000 });
+  await page.click('button:has-text("Simpan pengaturan kampung")');
+  await page.waitForSelector("text=Pengaturan kampung tersimpan", { timeout: 15000 });
   cek("tagline dikembalikan", true);
 
-  // RT baru
+  // RT baru. Sejak situs melayani tiga RW, RT wajib menyebut RW-nya dan
+  // nomornya hanya perlu unik di dalam RW itu.
+  await page.selectOption('select[name="rwId"]', { index: 1 });
   await page.fill('input[name="nomor"]', "99");
   await page.fill('input[name="wilayah"]', "Wilayah uji otomatis");
   await page.click('button:has-text("Tambah RT")');
-  await page.waitForSelector("text=RT 99 ditambahkan", { timeout: 15000 });
-  await publik.goto(`${DASAR}/profil`);
-  cek("RT baru tampil di halaman profil", (await publik.locator("text=RT 99").count()) > 0);
+  await page.waitForSelector("text=RT 99 RW 01 ditambahkan", { timeout: 15000 });
+  await publik.goto(`${DASAR}/rw/1/profil`);
+  cek("RT baru tampil di halaman profil RW-nya", (await publik.locator("text=RT 99").count()) > 0);
 
   await page.goto(`${DASAR}/admin/pengaturan`);
+  await page.selectOption('select[name="rwId"]', { index: 1 });
   await page.fill('input[name="nomor"]', "01");
   await page.click('button:has-text("Tambah RT")');
   await page.waitForSelector('p[role="alert"]', { timeout: 10000 });

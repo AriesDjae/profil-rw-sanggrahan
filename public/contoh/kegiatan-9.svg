@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="Rapat Persiapan Peringatan HUT Kemerdekaan">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="Penimbangan Bank Sampah RW 03">
   <defs>
     <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#4a9d5f"/>
@@ -17,5 +17,5 @@
   <rect x="423" y="392" width="268" height="255" rx="14" fill="#eefaf0" opacity="0.11"/>
   <rect x="510" y="504" width="196" height="174" rx="14" fill="#eefaf0" opacity="0.17"/>
   <rect x="1100" y="544" width="145" height="186" rx="14" fill="#eefaf0" opacity="0.13"/>
-  <text x="72" y="594" font-family="Segoe UI, Arial, sans-serif" font-size="61" font-weight="700" letter-spacing="4" fill="#0f2e26" opacity="0.20">RPP</text>
+  <text x="72" y="594" font-family="Segoe UI, Arial, sans-serif" font-size="61" font-weight="700" letter-spacing="4" fill="#0f2e26" opacity="0.20">PBS</text>
 </svg>

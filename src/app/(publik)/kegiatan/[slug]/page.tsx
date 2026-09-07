@@ -7,11 +7,30 @@ import Paragraf from "@/components/ui/Paragraf";
 import { db } from "@/lib/db";
 import { hitungMundur, jam, potong, selisihHari, tanggal } from "@/lib/format";
 
-export const dynamic = "force-dynamic";
+// Dirender sekali lalu disajikan dari cache. Setiap perubahan dari panel
+// pengurus memanggil revalidatePath, jadi halaman ini tetap segar seketika;
+// angka 600 detik hanya jaring pengaman bila ada perubahan di luar aplikasi.
+export const revalidate = 600;
+
+/**
+ * Menyiapkan seluruh halaman ini saat build sehingga pembaca menerimanya dari
+ * cache, bukan menunggu kueri basis data. Halaman baru yang belum ada saat
+ * build tetap dilayani dan ikut tersimpan setelah permintaan pertama.
+ */
+export async function generateStaticParams() {
+  const kegiatan = await db.kegiatan.findMany({
+    where: { status: { in: ["TERBIT", "SELESAI"] } },
+    select: { slug: true },
+    orderBy: { mulai: "desc" },
+    take: 100,
+  });
+  return kegiatan.map((k) => ({ slug: k.slug }));
+}
 
 async function ambilKegiatan(slug: string) {
   return db.kegiatan.findFirst({
     where: { slug, status: { in: ["TERBIT", "SELESAI"] } },
+    include: { rw: { select: { nomor: true, nama: true } } },
   });
 }
 
@@ -69,6 +88,10 @@ export default async function DetailKegiatan({
       nilai: `${jam(mulai)}${kegiatan.selesai ? ` - ${jam(kegiatan.selesai)}` : ""} WIB`,
     },
     { label: "Lokasi", nilai: kegiatan.lokasi },
+    {
+      label: "Wilayah",
+      nilai: kegiatan.rw ? kegiatan.rw.nama : "Seluruh kampung (ketiga RW)",
+    },
     { label: "Penyelenggara", nilai: kegiatan.penyelenggara ?? "Pengurus RW" },
     { label: "Kontak", nilai: kegiatan.kontak ?? "-" },
   ];

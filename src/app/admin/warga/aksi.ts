@@ -4,19 +4,25 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { db } from "@/lib/db";
+import { segarkanLamanRw } from "@/lib/rw";
 import { nilaiForm, type HasilAksi } from "@/lib/formulir";
 import { PERAN } from "@/lib/konstanta";
-import { lingkupRt, wajibMasuk } from "@/lib/otorisasi";
+import { lingkupRt, lingkupRw, wajibMasuk } from "@/lib/otorisasi";
 
 export type Hasil = HasilAksi;
 
 const PERAN_BOLEH = [PERAN.ADMIN, PERAN.SEKRETARIS, PERAN.KETUA_RW, PERAN.KETUA_RT] as string[];
 
-function segarkan() {
+async function segarkan() {
   revalidatePath("/admin/warga");
   revalidatePath("/data-warga");
   revalidatePath("/");
   revalidatePath("/profil");
+  // Beranda tiap RW dibangun statis dengan masa berlaku lima menit. Tanpa baris
+  // ini, pengurus yang baru menyimpan perubahan membuka laman RW-nya dan tidak
+  // melihat apa-apa selama beberapa menit — lalu mengira simpanannya gagal.
+  await segarkanLamanRw();
+
 }
 
 export async function simpanWarga(_prev: Hasil, formData: FormData): Promise<Hasil> {
@@ -41,6 +47,17 @@ export async function simpanWarga(_prev: Hasil, formData: FormData): Promise<Has
   if (!rtTujuan) return { galat: "RT belum dipilih.", nilai };
   if (lingkup && rtId && rtId !== lingkup) {
     return { galat: "Anda hanya dapat mengelola warga pada RT Anda sendiri.", nilai };
+  }
+
+  // Sekretaris dan Ketua RW tidak terikat satu RT, tetapi tetap terikat RW-nya.
+  // Tanpa pemeriksaan ini, mengganti angka rtId di formulir cukup untuk
+  // menuliskan warga ke RW sebelah.
+  const rwSaya = lingkupRw(pengguna);
+  if (rwSaya !== null) {
+    const rt = await db.rt.findUnique({ where: { id: rtTujuan }, select: { rwId: true } });
+    if (!rt || rt.rwId !== rwSaya) {
+      return { galat: "RT tersebut berada di luar RW Anda.", nilai };
+    }
   }
 
   const nik = String(formData.get("nik") ?? "").trim();
@@ -78,18 +95,31 @@ export async function simpanWarga(_prev: Hasil, formData: FormData): Promise<Has
   };
 
   if (id) {
-    const lama = await db.warga.findUnique({ where: { id } });
+    const lama = await db.warga.findUnique({
+      where: { id },
+      include: { rt: { select: { rwId: true } } },
+    });
     if (!lama) return { galat: "Data warga tidak ditemukan.", nilai };
     if (lingkup && lama.rtId !== lingkup) {
       return { galat: "Anda tidak berhak mengubah data warga RT lain.", nilai };
+    }
+    if (rwSaya !== null && lama.rt.rwId !== rwSaya) {
+      return { galat: "Warga tersebut terdaftar di RW lain.", nilai };
     }
     await db.warga.update({ where: { id }, data });
   } else {
     await db.warga.create({ data });
   }
 
-  segarkan();
-  redirect(`/admin/warga?pesan=${encodeURIComponent(id ? "Data warga diperbarui." : "Warga baru ditambahkan.")}`);
+  await segarkan();
+  // Daftar warga diurut per RT dan berhalaman 25 baris. Tanpa penyaring, warga
+  // yang baru ditambahkan bisa jatuh di halaman keempat dan pengurus mengira
+  // simpanannya gagal. Karena itu setelah menambah, daftar langsung disaring ke
+  // RT tujuan — di situ barisnya pasti terlihat.
+  const tujuan = id
+    ? `/admin/warga?pesan=${encodeURIComponent("Data warga diperbarui.")}`
+    : `/admin/warga?rt=${rtTujuan}&pesan=${encodeURIComponent("Warga baru ditambahkan.")}`;
+  redirect(tujuan);
 }
 
 export async function hapusWarga(formData: FormData) {
@@ -97,13 +127,19 @@ export async function hapusWarga(formData: FormData) {
   if (!PERAN_BOLEH.includes(pengguna.peran)) return;
 
   const id = Number(formData.get("id"));
-  const warga = await db.warga.findUnique({ where: { id } });
+  const warga = await db.warga.findUnique({
+    where: { id },
+    include: { rt: { select: { rwId: true } } },
+  });
   if (!warga) return;
 
   const lingkup = lingkupRt(pengguna);
   if (lingkup && warga.rtId !== lingkup) return;
 
+  const rwSaya = lingkupRw(pengguna);
+  if (rwSaya !== null && warga.rt.rwId !== rwSaya) return;
+
   await db.warga.delete({ where: { id } });
-  segarkan();
+  await segarkan();
   redirect("/admin/warga?pesan=Data warga dihapus.");
 }

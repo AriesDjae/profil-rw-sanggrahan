@@ -13,6 +13,9 @@ import {
   TombolSimpan,
 } from "@/components/admin/Formulir";
 
+import PilihRw, { type OpsiRw } from "@/components/admin/PilihRw";
+import { LEVEL_PENGURUS } from "@/lib/konstanta";
+
 import { simpanPengurus, type Hasil } from "./aksi";
 
 export type PengurusAwal = {
@@ -20,6 +23,7 @@ export type PengurusAwal = {
   nama: string;
   jabatan: string;
   level: string;
+  rwId: number | null;
   rtId: number | null;
   telepon: string | null;
   periode: string | null;
@@ -30,15 +34,29 @@ export type PengurusAwal = {
 export default function FormPengurus({
   awal,
   rtList,
+  rwList,
+  rwTerkunci,
+  bolehTingkatKampung,
 }: {
   awal?: PengurusAwal;
-  rtList: { id: number; nama: string }[];
+  rtList: { id: number; rwId: number; nama: string }[];
+  rwList: OpsiRw[];
+  rwTerkunci: OpsiRw | null;
+  /** Kepengurusan yang menaungi ketiga RW hanya disusun administrator kampung. */
+  bolehTingkatKampung: boolean;
 }) {
   const [status, aksi] = useActionState<Hasil, FormData>(simpanPengurus, {});
   const v = pembacaNilai(status.nilai);
-  const levelAwal = String(v("level", awal?.level ?? "RW"));
+  const levelAwal = String(v("level", awal?.level ?? LEVEL_PENGURUS.RW));
   const [level, setLevel] = useState(levelAwal);
+  const rwAwal = String(v("rwId", awal?.rwId ?? rwTerkunci?.id ?? ""));
+  const [rwId, setRwId] = useState(rwAwal);
   const ref = useRef<HTMLFormElement>(null);
+
+  const tingkatKampung = level === LEVEL_PENGURUS.KAMPUNG;
+  // RT dari RW lain tidak ditawarkan: namanya akan muncul di laman RW yang
+  // bukan tempatnya bertugas.
+  const rtTersedia = rwId ? rtList.filter((r) => String(r.rwId) === rwId) : rtList;
 
   return (
     <form
@@ -52,6 +70,17 @@ export default function FormPengurus({
       {awal && <input type="hidden" name="id" value={awal.id} />}
       <PesanGalat pesan={status.galat} />
       <PesanSukses pesan={status.sukses} />
+
+      {!tingkatKampung && (
+        <PilihRw
+          rwList={rwList}
+          rwTerkunci={rwTerkunci}
+          nilaiAwal={rwAwal || null}
+          bolehKampung={false}
+          onGanti={setRwId}
+          keterangan="Pengurus ini tampil pada halaman profil RW tersebut."
+        />
+      )}
 
       <Teks label="Nama" nama="nama" wajib nilaiAwal={v("nama", awal?.nama)} />
       <Teks
@@ -75,26 +104,31 @@ export default function FormPengurus({
             onChange={(e) => setLevel(e.target.value)}
             className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-200"
           >
-            <option value="RW">Pengurus RW</option>
-            <option value="RT">Ketua / Pengurus RT</option>
+            {bolehTingkatKampung && (
+              <option value={LEVEL_PENGURUS.KAMPUNG}>
+                Tingkat kampung (menaungi ketiga RW)
+              </option>
+            )}
+            <option value={LEVEL_PENGURUS.RW}>Pengurus RW</option>
+            <option value={LEVEL_PENGURUS.RT}>Ketua / Pengurus RT</option>
             <option value="LEMBAGA">Lembaga (PKK, Karang Taruna, dll.)</option>
           </select>
         </div>
 
-        {level === "RT" ? (
+        {level === LEVEL_PENGURUS.RT ? (
           <Pilihan
             label="Rukun Tetangga"
             nama="rtId"
             kosong="Pilih RT"
             nilaiAwal={v("rtId", awal?.rtId)}
-            opsi={rtList.map((r) => ({ nilai: r.id, label: r.nama }))}
+            opsi={rtTersedia.map((r) => ({ nilai: r.id, label: r.nama }))}
           />
         ) : (
           <Teks label="Periode" nama="periode" nilaiAwal={v("periode", awal?.periode)} placeholder="2024 - 2027" />
         )}
       </div>
 
-      {level === "RT" && (
+      {level === LEVEL_PENGURUS.RT && (
         <Teks label="Periode" nama="periode" nilaiAwal={v("periode", awal?.periode)} placeholder="2024 - 2027" />
       )}
 

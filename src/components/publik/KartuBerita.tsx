@@ -9,6 +9,7 @@ export type BeritaKartu = {
   kategori: string;
   gambar: string | null;
   terbitAt: Date | null;
+  rw?: { nomor: number; nama: string } | null;
 };
 
 /**
@@ -22,9 +23,13 @@ export type BeritaKartu = {
 export default function KartuBerita({
   berita,
   utama = false,
+  tampilkanRw = false,
 }: {
   berita: BeritaKartu;
   utama?: boolean;
+  /** Dinyalakan pada daftar yang mencampur ketiga RW, supaya pembaca tahu
+   *  kabar ini datang dari RW mana. Di laman satu RW keterangan itu mubazir. */
+  tampilkanRw?: boolean;
 }) {
   return (
     <article
@@ -47,6 +52,7 @@ export default function KartuBerita({
 
       <div className={utama ? "" : "pt-4"}>
         <p className="text-[13px] text-tinta/55">
+          {tampilkanRw ? `${berita.rw?.nama ?? "Se-kampung"} · ` : ""}
           {berita.kategori}, {tanggal(berita.terbitAt)}
         </p>
 

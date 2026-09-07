@@ -19,7 +19,10 @@ export default function FormPengaturan({
   awal,
 }: {
   awal: {
-    namaRw: string;
+    namaKampung: string;
+    kelurahan: string;
+    kemantren: string;
+    kota: string;
     tagline: string;
     deskripsi: string;
     sejarah: string;
@@ -40,7 +43,13 @@ export default function FormPengaturan({
       <PesanSukses pesan={status.sukses} />
 
       <div className="grid gap-5 sm:grid-cols-2">
-        <Teks label="Nama RW" nama="namaRw" wajib nilaiAwal={v("namaRw", awal.namaRw)} />
+        <Teks
+          label="Nama kampung"
+          nama="namaKampung"
+          wajib
+          nilaiAwal={v("namaKampung", awal.namaKampung)}
+          keterangan="Menaungi RW 01, RW 02, dan RW 03. Tampil di kop seluruh halaman."
+        />
         <Teks
           label="Tagline"
           nama="tagline"
@@ -49,12 +58,18 @@ export default function FormPengaturan({
         />
       </div>
 
+      <div className="grid gap-5 sm:grid-cols-3">
+        <Teks label="Kelurahan" nama="kelurahan" nilaiAwal={v("kelurahan", awal.kelurahan)} />
+        <Teks label="Kemantren" nama="kemantren" nilaiAwal={v("kemantren", awal.kemantren)} />
+        <Teks label="Kota" nama="kota" nilaiAwal={v("kota", awal.kota)} />
+      </div>
+
       <AreaTeks
         label="Deskripsi singkat"
         nama="deskripsi"
         baris={3}
         nilaiAwal={v("deskripsi", awal.deskripsi)}
-        keterangan="Tampil pada bagian sambutan beranda."
+        keterangan="Tampil pada beranda kampung. Tiap RW punya deskripsinya sendiri."
       />
 
       <AreaTeks
@@ -85,11 +100,11 @@ export default function FormPengaturan({
         label="Foto utama beranda"
         nama="heroFoto"
         pratinjau={awal.heroFoto}
-        keterangan="Opsional. Digunakan sebagai gambar sambutan."
+        keterangan="Opsional. Gambar sambutan beranda kampung."
       />
 
       <div className="border-t border-slate-100 pt-5">
-        <TombolSimpan label="Simpan pengaturan" />
+        <TombolSimpan label="Simpan pengaturan kampung" />
       </div>
     </form>
   );

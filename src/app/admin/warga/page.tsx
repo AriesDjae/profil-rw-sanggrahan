@@ -7,7 +7,7 @@ import Kosong from "@/components/ui/Kosong";
 import { db } from "@/lib/db";
 import { angka, tanggalSingkat, umur } from "@/lib/format";
 import { LABEL_HUBUNGAN, PERAN } from "@/lib/konstanta";
-import { lingkupRt, wajibMasuk } from "@/lib/otorisasi";
+import { lingkupRt, lingkupRw, saringRwLewatRt, wajibMasuk } from "@/lib/otorisasi";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Data Warga" };
@@ -27,11 +27,13 @@ export default async function DaftarWargaAdmin({
   if (!bolehAkses) redirect("/admin?galat=akses");
 
   const lingkup = lingkupRt(pengguna);
+  const rwSaya = lingkupRw(pengguna);
   const rtFilter = lingkup ?? (sp.rt ? Number(sp.rt) : undefined);
   const cari = (sp.cari ?? "").trim();
   const halaman = Math.max(1, Number(sp.halaman ?? 1) || 1);
 
   const where = {
+    ...saringRwLewatRt(pengguna),
     ...(rtFilter ? { rtId: rtFilter } : {}),
     ...(cari
       ? {
@@ -50,7 +52,7 @@ export default async function DaftarWargaAdmin({
   const [warga, total, rtList, totalKk] = await Promise.all([
     db.warga.findMany({
       where,
-      include: { rt: { select: { nomor: true } } },
+      include: { rt: { select: { nomor: true, rw: { select: { nomor: true } } } } },
       // PostgreSQL menaruh NULL di akhir. Warga yang belum punya nomor KK
       // justru perlu terlihat lebih dulu agar datanya cepat dilengkapi.
       orderBy: [
@@ -62,9 +64,16 @@ export default async function DaftarWargaAdmin({
       take: PER_HALAMAN,
     }),
     db.warga.count({ where }),
-    db.rt.findMany({ orderBy: { nomor: "asc" } }),
+    db.rt.findMany({
+      where: rwSaya === null ? {} : { rwId: rwSaya },
+      orderBy: [{ rwId: "asc" }, { nomor: "asc" }],
+      include: { rw: { select: { nomor: true } } },
+    }),
     db.warga.findMany({
-      where: rtFilter ? { rtId: rtFilter } : undefined,
+      where: {
+        ...saringRwLewatRt(pengguna),
+        ...(rtFilter ? { rtId: rtFilter } : {}),
+      },
       select: { noKk: true },
       distinct: ["noKk"],
     }),

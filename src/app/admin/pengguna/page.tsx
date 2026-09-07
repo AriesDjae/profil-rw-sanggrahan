@@ -5,8 +5,8 @@ import TombolHapus from "@/components/admin/TombolHapus";
 import { Lencana } from "@/components/ui/LencanaStatus";
 import { db } from "@/lib/db";
 import { tanggalSingkat } from "@/lib/format";
-import { LABEL_PERAN, PERAN, type Peran } from "@/lib/konstanta";
-import { wajibPeran } from "@/lib/otorisasi";
+import { LABEL_PERAN, PERAN, PERAN_KELOLA_AKUN, type Peran } from "@/lib/konstanta";
+import { lingkupRw, lintasRw, wajibPeran } from "@/lib/otorisasi";
 
 import { alihkanAktifPengguna, hapusPengguna } from "./aksi";
 import FormPengguna from "./FormPengguna";
@@ -19,23 +19,64 @@ export default async function HalamanPenggunaAdmin({
 }: {
   searchParams: Promise<{ sunting?: string; pesan?: string; galat?: string }>;
 }) {
-  const saya = await wajibPeran([PERAN.ADMIN, PERAN.KETUA_RW]);
+  const saya = await wajibPeran(PERAN_KELOLA_AKUN);
   const sp = await searchParams;
 
-  const [pengguna, rtList, sedangSunting] = await Promise.all([
+  const lingkup = lingkupRw(saya);
+  const semuaRw = lintasRw(saya);
+
+  // Ketua RW melihat akun RW-nya saja. Administrator kampung melihat semuanya,
+  // termasuk administrator lain yang memang tidak bernaung di RW mana pun.
+  const rwSaya = lingkup ?? -1;
+  const saringAkun = semuaRw
+    ? {}
+    : { OR: [{ rwId: rwSaya }, { rt: { rwId: rwSaya } }] };
+
+  const [pengguna, rwList, rtList, sedangSunting] = await Promise.all([
     db.user.findMany({
-      orderBy: [{ peran: "asc" }, { nama: "asc" }],
-      include: { rt: { select: { nomor: true } } },
+      where: saringAkun,
+      orderBy: [{ rwId: "asc" }, { peran: "asc" }, { nama: "asc" }],
+      include: {
+        rt: { select: { nomor: true } },
+        rw: { select: { nama: true } },
+      },
     }),
-    db.rt.findMany({ orderBy: { nomor: "asc" } }),
-    sp.sunting ? db.user.findUnique({ where: { id: Number(sp.sunting) } }) : Promise.resolve(null),
+    db.rw.findMany({
+      where: semuaRw ? {} : { id: rwSaya },
+      orderBy: { nomor: "asc" },
+      select: { id: true, nomor: true, nama: true },
+    }),
+    db.rt.findMany({
+      where: semuaRw ? {} : { rwId: rwSaya },
+      orderBy: [{ rwId: "asc" }, { nomor: "asc" }],
+      include: { rw: { select: { nama: true } } },
+    }),
+    sp.sunting
+      ? db.user.findUnique({ where: { id: Number(sp.sunting) } })
+      : Promise.resolve(null),
   ]);
+
+  // Tautan ?sunting= bisa diketik tangan. Akun di luar lingkup diperlakukan
+  // seolah tidak ada, bukan ditampilkan lalu ditolak saat disimpan.
+  const bolehSunting =
+    sedangSunting &&
+    (semuaRw ||
+      (sedangSunting.peran !== PERAN.ADMIN &&
+        (sedangSunting.rwId === lingkup ||
+          rtList.some((r) => r.id === sedangSunting.rtId))));
+  const sunting = bolehSunting ? sedangSunting : null;
+
+  const rwTerkunci = semuaRw ? null : (rwList[0] ?? null);
 
   return (
     <>
       <KepalaHalaman
         judul="Akun Pengguna"
-        keterangan="Kelola akun pengurus beserta perannya. Peran menentukan tahap mana yang dapat ditandatangani pada alur laporan keuangan."
+        keterangan={
+          semuaRw
+            ? "Kelola akun pengurus ketiga RW beserta perannya. Peran menentukan tahap mana yang dapat ditandatangani pada alur laporan keuangan."
+            : `Kelola akun pengurus ${rwTerkunci?.nama ?? "RW Anda"}. Akun RW lain diurus pengurus RW tersebut atau administrator kampung.`
+        }
       />
 
       {sp.pesan && (
@@ -52,26 +93,34 @@ export default async function HalamanPenggunaAdmin({
       <div className="grid gap-6 lg:grid-cols-[24rem_1fr]">
         <div className="rounded-2xl border border-slate-200 bg-white p-6">
           <h2 className="mb-4 text-sm font-bold text-slate-900">
-            {sedangSunting ? `Sunting akun ${sedangSunting.nama}` : "Buat akun baru"}
+            {sunting ? `Sunting akun ${sunting.nama}` : "Buat akun baru"}
           </h2>
           <FormPengguna
             awal={
-              sedangSunting
+              sunting
                 ? {
-                    id: sedangSunting.id,
-                    nama: sedangSunting.nama,
-                    email: sedangSunting.email,
-                    peran: sedangSunting.peran,
-                    rtId: sedangSunting.rtId,
-                    jabatan: sedangSunting.jabatan,
-                    telepon: sedangSunting.telepon,
-                    aktif: sedangSunting.aktif,
+                    id: sunting.id,
+                    nama: sunting.nama,
+                    email: sunting.email,
+                    peran: sunting.peran,
+                    rwId: sunting.rwId,
+                    rtId: sunting.rtId,
+                    jabatan: sunting.jabatan,
+                    telepon: sunting.telepon,
+                    aktif: sunting.aktif,
                   }
                 : null
             }
-            rtList={rtList.map((r) => ({ id: r.id, nama: r.nama }))}
+            rwList={rwList}
+            rtList={rtList.map((r) => ({
+              id: r.id,
+              rwId: r.rwId,
+              nama: semuaRw ? `${r.nama} (${r.rw.nama})` : r.nama,
+            }))}
+            bolehAngkatAdmin={saya.peran === PERAN.ADMIN}
+            rwTerkunci={rwTerkunci}
           />
-          {sedangSunting && (
+          {sunting && (
             <Link href="/admin/pengguna"
               className="mt-4 inline-block text-xs font-semibold text-slate-500 hover:text-brand-700"
             >
@@ -107,7 +156,9 @@ export default async function HalamanPenggunaAdmin({
                     {LABEL_PERAN[u.peran as Peran] ?? u.peran}
                   </td>
                   <td className="px-5 py-3 text-slate-600">
-                    {u.rt ? `RT ${u.rt.nomor}` : "Seluruh RW"}
+                    {u.rt
+                      ? `RT ${u.rt.nomor} · ${u.rw?.nama ?? "-"}`
+                      : (u.rw?.nama ?? "Seluruh kampung")}
                   </td>
                   <td className="px-5 py-3">
                     <Lencana

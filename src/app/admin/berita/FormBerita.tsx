@@ -13,12 +13,14 @@ import {
   Teks,
   TombolSimpan,
 } from "@/components/admin/Formulir";
+import PilihRw, { type OpsiRw } from "@/components/admin/PilihRw";
 import { KATEGORI_BERITA, STATUS_KONTEN } from "@/lib/konstanta";
 
 import { simpanBerita, type Hasil } from "./aksi";
 
 export type BeritaAwal = {
   id: number;
+  rwId: number | null;
   judul: string;
   ringkasan: string;
   konten: string;
@@ -27,7 +29,15 @@ export type BeritaAwal = {
   gambar: string | null;
 } | null;
 
-export default function FormBerita({ awal }: { awal: BeritaAwal }) {
+export default function FormBerita({
+  awal,
+  rwList,
+  rwTerkunci,
+}: {
+  awal: BeritaAwal;
+  rwList: OpsiRw[];
+  rwTerkunci: OpsiRw | null;
+}) {
   const [status, aksi] = useActionState<Hasil, FormData>(simpanBerita, {});
   const v = pembacaNilai(status.nilai);
 
@@ -35,6 +45,13 @@ export default function FormBerita({ awal }: { awal: BeritaAwal }) {
     <form action={aksi} className="space-y-5">
       {awal && <input type="hidden" name="id" value={awal.id} />}
       <PesanGalat pesan={status.galat} />
+
+      <PilihRw
+        rwList={rwList}
+        rwTerkunci={rwTerkunci}
+        nilaiAwal={v("rwId", awal?.rwId)}
+        keterangan="Berita satu RW tampil di laman RW itu dan di daftar berita kampung. Pilih seluruh kampung bila kabarnya menyangkut ketiga RW."
+      />
 
       <Teks
         label="Judul berita"
@@ -85,7 +102,7 @@ export default function FormBerita({ awal }: { awal: BeritaAwal }) {
         label="Gambar utama"
         nama="gambar"
         pratinjau={awal?.gambar}
-        keterangan="JPG, PNG, atau WEBP maksimal 4 MB. Biarkan kosong untuk mempertahankan gambar lama."
+        keterangan="JPG, PNG, atau WEBP maksimal 12 MB. Foto besar dikecilkan otomatis. Biarkan kosong untuk mempertahankan gambar lama."
       />
 
       <div className="flex flex-wrap items-center gap-3 border-t border-slate-100 pt-5">

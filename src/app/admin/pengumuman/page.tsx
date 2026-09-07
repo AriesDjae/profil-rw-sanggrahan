@@ -6,7 +6,7 @@ import { Lencana } from "@/components/ui/LencanaStatus";
 import { db } from "@/lib/db";
 import { tanggalSingkat, untukInputTanggal } from "@/lib/format";
 import { PERAN_KONTEN } from "@/lib/konstanta";
-import { wajibPeran } from "@/lib/otorisasi";
+import { lintasRw, opsiRw, saringRw, seRw, wajibPeran } from "@/lib/otorisasi";
 
 import { alihkanAktif, hapusPengumuman } from "./aksi";
 import FormPengumuman from "./FormPengumuman";
@@ -19,21 +19,38 @@ export default async function HalamanPengumumanAdmin({
 }: {
   searchParams: Promise<{ sunting?: string }>;
 }) {
-  await wajibPeran(PERAN_KONTEN);
+  const pengguna = await wajibPeran(PERAN_KONTEN);
   const sp = await searchParams;
 
-  const [daftar, sedangSunting] = await Promise.all([
-    db.pengumuman.findMany({ orderBy: [{ aktif: "desc" }, { createdAt: "desc" }] }),
+  const semuaRw = lintasRw(pengguna);
+
+  const [daftar, sedangSuntingMentah, { rwList, rwTerkunci }] = await Promise.all([
+    db.pengumuman.findMany({
+      where: saringRw(pengguna),
+      orderBy: [{ aktif: "desc" }, { createdAt: "desc" }],
+      include: { rw: { select: { nama: true } } },
+    }),
     sp.sunting
       ? db.pengumuman.findUnique({ where: { id: Number(sp.sunting) } })
       : Promise.resolve(null),
+    opsiRw(pengguna),
   ]);
+
+  // ?sunting= bisa diketik tangan; pengumuman di luar lingkup tidak dibuka.
+  const sedangSunting =
+    sedangSuntingMentah && seRw(pengguna, sedangSuntingMentah.rwId)
+      ? sedangSuntingMentah
+      : null;
 
   return (
     <>
       <KepalaHalaman
         judul="Pengumuman"
-        keterangan="Informasi singkat yang tampil pada bilah pengumuman di beranda situs warga."
+        keterangan={
+          semuaRw
+            ? "Informasi singkat yang tampil pada bilah pengumuman. Pengumuman kampung muncul di ketiga laman RW."
+            : `Informasi singkat yang tampil di laman ${pengguna.rw?.nama ?? "RW Anda"}.`
+        }
       />
 
       <div className="grid gap-6 lg:grid-cols-[24rem_1fr]">
@@ -42,10 +59,14 @@ export default async function HalamanPengumumanAdmin({
             {sedangSunting ? "Sunting pengumuman" : "Tambah pengumuman"}
           </h2>
           <FormPengumuman
+            key={sedangSunting?.id ?? "baru"}
+            rwList={rwList}
+            rwTerkunci={rwTerkunci}
             awal={
               sedangSunting
                 ? {
                     id: sedangSunting.id,
+                    rwId: sedangSunting.rwId,
                     judul: sedangSunting.judul,
                     isi: sedangSunting.isi,
                     penting: sedangSunting.penting,
@@ -82,6 +103,14 @@ export default async function HalamanPengumumanAdmin({
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
                       <div className="mb-2 flex flex-wrap gap-2">
+                        <Lencana
+                          anak={p.rw?.nama ?? "Seluruh kampung"}
+                          warna={
+                            p.rw
+                              ? "bg-brand-50 text-brand-800 ring-brand-200"
+                              : "bg-aksen-50 text-aksen-800 ring-aksen-200"
+                          }
+                        />
                         {p.penting && (
                           <Lencana
                             anak="Penting"

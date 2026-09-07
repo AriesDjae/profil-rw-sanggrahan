@@ -1,4 +1,20 @@
-// Skema database Website Profil RW Sanggrahan
+// Skema database Website Kampung Sanggrahan
+//
+// Satu situs untuk tiga RW: RW 01, RW 02, dan RW 03 Kampung Sanggrahan,
+// Kelurahan Semaki, Kemantren Umbulharjo, Kota Yogyakarta. Tiap RW punya
+// lamannya sendiri dan pengurusnya sendiri; yang dibagi hanya kode program
+// dan satu basis data.
+//
+// Aturan lingkup — dipegang seluruh skema ini:
+//   * Rt WAJIB milik satu Rw. Nomor RT hanya unik di dalam RW-nya, jadi
+//     RT 01 boleh ada di ketiga RW.
+//   * User.rwId kosong HANYA untuk peran ADMIN, yaitu administrator tingkat
+//     kampung yang berwenang lintas RW. Peran lain wajib terikat satu RW.
+//   * Konten (Berita, Kegiatan, Pengumuman, Album, Pengurus) boleh ber-rwId
+//     kosong; itu berarti isinya milik kampung dan tampil di ketiga laman RW.
+//   * Warga dan LaporanKeuangan tidak menyimpan rwId — RW-nya dibaca lewat
+//     Rt, supaya tidak ada dua sumber kebenaran yang bisa berselisih.
+//
 // Kolom status memakai String, bukan enum, agar nilainya terkunci di satu
 // tempat (src/lib/konstanta.ts) dan penambahan status baru tidak memerlukan
 // migrasi tipe. Basis data: PostgreSQL (Neon di lingkungan demo).
@@ -12,23 +28,68 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-/// Daftar RT di bawah RW
+/// Satu RW di Kampung Sanggrahan. Isinya profil yang tampil di laman RW —
+/// tiap RW menulis sejarah, visi, dan misinya sendiri. Identitas tingkat
+/// kampung yang dipakai bersama ada di model Pengaturan.
+model Rw {
+  id    Int    @id @default(autoincrement())
+  /// 1, 2, atau 3. Ini yang muncul di alamat halaman: /rw/1.
+  nomor Int    @unique
+  nama  String
+  slug  String @unique
+
+  tagline   String  @default("")
+  deskripsi String  @default("")
+  sejarah   String  @default("")
+  visi      String  @default("")
+  misi      String  @default("")
+  alamat    String  @default("")
+  telepon   String  @default("")
+  email     String  @default("")
+  logo      String?
+  heroFoto  String?
+  /// RW yang dinonaktifkan hilang dari navigasi publik, datanya tetap utuh.
+  aktif     Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  rt         Rt[]
+  pengguna   User[]
+  berita     Berita[]
+  kegiatan   Kegiatan[]
+  pengumuman Pengumuman[]
+  album      Album[]
+  pengurus   Pengurus[]
+}
+
+/// Daftar RT di bawah sebuah RW
 model Rt {
   id        Int      @id @default(autoincrement())
-  nomor     String   @unique
+  /// Unik di dalam RW-nya saja, bukan se-kampung: RT 01 ada di RW 1, 2, dan 3.
+  nomor     String
   nama      String
+  rwId      Int
   wilayah   String?
   jumlahKk  Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  rw       Rw                @relation(fields: [rwId], references: [id], onDelete: Cascade)
   pengguna User[]
   warga    Warga[]
   laporan  LaporanKeuangan[]
   pengurus Pengurus[]
+
+  @@unique([rwId, nomor])
+  @@index([rwId])
 }
 
-/// Akun pengelola: ADMIN, KETUA_RW, SEKRETARIS, KETUA_RT, BENDAHARA_RT
+/// Akun pengelola: ADMIN, KETUA_RW, SEKRETARIS, KETUA_RT, BENDAHARA_RT.
+///
+/// rwId kosong berarti administrator kampung — satu-satunya peran yang
+/// berwenang lintas RW. Semua peran lain terkunci di RW-nya; Ketua RT dan
+/// Bendahara RT dipersempit lagi ke satu RT.
 model User {
   id           Int      @id @default(autoincrement())
   nama         String
@@ -39,25 +100,30 @@ model User {
   telepon      String?
   foto         String?
   aktif        Boolean  @default(true)
+  rwId         Int?
   rtId         Int?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
+  rw Rw? @relation(fields: [rwId], references: [id], onDelete: SetNull)
   rt Rt? @relation(fields: [rtId], references: [id], onDelete: SetNull)
 
   berita          Berita[]
   kegiatan        Kegiatan[]
-  laporanDibuat   LaporanKeuangan[] @relation("LaporanDibuatOleh")
-  laporanVerifRt  LaporanKeuangan[] @relation("LaporanVerifikasiRt")
-  laporanSetujuRw LaporanKeuangan[] @relation("LaporanPersetujuanRw")
+  laporanDibuat   LaporanKeuangan[]    @relation("LaporanDibuatOleh")
+  laporanVerifRt  LaporanKeuangan[]    @relation("LaporanVerifikasiRt")
+  laporanSetujuRw LaporanKeuangan[]    @relation("LaporanPersetujuanRw")
   riwayat         RiwayatPersetujuan[]
 
   @@index([peran])
+  @@index([rwId])
 }
 
 /// Berita / artikel
 model Berita {
   id        Int       @id @default(autoincrement())
+  /// Kosong berarti milik kampung: tampil di beranda kampung dan di ketiga laman RW.
+  rwId      Int?
   judul     String
   slug      String    @unique
   ringkasan String
@@ -72,13 +138,17 @@ model Berita {
   updatedAt DateTime  @updatedAt
 
   penulis User? @relation(fields: [penulisId], references: [id], onDelete: SetNull)
+  rw      Rw?   @relation(fields: [rwId], references: [id], onDelete: Cascade)
 
   @@index([status, terbitAt])
+  @@index([rwId, status, terbitAt])
 }
 
 /// Agenda kegiatan
 model Kegiatan {
   id            Int       @id @default(autoincrement())
+  /// Kosong berarti kegiatan kampung: tampil di ketiga laman RW.
+  rwId          Int?
   judul         String
   slug          String    @unique
   deskripsi     String
@@ -95,13 +165,17 @@ model Kegiatan {
   updatedAt     DateTime  @updatedAt
 
   dibuatOleh User? @relation(fields: [dibuatOlehId], references: [id], onDelete: SetNull)
+  rw         Rw?   @relation(fields: [rwId], references: [id], onDelete: Cascade)
 
   @@index([status, mulai])
+  @@index([rwId, status, mulai])
 }
 
 /// Pengumuman singkat untuk beranda
 model Pengumuman {
   id        Int       @id @default(autoincrement())
+  /// Kosong berarti milik kampung: tampil di beranda kampung dan di ketiga laman RW.
+  rwId      Int?
   judul     String
   isi       String
   penting   Boolean   @default(false)
@@ -110,11 +184,17 @@ model Pengumuman {
   aktif     Boolean   @default(true)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+
+  rw Rw? @relation(fields: [rwId], references: [id], onDelete: Cascade)
+
+  @@index([rwId, aktif])
 }
 
 /// Album galeri foto
 model Album {
   id        Int      @id @default(autoincrement())
+  /// Kosong berarti milik kampung: tampil di beranda kampung dan di ketiga laman RW.
+  rwId      Int?
   nama      String
   slug      String   @unique
   deskripsi String?
@@ -122,7 +202,10 @@ model Album {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  rw   Rw?    @relation(fields: [rwId], references: [id], onDelete: Cascade)
   foto Foto[]
+
+  @@index([rwId, tanggal])
 }
 
 model Foto {
@@ -231,36 +314,44 @@ model RiwayatPersetujuan {
   @@index([laporanId])
 }
 
-/// Struktur organisasi pengurus RW / RT / lembaga
+/// Struktur organisasi pengurus RW / RT / lembaga.
+/// rwId kosong dipakai untuk pengurus tingkat kampung (mis. paguyuban tiga RW).
 model Pengurus {
   id      Int     @id @default(autoincrement())
   nama    String
   jabatan String
   level   String  @default("RW")
+  rwId    Int?
   rtId    Int?
   foto    String?
   telepon String?
   periode String?
   urutan  Int     @default(0)
 
+  rw Rw? @relation(fields: [rwId], references: [id], onDelete: Cascade)
   rt Rt? @relation(fields: [rtId], references: [id], onDelete: SetNull)
 
   @@index([level, urutan])
+  @@index([rwId, urutan])
 }
 
-/// Pengaturan situs (baris tunggal, id = 1)
+/// Pengaturan situs tingkat kampung (baris tunggal, id = 1).
+/// Profil tiap RW ada di model Rw, bukan di sini.
 model Pengaturan {
-  id        Int      @id @default(1)
-  namaRw    String   @default("RW Sanggrahan")
-  tagline   String   @default("Guyub, Rukun, Maju Bersama")
-  deskripsi String   @default("")
-  sejarah   String   @default("")
-  visi      String   @default("")
-  misi      String   @default("")
-  alamat    String   @default("")
-  telepon   String   @default("")
-  email     String   @default("")
-  logo      String?
-  heroFoto  String?
-  updatedAt DateTime @updatedAt
+  id          Int      @id @default(1)
+  namaKampung String   @default("Kampung Sanggrahan")
+  kelurahan   String   @default("Semaki")
+  kemantren   String   @default("Umbulharjo")
+  kota        String   @default("Kota Yogyakarta")
+  tagline     String   @default("Guyub, Rukun, Maju Bersama")
+  deskripsi   String   @default("")
+  sejarah     String   @default("")
+  visi        String   @default("")
+  misi        String   @default("")
+  alamat      String   @default("")
+  telepon     String   @default("")
+  email       String   @default("")
+  logo        String?
+  heroFoto    String?
+  updatedAt   DateTime @updatedAt
 }

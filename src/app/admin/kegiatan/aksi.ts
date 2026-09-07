@@ -4,9 +4,10 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { db } from "@/lib/db";
+import { segarkanLamanRw } from "@/lib/rw";
 import { nilaiForm, type HasilAksi } from "@/lib/formulir";
 import { PERAN_KONTEN } from "@/lib/konstanta";
-import { wajibPeran } from "@/lib/otorisasi";
+import { rwUntukBarisBaru, seRw, wajibPeran } from "@/lib/otorisasi";
 import { slugUnik } from "@/lib/slug";
 import { simpanBerkas } from "@/lib/unggah";
 
@@ -14,11 +15,16 @@ export type Hasil = HasilAksi;
 
 const STATUS_SAH = ["DRAFT", "TERBIT", "SELESAI", "BATAL"];
 
-function segarkan(slug?: string) {
+async function segarkan(slug?: string) {
   revalidatePath("/admin/kegiatan");
   revalidatePath("/kegiatan");
   revalidatePath("/");
   if (slug) revalidatePath(`/kegiatan/${slug}`);
+  // Beranda tiap RW dibangun statis dengan masa berlaku lima menit. Tanpa baris
+  // ini, pengurus yang baru menyimpan perubahan membuka laman RW-nya dan tidak
+  // melihat apa-apa selama beberapa menit — lalu mengira simpanannya gagal.
+  await segarkanLamanRw();
+
 }
 
 export async function simpanKegiatan(_prev: Hasil, formData: FormData): Promise<Hasil> {
@@ -57,10 +63,16 @@ export async function simpanKegiatan(_prev: Hasil, formData: FormData): Promise<
 
   const lama = id ? await db.kegiatan.findUnique({ where: { id } }) : null;
   if (id && !lama) return { galat: "Kegiatan tidak ditemukan.", nilai };
+  if (lama && !seRw(pengguna, lama.rwId)) {
+    return { galat: "Kegiatan ini berada di luar kewenangan Anda.", nilai };
+  }
+
+  const rwId = rwUntukBarisBaru(pengguna, Number(formData.get("rwId")) || null);
 
   const slug = await slugUnik("kegiatan", judul, id ?? undefined);
 
   const data = {
+    rwId,
     judul,
     slug,
     deskripsi,
@@ -78,29 +90,36 @@ export async function simpanKegiatan(_prev: Hasil, formData: FormData): Promise<
     ? await db.kegiatan.update({ where: { id: lama.id }, data })
     : await db.kegiatan.create({ data: { ...data, dibuatOlehId: pengguna.id } });
 
-  segarkan(hasil.slug);
+  await segarkan(hasil.slug);
+  // Mengganti judul juga mengganti slug, jadi alamat lamanya ikut disegarkan.
+  // Tanpa ini halaman di alamat lama tetap tersaji dari cache dengan isi usang
+  // sampai masa berlakunya habis — padahal barisnya sudah pindah alamat.
+  if (lama && lama.slug !== hasil.slug) revalidatePath(`/kegiatan/${lama.slug}`);
   redirect(
     `/admin/kegiatan?pesan=${encodeURIComponent(lama ? "Kegiatan diperbarui." : "Kegiatan tersimpan.")}`,
   );
 }
 
 export async function hapusKegiatan(formData: FormData) {
-  await wajibPeran(PERAN_KONTEN);
+  const pengguna = await wajibPeran(PERAN_KONTEN);
   const id = Number(formData.get("id"));
   const kegiatan = await db.kegiatan.findUnique({ where: { id } });
-  if (!kegiatan) return;
+  if (!kegiatan || !seRw(pengguna, kegiatan.rwId)) return;
 
   await db.kegiatan.delete({ where: { id } });
-  segarkan(kegiatan.slug);
+  await segarkan(kegiatan.slug);
   redirect("/admin/kegiatan?pesan=Kegiatan dihapus.");
 }
 
 export async function ubahStatusKegiatan(formData: FormData) {
-  await wajibPeran(PERAN_KONTEN);
+  const pengguna = await wajibPeran(PERAN_KONTEN);
   const id = Number(formData.get("id"));
   const status = String(formData.get("status"));
   if (!STATUS_SAH.includes(status)) return;
 
+  const lama = await db.kegiatan.findUnique({ where: { id } });
+  if (!lama || !seRw(pengguna, lama.rwId)) return;
+
   const kegiatan = await db.kegiatan.update({ where: { id }, data: { status } });
-  segarkan(kegiatan.slug);
+  await segarkan(kegiatan.slug);
 }

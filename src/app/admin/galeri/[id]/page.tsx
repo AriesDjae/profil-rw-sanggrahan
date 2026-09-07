@@ -5,7 +5,7 @@ import TombolHapus from "@/components/admin/TombolHapus";
 import { db } from "@/lib/db";
 import { untukInputTanggal } from "@/lib/format";
 import { PERAN_KONTEN } from "@/lib/konstanta";
-import { wajibPeran } from "@/lib/otorisasi";
+import { opsiRw, wajibPeran, wajibSeRwAtau404 } from "@/lib/otorisasi";
 
 import { hapusAlbum, hapusFoto } from "../aksi";
 import FormAlbum from "../FormAlbum";
@@ -19,20 +19,23 @@ export default async function KelolaAlbum({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  await wajibPeran(PERAN_KONTEN);
+  const pengguna = await wajibPeran(PERAN_KONTEN);
   const { id } = await params;
 
   const album = await db.album.findUnique({
     where: { id: Number(id) },
-    include: { foto: { orderBy: { urutan: "asc" } } },
+    include: { foto: { orderBy: { urutan: "asc" } }, rw: { select: { nama: true } } },
   });
   if (!album) notFound();
+  wajibSeRwAtau404(pengguna, album.rwId);
+
+  const { rwList, rwTerkunci } = await opsiRw(pengguna);
 
   return (
     <>
       <KepalaHalaman
         judul={album.nama}
-        keterangan={`${album.foto.length} foto dalam album ini.`}
+        keterangan={`${album.rw?.nama ?? "Seluruh kampung"} · ${album.foto.length} foto dalam album ini.`}
         kembali={{ href: "/admin/galeri", label: "Kembali ke daftar album" }}
         aksi={
           <form action={hapusAlbum}>
@@ -55,8 +58,11 @@ export default async function KelolaAlbum({
           <div className="rounded-2xl border border-slate-200 bg-white p-6">
             <h2 className="mb-4 text-sm font-bold text-slate-900">Data album</h2>
             <FormAlbum
+              rwList={rwList}
+              rwTerkunci={rwTerkunci}
               awal={{
                 id: album.id,
+                rwId: album.rwId,
                 nama: album.nama,
                 deskripsi: album.deskripsi,
                 tanggal: untukInputTanggal(album.tanggal),

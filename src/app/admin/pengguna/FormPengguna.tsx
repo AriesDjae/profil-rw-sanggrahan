@@ -11,7 +11,13 @@ import {
   Teks,
   TombolSimpan,
 } from "@/components/admin/Formulir";
-import { LABEL_PERAN, PERAN, PERAN_TERIKAT_RT, type Peran } from "@/lib/konstanta";
+import {
+  LABEL_PERAN,
+  PERAN,
+  PERAN_TERIKAT_RT,
+  PERAN_TERIKAT_RW,
+  type Peran,
+} from "@/lib/konstanta";
 
 import { simpanPengguna, type Hasil } from "./aksi";
 
@@ -20,6 +26,7 @@ export type PenggunaAwal = {
   nama: string;
   email: string;
   peran: string;
+  rwId: number | null;
   rtId: number | null;
   jabatan: string | null;
   telepon: string | null;
@@ -28,10 +35,18 @@ export type PenggunaAwal = {
 
 export default function FormPengguna({
   awal,
+  rwList,
   rtList,
+  bolehAngkatAdmin,
+  rwTerkunci,
 }: {
   awal?: PenggunaAwal;
-  rtList: { id: number; nama: string }[];
+  rwList: { id: number; nomor: number; nama: string }[];
+  rtList: { id: number; rwId: number; nama: string }[];
+  /** Hanya administrator kampung yang boleh membuat administrator lain. */
+  bolehAngkatAdmin: boolean;
+  /** Diisi bila pengelolanya Ketua RW: RW-nya tidak bisa dipilih, hanya ditampilkan. */
+  rwTerkunci: { id: number; nama: string } | null;
 }) {
   const [status, aksi] = useActionState<Hasil, FormData>(simpanPengguna, {});
   const v = pembacaNilai(status.nilai);
@@ -39,7 +54,19 @@ export default function FormPengguna({
   const peranAwal = String(v("peran", awal?.peran ?? PERAN.SEKRETARIS));
   const [peran, setPeran] = useState<string>(peranAwal);
 
+  const rwPilihanAwal = String(v("rwId", awal?.rwId ?? rwTerkunci?.id ?? rwList[0]?.id ?? ""));
+  const [rwId, setRwId] = useState<string>(rwPilihanAwal);
+
   const butuhRt = PERAN_TERIKAT_RT.includes(peran as Peran);
+  const butuhRw = PERAN_TERIKAT_RW.includes(peran as Peran);
+
+  const peranTersedia = Object.values(PERAN).filter(
+    (p) => bolehAngkatAdmin || p !== PERAN.ADMIN,
+  );
+
+  // RT dari RW lain tidak pernah ditawarkan: akun yang terlanjur terhubung ke
+  // sana akan melihat kas RW lain, dan pembuatnya sendiri tak bisa mengoreksinya.
+  const rtTersedia = rtList.filter((r) => String(r.rwId) === rwId);
 
   return (
     <form action={aksi} className="space-y-4">
@@ -68,7 +95,7 @@ export default function FormPengguna({
           onChange={(e) => setPeran(e.target.value)}
           className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-200"
         >
-          {Object.values(PERAN).map((p) => (
+          {peranTersedia.map((p) => (
             <option key={p} value={p}>
               {LABEL_PERAN[p]}
             </option>
@@ -83,9 +110,46 @@ export default function FormPengguna({
                 ? "Memberi persetujuan akhir sehingga laporan tampil ke warga."
                 : peran === PERAN.SEKRETARIS
                   ? "Mengelola berita, kegiatan, galeri, dan data warga."
-                  : "Akses penuh termasuk pengelolaan akun dan pengaturan situs."}
+                  : "Berwenang lintas RW: seluruh isi ketiga RW, akun, dan pengaturan kampung."}
         </p>
       </div>
+
+      {butuhRw &&
+        (rwTerkunci ? (
+          <div className="rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-3">
+            <input type="hidden" name="rwId" value={rwTerkunci.id} />
+            <p className="text-sm font-medium text-slate-700">
+              Rukun Warga: {rwTerkunci.nama}
+            </p>
+            <p className="mt-1 text-xs text-slate-500">
+              Anda hanya dapat membuat akun untuk {rwTerkunci.nama}. Akun untuk RW lain
+              dibuat oleh pengurus RW tersebut atau oleh administrator kampung.
+            </p>
+          </div>
+        ) : (
+          <div>
+            <label htmlFor="rwId" className="mb-1.5 block text-sm font-medium text-slate-700">
+              Rukun Warga <span className="text-rose-600">*</span>
+            </label>
+            <select
+              key={rwPilihanAwal}
+              id="rwId"
+              name="rwId"
+              defaultValue={rwPilihanAwal}
+              onChange={(e) => setRwId(e.target.value)}
+              className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-200"
+            >
+              {rwList.map((r) => (
+                <option key={r.id} value={r.id}>
+                  {r.nama}
+                </option>
+              ))}
+            </select>
+            <p className="mt-1.5 text-xs text-slate-500">
+              Akun ini hanya akan melihat dan mengubah data RW tersebut.
+            </p>
+          </div>
+        ))}
 
       {butuhRt && (
         <Pilihan
@@ -94,7 +158,8 @@ export default function FormPengguna({
           wajib
           kosong="Pilih RT"
           nilaiAwal={v("rtId", awal?.rtId)}
-          opsi={rtList.map((r) => ({ nilai: r.id, label: r.nama }))}
+          opsi={rtTersedia.map((r) => ({ nilai: r.id, label: r.nama }))}
+          keterangan="Hanya RT di dalam RW yang dipilih di atas."
         />
       )}
 

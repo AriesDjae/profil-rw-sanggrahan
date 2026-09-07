@@ -12,17 +12,24 @@ import {
   TombolSimpan,
 } from "@/components/admin/Formulir";
 
+import PilihRw, { type OpsiRw } from "@/components/admin/PilihRw";
+
 import { simpanAlbum, type Hasil } from "./aksi";
 
 export default function FormAlbum({
   awal,
+  rwList,
+  rwTerkunci,
 }: {
   awal?: {
     id: number;
+    rwId: number | null;
     nama: string;
     deskripsi: string | null;
     tanggal: string;
   } | null;
+  rwList: OpsiRw[];
+  rwTerkunci: OpsiRw | null;
 }) {
   const [status, aksi] = useActionState<Hasil, FormData>(simpanAlbum, {});
   const v = pembacaNilai(status.nilai);
@@ -32,6 +39,13 @@ export default function FormAlbum({
       {awal && <input type="hidden" name="id" value={awal.id} />}
       <PesanGalat pesan={status.galat} />
       <PesanSukses pesan={status.sukses} />
+
+      <PilihRw
+        rwList={rwList}
+        rwTerkunci={rwTerkunci}
+        nilaiAwal={v("rwId", awal?.rwId)}
+        keterangan="Album satu RW tampil di galeri RW itu. Pilih seluruh kampung untuk dokumentasi acara bersama."
+      />
 
       <Teks
         label="Nama album"

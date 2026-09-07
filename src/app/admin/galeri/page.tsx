@@ -4,7 +4,7 @@ import KepalaHalaman from "@/components/admin/KepalaHalaman";
 import { db } from "@/lib/db";
 import { tanggalSingkat } from "@/lib/format";
 import { PERAN_KONTEN } from "@/lib/konstanta";
-import { wajibPeran } from "@/lib/otorisasi";
+import { lintasRw, opsiRw, saringRw, wajibPeran } from "@/lib/otorisasi";
 
 import FormAlbum from "./FormAlbum";
 
@@ -16,19 +16,33 @@ export default async function DaftarAlbumAdmin({
 }: {
   searchParams: Promise<{ pesan?: string }>;
 }) {
-  await wajibPeran(PERAN_KONTEN);
+  const pengguna = await wajibPeran(PERAN_KONTEN);
   const sp = await searchParams;
 
-  const album = await db.album.findMany({
-    orderBy: { tanggal: "desc" },
-    include: { _count: { select: { foto: true } }, foto: { take: 1, orderBy: { urutan: "asc" } } },
-  });
+  const semuaRw = lintasRw(pengguna);
+
+  const [album, { rwList, rwTerkunci }] = await Promise.all([
+    db.album.findMany({
+      where: saringRw(pengguna),
+      orderBy: { tanggal: "desc" },
+      include: {
+        rw: { select: { nama: true } },
+        _count: { select: { foto: true } },
+        foto: { take: 1, orderBy: { urutan: "asc" } },
+      },
+    }),
+    opsiRw(pengguna),
+  ]);
 
   return (
     <>
       <KepalaHalaman
         judul="Galeri Foto"
-        keterangan="Kelompokkan dokumentasi kegiatan warga ke dalam album, lalu unggah fotonya."
+        keterangan={
+          semuaRw
+            ? "Kelompokkan dokumentasi kegiatan warga ke dalam album, lalu unggah fotonya. Album kampung tampil di ketiga laman RW."
+            : `Album dokumentasi ${pengguna.rw?.nama ?? "RW Anda"}.`
+        }
       />
 
       {sp.pesan && (
@@ -40,7 +54,7 @@ export default async function DaftarAlbumAdmin({
       <div className="grid gap-6 lg:grid-cols-[24rem_1fr]">
         <div className="rounded-2xl border border-slate-200 bg-white p-6">
           <h2 className="mb-4 text-sm font-bold text-slate-900">Album baru</h2>
-          <FormAlbum awal={null} />
+          <FormAlbum awal={null} rwList={rwList} rwTerkunci={rwTerkunci} />
         </div>
 
         <div>

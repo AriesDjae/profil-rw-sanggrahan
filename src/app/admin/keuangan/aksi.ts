@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { db } from "@/lib/db";
+import { segarkanLamanRw } from "@/lib/rw";
 import { nilaiForm, type HasilAksi } from "@/lib/formulir";
 import { NAMA_BULAN, PERAN, STATUS_LAPORAN } from "@/lib/konstanta";
 import {
@@ -23,11 +24,16 @@ function keAngka(nilai: FormDataEntryValue | null): number {
   return Number.isFinite(n) ? n : 0;
 }
 
-function segarkan(laporanId?: number) {
+async function segarkan(laporanId?: number) {
   revalidatePath("/admin/keuangan");
   revalidatePath("/admin/persetujuan");
   revalidatePath("/admin");
   revalidatePath("/keuangan");
+  // Beranda tiap RW dibangun statis dengan masa berlaku lima menit. Tanpa baris
+  // ini, pengurus yang baru menyimpan perubahan membuka laman RW-nya dan tidak
+  // melihat apa-apa selama beberapa menit — lalu mengira simpanannya gagal.
+  await segarkanLamanRw();
+
   if (laporanId) {
     revalidatePath(`/admin/keuangan/${laporanId}`);
     revalidatePath(`/keuangan/${laporanId}`);
@@ -99,7 +105,7 @@ export async function buatLaporan(_prev: Hasil, formData: FormData): Promise<Has
   });
 
   await catat(laporan.id, "BUAT", pengguna.id, "Laporan dibuat.");
-  segarkan(laporan.id);
+  await segarkan(laporan.id);
   redirect(`/admin/keuangan/${laporan.id}`);
 }
 
@@ -127,7 +133,7 @@ export async function ubahLaporan(_prev: Hasil, formData: FormData): Promise<Has
     },
   });
 
-  segarkan(id);
+  await segarkan(id);
   return { sukses: "Perubahan laporan tersimpan." };
 }
 
@@ -145,7 +151,7 @@ export async function hapusLaporan(formData: FormData) {
   }
 
   await db.laporanKeuangan.delete({ where: { id } });
-  segarkan();
+  await segarkan();
   redirect("/admin/keuangan?pesan=laporan-dihapus");
 }
 
@@ -203,7 +209,7 @@ export async function tambahTransaksi(_prev: Hasil, formData: FormData): Promise
     },
   });
 
-  segarkan(laporanId);
+  await segarkan(laporanId);
   return { sukses: "Transaksi ditambahkan." };
 }
 
@@ -224,7 +230,7 @@ export async function hapusTransaksi(formData: FormData) {
   }
 
   await db.transaksi.delete({ where: { id } });
-  segarkan(transaksi.laporanId);
+  await segarkan(transaksi.laporanId);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -270,7 +276,7 @@ export async function ajukanLaporan(formData: FormData) {
   });
 
   await catat(id, "AJUKAN", pengguna.id, "Laporan diajukan untuk diverifikasi Ketua RT.");
-  segarkan(id);
+  await segarkan(id);
   redirect(`/admin/keuangan/${id}?pesan=Laporan berhasil diajukan ke Ketua RT`);
 }
 
@@ -299,7 +305,7 @@ export async function verifikasiRt(formData: FormData) {
   });
 
   await catat(id, "VERIFIKASI_RT", pengguna.id, catatan);
-  segarkan(id);
+  await segarkan(id);
   redirect(`/admin/keuangan/${id}?pesan=Laporan diteruskan ke Ketua RW`);
 }
 
@@ -311,7 +317,7 @@ export async function tolakRt(formData: FormData) {
   if (!laporan) return;
 
   if (!bolehVerifikasiRt(pengguna, laporan.rtId)) {
-    redirect(`/admin/keuangan/${id}?galat=Anda tidak berhak menolak laporan ini`);
+    redirect(`/admin/keuangan/${id}?galat=Laporan ini berada di luar RW Anda`);
   }
   if (laporan.status !== STATUS_LAPORAN.DIAJUKAN) {
     redirect(`/admin/keuangan/${id}?galat=Laporan tidak berada pada tahap verifikasi RT`);
@@ -331,7 +337,7 @@ export async function tolakRt(formData: FormData) {
   });
 
   await catat(id, "TOLAK_RT", pengguna.id, catatan);
-  segarkan(id);
+  await segarkan(id);
   redirect(`/admin/keuangan/${id}?pesan=Laporan dikembalikan kepada bendahara`);
 }
 
@@ -339,11 +345,16 @@ export async function setujuiRw(formData: FormData) {
   const pengguna = await wajibMasuk();
   const id = Number(formData.get("id"));
   const catatan = String(formData.get("catatan") ?? "").trim();
-  const laporan = await db.laporanKeuangan.findUnique({ where: { id } });
+  const laporan = await db.laporanKeuangan.findUnique({
+    where: { id },
+    include: { rt: { select: { rwId: true } } },
+  });
   if (!laporan) return;
 
-  if (!bolehSetujuiRw(pengguna)) {
-    redirect(`/admin/keuangan/${id}?galat=Hanya Ketua RW yang dapat memberi persetujuan akhir`);
+  if (!bolehSetujuiRw(pengguna, laporan.rt.rwId)) {
+    redirect(
+      `/admin/keuangan/${id}?galat=Persetujuan akhir hanya diberikan Ketua RW yang menaungi RT ini`,
+    );
   }
   if (laporan.status !== STATUS_LAPORAN.DIVERIFIKASI_RT) {
     redirect(
@@ -362,7 +373,7 @@ export async function setujuiRw(formData: FormData) {
   });
 
   await catat(id, "SETUJUI_RW", pengguna.id, catatan);
-  segarkan(id);
+  await segarkan(id);
   redirect(`/admin/keuangan/${id}?pesan=Laporan disetujui dan kini tampil untuk warga`);
 }
 
@@ -370,11 +381,14 @@ export async function tolakRw(formData: FormData) {
   const pengguna = await wajibMasuk();
   const id = Number(formData.get("id"));
   const catatan = String(formData.get("catatan") ?? "").trim();
-  const laporan = await db.laporanKeuangan.findUnique({ where: { id } });
+  const laporan = await db.laporanKeuangan.findUnique({
+    where: { id },
+    include: { rt: { select: { rwId: true } } },
+  });
   if (!laporan) return;
 
-  if (!bolehSetujuiRw(pengguna)) {
-    redirect(`/admin/keuangan/${id}?galat=Anda tidak berhak menolak laporan ini`);
+  if (!bolehSetujuiRw(pengguna, laporan.rt.rwId)) {
+    redirect(`/admin/keuangan/${id}?galat=Laporan ini berada di luar RW Anda`);
   }
   if (laporan.status !== STATUS_LAPORAN.DIVERIFIKASI_RT) {
     redirect(`/admin/keuangan/${id}?galat=Laporan tidak berada pada tahap persetujuan RW`);
@@ -394,7 +408,7 @@ export async function tolakRw(formData: FormData) {
   });
 
   await catat(id, "TOLAK_RW", pengguna.id, catatan);
-  segarkan(id);
+  await segarkan(id);
   redirect(`/admin/keuangan/${id}?pesan=Laporan dikembalikan untuk direvisi`);
 }
 
@@ -406,11 +420,16 @@ export async function bukaKembali(formData: FormData) {
   const pengguna = await wajibMasuk();
   const id = Number(formData.get("id"));
   const catatan = String(formData.get("catatan") ?? "").trim();
-  const laporan = await db.laporanKeuangan.findUnique({ where: { id } });
+  const laporan = await db.laporanKeuangan.findUnique({
+    where: { id },
+    include: { rt: { select: { rwId: true } } },
+  });
   if (!laporan) return;
 
-  if (!bolehSetujuiRw(pengguna)) {
-    redirect(`/admin/keuangan/${id}?galat=Hanya Ketua RW atau administrator yang dapat membuka kembali laporan`);
+  if (!bolehSetujuiRw(pengguna, laporan.rt.rwId)) {
+    redirect(
+      `/admin/keuangan/${id}?galat=Hanya Ketua RW yang menaungi RT ini atau administrator kampung yang dapat membuka kembali laporan`,
+    );
   }
   if (laporan.status !== STATUS_LAPORAN.DISETUJUI) {
     redirect(`/admin/keuangan/${id}?galat=Hanya laporan yang sudah disetujui yang dapat dibuka kembali`);
@@ -430,6 +449,6 @@ export async function bukaKembali(formData: FormData) {
   });
 
   await catat(id, "TOLAK_RW", pengguna.id, `Dibuka kembali: ${catatan}`);
-  segarkan(id);
+  await segarkan(id);
   redirect(`/admin/keuangan/${id}?pesan=Laporan dibuka kembali dan ditarik dari halaman publik`);
 }

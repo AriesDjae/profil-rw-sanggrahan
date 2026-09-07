@@ -16,9 +16,9 @@ const UKURAN = [
 ];
 
 const HALAMAN_PUBLIK = [
-  ["beranda", "/"],
+  ["beranda-kampung", "/"],
   ["berita", "/berita"],
-  ["berita-detail", "/berita/kerja-bakti-serentak-bersihkan-saluran-air-jelang-musim-hujan"],
+  ["berita-detail", "/berita/kerja-bakti-bersihkan-saluran-air-jelang-musim-hujan"],
   ["kegiatan", "/kegiatan"],
   ["kegiatan-arsip", "/kegiatan?tampil=lampau"],
   ["keuangan", "/keuangan"],
@@ -27,8 +27,23 @@ const HALAMAN_PUBLIK = [
   ["data-warga", "/data-warga"],
   ["data-warga-rt", "/data-warga?rt=3"],
   ["galeri", "/galeri"],
-  ["galeri-album", "/galeri/kerja-bakti-saluran-air"],
+  ["galeri-album", "/galeri/kerja-bakti-saluran-air-rw-01"],
   ["masuk", "/masuk"],
+
+  // Ketiga laman RW diperiksa satu per satu. RW 02 dan RW 03 punya isi yang
+  // lebih sedikit daripada RW 01, jadi justru di situlah keadaan "hampir
+  // kosong" ketahuan kalau tata letaknya rusak.
+  ["rw1-beranda", "/rw/1"],
+  ["rw1-berita", "/rw/1/berita"],
+  ["rw1-keuangan", "/rw/1/keuangan"],
+  ["rw1-data-warga", "/rw/1/data-warga"],
+  ["rw1-profil", "/rw/1/profil"],
+  ["rw2-beranda", "/rw/2"],
+  ["rw2-kegiatan", "/rw/2/kegiatan"],
+  ["rw2-galeri", "/rw/2/galeri"],
+  ["rw3-beranda", "/rw/3"],
+  ["rw3-keuangan", "/rw/3/keuangan"],
+  ["rw3-profil", "/rw/3/profil"],
 ];
 
 const HALAMAN_ADMIN = [
@@ -76,7 +91,14 @@ async function periksa(page, nama, ukuran, jalur) {
   page.on("requestfailed", onFailed);
   page.on("response", onResponse);
 
-  const resp = await page.goto(DASAR + jalur, { waitUntil: "networkidle" });
+  // Bukan "networkidle": Next.js mem-prefetch setiap <Link> yang terlihat di
+  // layar, jadi pada lebar desktop — tempat tautan paling banyak tampak
+  // sekaligus — lalu lintas jaringan tidak pernah benar-benar sepi dan
+  // pemeriksaan menggantung sampai batas waktu. Yang dibutuhkan pemeriksaan di
+  // bawah hanyalah DOM yang sudah jadi; jeda pendek memberi kesempatan galat
+  // konsol dan permintaan gagal muncul lebih dulu.
+  const resp = await page.goto(DASAR + jalur, { waitUntil: "load" });
+  await page.waitForTimeout(400);
 
   if (!resp || resp.status() >= 400) {
     lapor("GALAT", nama, ukuran.nama, `status HTTP ${resp?.status()}`);
@@ -156,6 +178,15 @@ async function periksa(page, nama, ukuran, jalur) {
   for (const g of galatKonsol) lapor("GALAT", nama, ukuran.nama, `konsol: ${g.slice(0, 160)}`);
   for (const g of gagalMuat) lapor("GALAT", nama, ukuran.nama, `permintaan: ${g.slice(0, 160)}`);
 
+  // Pendengar dilepas lagi. Satu objek halaman dipakai untuk seluruh daftar
+  // halaman, jadi tanpa baris ini tiap pemeriksaan menambah tiga pendengar yang
+  // tidak pernah hilang — dan setiap respons berikutnya harus melewati semuanya.
+  // Setelah daftar halaman bertambah menjadi 24 (tiga laman RW ikut diperiksa),
+  // penumpukan itu cukup untuk membuat "networkidle" tidak pernah tercapai.
+  page.off("console", onConsole);
+  page.off("requestfailed", onFailed);
+  page.off("response", onResponse);
+
   if (TEMBAKAN && ukuran.nama === "desktop") {
     await page.screenshot({ path: `${TEMBAKAN}/${nama}.png`, fullPage: true });
   }
@@ -188,7 +219,7 @@ try {
     });
     const admin = await ctxAdmin.newPage();
     await admin.goto(`${DASAR}/masuk`);
-    await admin.fill("#email", "admin@rw05sanggrahan.id");
+    await admin.fill("#email", "admin@sanggrahan.id");
     await admin.fill("#kataSandi", SANDI);
     await admin.click('button[type="submit"]');
     await admin.waitForURL(/\/admin/, { timeout: 20000 });
@@ -220,7 +251,15 @@ try {
   // --- Halaman tidak ditemukan ---
   const ctx404 = await browser.newContext({ viewport: { width: 1440, height: 900 } });
   const p404 = await ctx404.newPage();
-  for (const jalur of ["/berita/tidak-ada", "/keuangan/999999", "/halaman-ngawur"]) {
+  for (const jalur of [
+    "/berita/tidak-ada",
+    "/keuangan/999999",
+    "/halaman-ngawur",
+    // RW yang tidak ada harus 404, bukan halaman kosong yang tampak sah.
+    "/rw/9",
+    "/rw/0",
+    "/rw/abc",
+  ]) {
     const r = await p404.goto(DASAR + jalur);
     if (r.status() !== 404) {
       lapor("GALAT", jalur, "desktop", `seharusnya 404, dapat ${r.status()}`);

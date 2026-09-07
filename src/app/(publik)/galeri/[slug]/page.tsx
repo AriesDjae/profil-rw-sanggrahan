@@ -5,12 +5,25 @@ import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { tanggal } from "@/lib/format";
 
-export const dynamic = "force-dynamic";
+// Dirender sekali lalu disajikan dari cache. Setiap perubahan dari panel
+// pengurus memanggil revalidatePath, jadi halaman ini tetap segar seketika;
+// angka 1800 detik hanya jaring pengaman bila ada perubahan di luar aplikasi.
+export const revalidate = 1800;
+
+/**
+ * Menyiapkan seluruh halaman ini saat build sehingga pembaca menerimanya dari
+ * cache, bukan menunggu kueri basis data. Halaman baru yang belum ada saat
+ * build tetap dilayani dan ikut tersimpan setelah permintaan pertama.
+ */
+export async function generateStaticParams() {
+  const album = await db.album.findMany({ select: { slug: true }, take: 100 });
+  return album.map((a) => ({ slug: a.slug }));
+}
 
 async function ambilAlbum(slug: string) {
   return db.album.findUnique({
     where: { slug },
-    include: { foto: { orderBy: { urutan: "asc" } } },
+    include: { rw: { select: { nomor: true, nama: true } }, foto: { orderBy: { urutan: "asc" } } },
   });
 }
 
@@ -52,6 +65,7 @@ export default async function DetailAlbum({
           {album.nama}
         </h1>
         <p className="mt-2 text-sm text-slate-500">
+          {album.rw ? `${album.rw.nama} · ` : ""}
           {tanggal(album.tanggal)} · {album.foto.length} foto
         </p>
         {album.deskripsi && (

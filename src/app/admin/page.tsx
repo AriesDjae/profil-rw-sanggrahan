@@ -7,7 +7,12 @@ import { db } from "@/lib/db";
 import { angka, periode, rupiah, tanggalSingkat } from "@/lib/format";
 import { hitungRingkasan } from "@/lib/keuangan";
 import { LABEL_PERAN, PERAN, STATUS_KONTEN, STATUS_LAPORAN } from "@/lib/konstanta";
-import { lingkupRt, wajibMasuk } from "@/lib/otorisasi";
+import {
+  lingkupRw,
+  saringRw,
+  saringRwLewatRt,
+  wajibMasuk,
+} from "@/lib/otorisasi";
 
 export const dynamic = "force-dynamic";
 
@@ -17,7 +22,14 @@ export default async function Dasbor({
   searchParams: Promise<{ galat?: string }>;
 }) {
   const [pengguna, sp] = await Promise.all([wajibMasuk(), searchParams]);
-  const rtId = lingkupRt(pengguna);
+  const rwId = lingkupRw(pengguna);
+
+  // Semua angka di dasbor dibatasi lingkup penggunanya. Ketua RW 02 yang
+  // membuka dasbor harus melihat RW 02, bukan jumlah se-kampung yang tidak
+  // dapat ia tindaklanjuti.
+  const saringKonten = saringRw(pengguna);
+  const saringKas = saringRwLewatRt(pengguna);
+
   const awalHariIni = new Date();
   awalHariIni.setHours(0, 0, 0, 0);
 
@@ -29,12 +41,14 @@ export default async function Dasbor({
     laporanTerbaru,
     kegiatanDekat,
   ] = await Promise.all([
-    db.berita.count({ where: { status: STATUS_KONTEN.TERBIT } }),
-    db.kegiatan.count({ where: { status: STATUS_KONTEN.TERBIT, mulai: { gte: awalHariIni } } }),
-    db.warga.count({ where: rtId ? { rtId } : undefined }),
+    db.berita.count({ where: { ...saringKonten, status: STATUS_KONTEN.TERBIT } }),
+    db.kegiatan.count({
+      where: { ...saringKonten, status: STATUS_KONTEN.TERBIT, mulai: { gte: awalHariIni } },
+    }),
+    db.warga.count({ where: saringKas }),
     db.laporanKeuangan.findMany({
       where: {
-        ...(rtId ? { rtId } : {}),
+        ...saringKas,
         status:
           pengguna.peran === PERAN.KETUA_RT
             ? STATUS_LAPORAN.DIAJUKAN
@@ -47,13 +61,13 @@ export default async function Dasbor({
       take: 6,
     }),
     db.laporanKeuangan.findMany({
-      where: rtId ? { rtId } : undefined,
+      where: saringKas,
       include: { rt: true, transaksi: { select: { jenis: true, jumlah: true } } },
       orderBy: { updatedAt: "desc" },
       take: 6,
     }),
     db.kegiatan.findMany({
-      where: { status: STATUS_KONTEN.TERBIT, mulai: { gte: awalHariIni } },
+      where: { ...saringKonten, status: STATUS_KONTEN.TERBIT, mulai: { gte: awalHariIni } },
       orderBy: { mulai: "asc" },
       take: 4,
     }),
@@ -62,9 +76,11 @@ export default async function Dasbor({
   const judulTindakan =
     pengguna.peran === PERAN.KETUA_RT
       ? "Menunggu verifikasi Anda"
-      : pengguna.peran === PERAN.KETUA_RW || pengguna.peran === PERAN.ADMIN
-        ? "Menunggu persetujuan Ketua RW"
-        : "Laporan yang perlu Anda kerjakan";
+      : pengguna.peran === PERAN.KETUA_RW
+        ? `Menunggu persetujuan Anda di ${pengguna.rw?.nama ?? "RW Anda"}`
+        : pengguna.peran === PERAN.ADMIN
+          ? "Menunggu persetujuan Ketua RW (ketiga RW)"
+          : "Laporan yang perlu Anda kerjakan";
 
   const bolehKonten = ([PERAN.ADMIN, PERAN.SEKRETARIS, PERAN.KETUA_RW] as string[]).includes(
     pengguna.peran,
@@ -88,7 +104,13 @@ export default async function Dasbor({
     <>
       <KepalaHalaman
         judul="Dasbor"
-        keterangan={`Ringkasan aktivitas ${pengguna.rt ? pengguna.rt.nama : "RW"} untuk peran ${LABEL_PERAN[pengguna.peran] ?? pengguna.peran}.`}
+        keterangan={`Ringkasan aktivitas ${
+          pengguna.rt
+            ? `${pengguna.rt.nama} (${pengguna.rw?.nama ?? "-"})`
+            : rwId === null
+              ? "seluruh Kampung Sanggrahan"
+              : (pengguna.rw?.nama ?? "RW Anda")
+        } untuk peran ${LABEL_PERAN[pengguna.peran] ?? pengguna.peran}.`}
       />
 
       {sp.galat === "akses" && (
@@ -108,7 +130,13 @@ export default async function Dasbor({
         <KartuStatistik
           label="Warga terdata"
           nilai={angka(jumlahWarga)}
-          keterangan={pengguna.rt ? pengguna.rt.nama : "Seluruh RW"}
+          keterangan={
+            pengguna.rt
+              ? pengguna.rt.nama
+              : rwId === null
+                ? "Ketiga RW"
+                : (pengguna.rw?.nama ?? "RW Anda")
+          }
         />
         <KartuStatistik label="Berita terbit" nilai={angka(jumlahBerita)} />
         <KartuStatistik

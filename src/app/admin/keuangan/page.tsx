@@ -8,7 +8,7 @@ import { db } from "@/lib/db";
 import { periode, rupiah, tanggalSingkat } from "@/lib/format";
 import { hitungRingkasan } from "@/lib/keuangan";
 import { LABEL_STATUS_LAPORAN, PERAN, STATUS_LAPORAN } from "@/lib/konstanta";
-import { lingkupRt, wajibMasuk } from "@/lib/otorisasi";
+import { lingkupRt, lingkupRw, saringRwLewatRt, wajibMasuk } from "@/lib/otorisasi";
 
 export const dynamic = "force-dynamic";
 
@@ -21,12 +21,16 @@ export default async function DaftarLaporanAdmin({
 }) {
   const [pengguna, sp] = await Promise.all([wajibMasuk(), searchParams]);
   const lingkup = lingkupRt(pengguna);
+  const rwSaya = lingkupRw(pengguna);
 
   const rtFilter = lingkup ?? (sp.rt ? Number(sp.rt) : undefined);
   const tahun = sp.tahun ? Number(sp.tahun) : undefined;
   const status = sp.status;
 
+  // Penyaring ?rt= datang dari alamat dan bisa diketik tangan, jadi batas RW
+  // tetap dipasang di sampingnya, bukan digantikan olehnya.
   const where = {
+    ...saringRwLewatRt(pengguna),
     ...(rtFilter ? { rtId: rtFilter } : {}),
     ...(tahun ? { tahun } : {}),
     ...(status ? { status } : {}),
@@ -36,15 +40,20 @@ export default async function DaftarLaporanAdmin({
     db.laporanKeuangan.findMany({
       where,
       include: {
-        rt: true,
+        rt: { include: { rw: { select: { nomor: true, nama: true } } } },
         dibuatOleh: { select: { nama: true } },
         transaksi: { select: { jenis: true, jumlah: true } },
       },
       orderBy: [{ tahun: "desc" }, { bulan: "desc" }, { rtId: "asc" }],
       take: 100,
     }),
-    db.rt.findMany({ orderBy: { nomor: "asc" } }),
+    db.rt.findMany({
+      where: rwSaya === null ? {} : { rwId: rwSaya },
+      orderBy: [{ rwId: "asc" }, { nomor: "asc" }],
+      include: { rw: { select: { nomor: true } } },
+    }),
     db.laporanKeuangan.findMany({
+      where: saringRwLewatRt(pengguna),
       distinct: ["tahun"],
       select: { tahun: true },
       orderBy: { tahun: "desc" },
@@ -79,7 +88,9 @@ export default async function DaftarLaporanAdmin({
         keterangan={
           lingkup
             ? `Laporan kas ${pengguna.rt?.nama ?? "RT Anda"}. Laporan hanya tampil ke warga setelah diverifikasi Ketua RT dan disetujui Ketua RW.`
-            : "Seluruh laporan kas RT di lingkungan RW. Gunakan penyaring untuk menelusuri periode tertentu."
+            : rwSaya === null
+              ? "Seluruh laporan kas RT dari ketiga RW Kampung Sanggrahan. Gunakan penyaring untuk menelusuri periode tertentu."
+              : `Seluruh laporan kas RT di ${pengguna.rw?.nama ?? "RW Anda"}. Kas RW lain tidak tampil di sini.`
         }
         aksi={
           bolehBuat ? (
@@ -205,6 +216,7 @@ export default async function DaftarLaporanAdmin({
                 }`}
               >
                 RT {rt.nomor}
+                {rwSaya === null ? ` · RW ${String(rt.rw.nomor).padStart(2, "0")}` : ""}
               </Link>
             ))}
           </div>
@@ -229,11 +241,12 @@ export default async function DaftarLaporanAdmin({
           />
         ) : (
           <div className="overflow-x-auto gulir-halus rounded-2xl border border-slate-200 bg-white">
-            <table className="w-full min-w-[54rem] text-left text-sm">
+            <table className="w-full min-w-[58rem] text-left text-sm">
               <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
                 <tr>
                   <th className="px-5 py-3 font-semibold">Periode</th>
                   <th className="px-5 py-3 font-semibold">RT</th>
+                  <th className="px-5 py-3 font-semibold">RW</th>
                   <th className="px-5 py-3 font-semibold">Status</th>
                   <th className="px-5 py-3 text-right font-semibold">Pemasukan</th>
                   <th className="px-5 py-3 text-right font-semibold">Pengeluaran</th>
@@ -249,6 +262,7 @@ export default async function DaftarLaporanAdmin({
                       {periode(l.bulan, l.tahun)}
                     </td>
                     <td className="px-5 py-3 text-slate-600">RT {l.rt.nomor}</td>
+                    <td className="px-5 py-3 text-slate-600">{l.rt.rw.nama}</td>
                     <td className="px-5 py-3">
                       <LencanaStatus status={l.status} />
                     </td>

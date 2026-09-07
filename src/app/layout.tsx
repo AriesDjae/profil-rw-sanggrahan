@@ -20,11 +20,11 @@ const teks = Instrument_Sans({
 
 export const metadata: Metadata = {
   title: {
-    default: "RW 05 Sanggrahan — Portal Informasi Warga",
-    template: "%s | RW 05 Sanggrahan",
+    default: "Kampung Sanggrahan — Portal Informasi Warga",
+    template: "%s | Kampung Sanggrahan",
   },
   description:
-    "Portal resmi RW 05 Sanggrahan: berita lingkungan, agenda kegiatan warga, data kependudukan, dan laporan keuangan kas RT yang transparan.",
+    "Portal warga Kampung Sanggrahan, Kelurahan Semaki, Kemantren Umbulharjo, Kota Yogyakarta. Satu situs untuk RW 01, RW 02, dan RW 03: berita lingkungan, agenda kegiatan, data kependudukan, dan laporan kas RT yang transparan.",
 };
 
 export default function RootLayout({

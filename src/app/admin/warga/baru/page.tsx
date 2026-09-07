@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import KepalaHalaman from "@/components/admin/KepalaHalaman";
 import { db } from "@/lib/db";
 import { PERAN } from "@/lib/konstanta";
-import { wajibMasuk } from "@/lib/otorisasi";
+import { lingkupRw, wajibMasuk } from "@/lib/otorisasi";
 
 import FormWarga from "../FormWarga";
 
@@ -17,7 +17,18 @@ export default async function WargaBaru() {
   );
   if (!boleh) redirect("/admin?galat=akses");
 
-  const rtList = await db.rt.findMany({ orderBy: { nomor: "asc" } });
+  const rwSaya = lingkupRw(pengguna);
+  const rtMentah = await db.rt.findMany({
+    where: rwSaya === null ? {} : { rwId: rwSaya },
+    orderBy: [{ rwId: "asc" }, { nomor: "asc" }],
+    include: { rw: { select: { nama: true } } },
+  });
+  // Nama RT sudah memuat RW-nya ("RT 01 / RW 02"), tetapi hanya administrator
+  // kampung yang perlu membedakannya — pengurus RW hanya melihat RW-nya sendiri.
+  const rtList = rtMentah.map((r) => ({
+    id: r.id,
+    nama: rwSaya === null ? r.nama : `RT ${r.nomor}`,
+  }));
 
   return (
     <div className="max-w-3xl">
@@ -29,7 +40,7 @@ export default async function WargaBaru() {
       <div className="rounded-2xl border border-slate-200 bg-white p-6">
         <FormWarga
           awal={null}
-          rtList={rtList.map((r) => ({ id: r.id, nama: r.nama }))}
+          rtList={rtList}
           rtTerkunci={
             pengguna.peran === PERAN.KETUA_RT && pengguna.rt
               ? { id: pengguna.rt.id, nama: pengguna.rt.nama }

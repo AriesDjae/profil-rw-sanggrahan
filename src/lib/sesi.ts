@@ -22,6 +22,7 @@ function kunci(): Uint8Array {
 export type IsiSesi = {
   uid: number;
   peran: Peran;
+  rwId: number | null;
   rtId: number | null;
   nama: string;
 };
@@ -57,7 +58,8 @@ async function bacaToken(): Promise<IsiSesi | null> {
     return {
       uid: Number(payload.uid),
       peran: payload.peran as Peran,
-      rtId: payload.rtId === null ? null : Number(payload.rtId),
+      rwId: payload.rwId == null ? null : Number(payload.rwId),
+      rtId: payload.rtId == null ? null : Number(payload.rtId),
       nama: String(payload.nama ?? ""),
     };
   } catch {
@@ -72,6 +74,9 @@ export type PenggunaSesi = {
   peran: Peran;
   jabatan: string | null;
   foto: string | null;
+  /** RW yang menaungi pengguna. null hanya untuk ADMIN tingkat kampung. */
+  rwId: number | null;
+  rw: { id: number; nomor: number; nama: string } | null;
   rtId: number | null;
   rt: { id: number; nomor: string; nama: string } | null;
 };
@@ -91,12 +96,25 @@ export async function penggunaSaatIni(): Promise<PenggunaSesi | null> {
       jabatan: true,
       foto: true,
       aktif: true,
+      rwId: true,
+      rw: { select: { id: true, nomor: true, nama: true } },
       rtId: true,
-      rt: { select: { id: true, nomor: true, nama: true } },
+      rt: { select: { id: true, nomor: true, nama: true, rwId: true } },
     },
   });
 
   if (!user || !user.aktif) return null;
+
+  // Ketua RT dan Bendahara RT terikat lewat RT-nya. Kalau baris User dan baris
+  // Rt tidak sepakat soal RW — misalnya RT-nya dipindah ke RW lain setelah akun
+  // dibuat — RT yang menang, karena di situlah warga dan kasnya berada.
+  const rwId = user.rt ? user.rt.rwId : user.rwId;
+  const rw =
+    user.rw && user.rw.id === rwId
+      ? user.rw
+      : rwId === null
+        ? null
+        : await db.rw.findUnique({ where: { id: rwId }, select: { id: true, nomor: true, nama: true } });
 
   return {
     id: user.id,
@@ -105,7 +123,9 @@ export async function penggunaSaatIni(): Promise<PenggunaSesi | null> {
     peran: user.peran as Peran,
     jabatan: user.jabatan,
     foto: user.foto,
+    rwId,
+    rw,
     rtId: user.rtId,
-    rt: user.rt,
+    rt: user.rt ? { id: user.rt.id, nomor: user.rt.nomor, nama: user.rt.nama } : null,
   };
 }

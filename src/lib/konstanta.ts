@@ -21,8 +21,46 @@ export const LABEL_PERAN: Record<Peran, string> = {
 /** Peran yang wajib terikat pada satu RT tertentu. */
 export const PERAN_TERIKAT_RT: Peran[] = [PERAN.KETUA_RT, PERAN.BENDAHARA_RT];
 
+/**
+ * Peran yang wajib terikat pada satu RW — yaitu semuanya kecuali ADMIN.
+ *
+ * Kampung Sanggrahan berisi tiga RW yang berbagi satu situs tetapi tidak
+ * berbagi kewenangan. Ketua RW 01 tidak boleh menyunting berita RW 02, dan
+ * Bendahara RT 01 RW 03 tidak boleh melihat kas RT 01 RW 01 walau nomor RT-nya
+ * kebetulan sama. Satu-satunya peran yang menembus batas itu adalah ADMIN,
+ * administrator tingkat kampung.
+ */
+export const PERAN_TERIKAT_RW: Peran[] = [
+  PERAN.KETUA_RW,
+  PERAN.SEKRETARIS,
+  PERAN.KETUA_RT,
+  PERAN.BENDAHARA_RT,
+];
+
+/** Peran yang berwenang lintas RW. Sengaja hanya satu. */
+export const PERAN_LINTAS_RW: Peran[] = [PERAN.ADMIN];
+
 /** Peran yang boleh mengelola konten publik (berita, kegiatan, galeri, warga, profil). */
 export const PERAN_KONTEN: Peran[] = [PERAN.ADMIN, PERAN.SEKRETARIS, PERAN.KETUA_RW];
+
+/** Peran yang boleh membuat dan menyunting akun pengurus. */
+export const PERAN_KELOLA_AKUN: Peran[] = [PERAN.ADMIN, PERAN.KETUA_RW];
+
+/**
+ * Tingkat kepengurusan pada model Pengurus. "KAMPUNG" dipakai untuk kepengurusan
+ * yang menaungi ketiga RW sekaligus; barisnya disimpan tanpa rwId.
+ */
+export const LEVEL_PENGURUS = {
+  KAMPUNG: "KAMPUNG",
+  RW: "RW",
+  RT: "RT",
+} as const;
+
+export const LABEL_LEVEL_PENGURUS: Record<string, string> = {
+  KAMPUNG: "Tingkat kampung",
+  RW: "Tingkat RW",
+  RT: "Tingkat RT",
+};
 
 export const STATUS_LAPORAN = {
   DRAFT: "DRAFT",

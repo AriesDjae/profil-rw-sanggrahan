@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import JejakPersetujuan from "@/components/keuangan/JejakPersetujuan";
 import Stepper from "@/components/keuangan/Stepper";
 import TabelTransaksi from "@/components/keuangan/TabelTransaksi";
+import { IkonCentang } from "@/components/ui/Ikon";
 import TombolCetak from "@/components/ui/TombolCetak";
 import BatangHorizontal from "@/components/grafik/BatangHorizontal";
 import { db } from "@/lib/db";
@@ -12,14 +13,32 @@ import { periode, rupiah, tanggalWaktu } from "@/lib/format";
 import { JENIS_TRANSAKSI, STATUS_LAPORAN } from "@/lib/konstanta";
 import { hitungRingkasan } from "@/lib/keuangan";
 
-export const dynamic = "force-dynamic";
+// Dirender sekali lalu disajikan dari cache. Setiap perubahan dari panel
+// pengurus memanggil revalidatePath, jadi halaman ini tetap segar seketika;
+// angka 600 detik hanya jaring pengaman bila ada perubahan di luar aplikasi.
+export const revalidate = 600;
+
+/**
+ * Menyiapkan seluruh halaman ini saat build sehingga pembaca menerimanya dari
+ * cache, bukan menunggu kueri basis data. Halaman baru yang belum ada saat
+ * build tetap dilayani dan ikut tersimpan setelah permintaan pertama.
+ */
+export async function generateStaticParams() {
+  const laporan = await db.laporanKeuangan.findMany({
+    where: { status: STATUS_LAPORAN.DISETUJUI },
+    select: { id: true },
+    orderBy: [{ tahun: "desc" }, { bulan: "desc" }],
+    take: 100,
+  });
+  return laporan.map((l) => ({ id: String(l.id) }));
+}
 
 async function ambilLaporan(id: number) {
   if (!Number.isFinite(id)) return null;
   return db.laporanKeuangan.findFirst({
     where: { id, status: STATUS_LAPORAN.DISETUJUI },
     include: {
-      rt: true,
+      rt: { include: { rw: { select: { nomor: true, nama: true } } } },
       dibuatOleh: { select: { nama: true, jabatan: true } },
       verifikasiRtOleh: { select: { nama: true, jabatan: true } },
       persetujuanRwOleh: { select: { nama: true, jabatan: true } },
@@ -81,16 +100,20 @@ export default async function DetailLaporan({
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800 ring-1 ring-inset ring-emerald-200">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M4 12.5l5.5 5.5L20 7" />
-              </svg>
+              <IkonCentang ukuran={12} />
               Disetujui &amp; Terbit
             </span>
             <h1 className="mt-3 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
               {laporan.judul}
             </h1>
             <p className="mt-2 text-sm text-slate-500">
-              Periode {periode(laporan.bulan, laporan.tahun)} · {laporan.rt.nama}
+              Periode {periode(laporan.bulan, laporan.tahun)} · {laporan.rt.nama} ·{" "}
+              <Link
+                href={`/rw/${laporan.rt.rw.nomor}`}
+                className="underline-offset-4 hover:underline"
+              >
+                {laporan.rt.rw.nama}
+              </Link>
               {laporan.rt.wilayah ? ` · ${laporan.rt.wilayah}` : ""}
             </p>
           </div>

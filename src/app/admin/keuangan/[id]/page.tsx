@@ -58,7 +58,7 @@ export default async function DetailLaporanAdmin({
   const laporan = await db.laporanKeuangan.findUnique({
     where: { id: laporanId },
     include: {
-      rt: true,
+      rt: { include: { rw: { select: { id: true, nama: true } } } },
       dibuatOleh: { select: { nama: true, jabatan: true } },
       verifikasiRtOleh: { select: { nama: true, jabatan: true } },
       persetujuanRwOleh: { select: { nama: true, jabatan: true } },
@@ -71,7 +71,9 @@ export default async function DetailLaporanAdmin({
   });
 
   if (!laporan) notFound();
-  if (!bolehLihatLaporan(pengguna, laporan.rtId)) redirect("/admin?galat=akses");
+  if (!bolehLihatLaporan(pengguna, laporan.rtId, laporan.rt.rwId)) {
+    redirect("/admin?galat=akses");
+  }
 
   const ringkasan = hitungRingkasan(laporan.transaksi, laporan.saldoAwal);
   const dapatDisunting =
@@ -83,9 +85,11 @@ export default async function DetailLaporanAdmin({
     laporan.status === STATUS_LAPORAN.DIAJUKAN &&
     bolehVerifikasiRt(pengguna, laporan.rtId);
   const giliranRw =
-    laporan.status === STATUS_LAPORAN.DIVERIFIKASI_RT && bolehSetujuiRw(pengguna);
+    laporan.status === STATUS_LAPORAN.DIVERIFIKASI_RT &&
+    bolehSetujuiRw(pengguna, laporan.rt.rwId);
   const dapatDibukaKembali =
-    laporan.status === STATUS_LAPORAN.DISETUJUI && bolehSetujuiRw(pengguna);
+    laporan.status === STATUS_LAPORAN.DISETUJUI &&
+    bolehSetujuiRw(pengguna, laporan.rt.rwId);
 
   const pemasukan = laporan.transaksi.filter(
     (t) => t.jenis === JENIS_TRANSAKSI.PEMASUKAN,
@@ -101,7 +105,7 @@ export default async function DetailLaporanAdmin({
   return (
     <>
       <KepalaHalaman
-        judul={`${laporan.rt.nama} · ${periode(laporan.bulan, laporan.tahun)}`}
+        judul={`${laporan.rt.nama} · ${laporan.rt.rw.nama} · ${periode(laporan.bulan, laporan.tahun)}`}
         keterangan={tahapBerikutnya(laporan.status as never)}
         kembali={{ href: "/admin/keuangan", label: "Kembali ke daftar laporan" }}
         aksi={

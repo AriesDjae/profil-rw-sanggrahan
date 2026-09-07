@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="Kerja Bakti Saluran Air 5">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="HUT Kemerdekaan RI ke-81 Kampung Sanggrahan 5">
   <defs>
     <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#c9622f"/>
@@ -17,5 +17,5 @@
   <rect x="1040" y="394" width="238" height="197" rx="14" fill="#fdeee4" opacity="0.22"/>
   <rect x="448" y="578" width="240" height="191" rx="14" fill="#fdeee4" opacity="0.19"/>
   <rect x="364" y="611" width="236" height="233" rx="14" fill="#fdeee4" opacity="0.19"/>
-  <text x="72" y="594" font-family="Segoe UI, Arial, sans-serif" font-size="61" font-weight="700" letter-spacing="4" fill="#0f2e26" opacity="0.20">KBS</text>
+  <text x="72" y="594" font-family="Segoe UI, Arial, sans-serif" font-size="61" font-weight="700" letter-spacing="4" fill="#0f2e26" opacity="0.20">HKK</text>
 </svg>

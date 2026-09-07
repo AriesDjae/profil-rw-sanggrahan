@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
+import { IkonChevronKanan, IkonChevronKiri } from "@/components/ui/Ikon";
+
 export type Sorotan = {
   slug: string;
   judul: string;
@@ -68,17 +70,31 @@ export default function SorotanUtama({ daftar }: { daftar: Sorotan[] }) {
         {/* Panel kabar terpilih */}
         <article className="relative min-w-0 border-garis lg:border-r">
           <div className="relative aspect-[16/10] w-full overflow-hidden bg-brand-100 sm:aspect-[16/9] lg:aspect-auto lg:h-[31rem]">
-            {daftar.map((k, i) => (
-              <img
-                key={k.slug}
-                src={k.gambar ?? ""}
-                alt=""
-                aria-hidden={i !== aktif}
-                className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
-                  i === aktif ? "opacity-100" : "opacity-0"
-                }`}
-              />
-            ))}
+            {/* Berita tanpa foto adalah hal biasa: pengurus sering menulis kabar
+                singkat tanpa sempat memotret. Yang tidak boleh terjadi adalah
+                <img src=""> — peramban memperlakukannya sebagai gambar rusak.
+                Untuk kabar seperti itu latar hijau polos sudah cukup. */}
+            {daftar.map((k, i) =>
+              k.gambar ? (
+                <img
+                  key={k.slug}
+                  src={k.gambar}
+                  alt=""
+                  aria-hidden={i !== aktif}
+                  className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
+                    i === aktif ? "opacity-100" : "opacity-0"
+                  }`}
+                />
+              ) : (
+                <div
+                  key={k.slug}
+                  aria-hidden
+                  className={`absolute inset-0 bg-brand-700 transition-opacity duration-700 ${
+                    i === aktif ? "opacity-100" : "opacity-0"
+                  }`}
+                />
+              ),
+            )}
             <div
               aria-hidden
               className="absolute inset-0 bg-gradient-to-t from-brand-950 via-brand-950/55 to-transparent"
@@ -170,9 +186,7 @@ export default function SorotanUtama({ daftar }: { daftar: Sorotan[] }) {
                 aria-label="Kabar sebelumnya"
                 className="grid h-9 w-9 place-items-center border border-garis text-brand-800 transition hover:bg-brand-50"
               >
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-                  <path d="M15 5l-7 7 7 7" />
-                </svg>
+                <IkonChevronKiri ukuran={15} />
               </button>
               <button
                 type="button"
@@ -180,9 +194,7 @@ export default function SorotanUtama({ daftar }: { daftar: Sorotan[] }) {
                 aria-label="Kabar berikutnya"
                 className="grid h-9 w-9 place-items-center border border-garis text-brand-800 transition hover:bg-brand-50"
               >
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-                  <path d="M9 5l7 7-7 7" />
-                </svg>
+                <IkonChevronKanan ukuran={15} />
               </button>
             </span>
           </div>

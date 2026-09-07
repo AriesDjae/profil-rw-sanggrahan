@@ -4,7 +4,7 @@ import KepalaHalaman from "@/components/admin/KepalaHalaman";
 import { db } from "@/lib/db";
 import { hitungRingkasan } from "@/lib/keuangan";
 import { PERAN } from "@/lib/konstanta";
-import { wajibMasuk } from "@/lib/otorisasi";
+import { lingkupRw, wajibMasuk } from "@/lib/otorisasi";
 
 import FormLaporanBaru from "./FormLaporanBaru";
 
@@ -19,7 +19,15 @@ export default async function BuatLaporan() {
     redirect("/admin?galat=akses");
   }
 
-  const rtList = await db.rt.findMany({ orderBy: { nomor: "asc" } });
+  // Hanya ADMIN yang sampai ke daftar ini; bendahara RT langsung terkunci pada
+  // RT-nya. Tetap disaring per RW supaya daftarnya tidak mencampur tiga RW
+  // dengan nomor RT yang sama.
+  const rwSaya = lingkupRw(pengguna);
+  const rtList = await db.rt.findMany({
+    where: rwSaya === null ? {} : { rwId: rwSaya },
+    orderBy: [{ rwId: "asc" }, { nomor: "asc" }],
+    include: { rw: { select: { nama: true } } },
+  });
 
   // Usulan saldo awal dari laporan terakhir RT yang bersangkutan
   let saldoUsulan = 0;
@@ -46,7 +54,7 @@ export default async function BuatLaporan() {
 
       <div className="rounded-2xl border border-slate-200 bg-white p-6">
         <FormLaporanBaru
-          rtList={rtList.map((r) => ({ id: r.id, nama: r.nama }))}
+          rtList={rtList.map((r) => ({ id: r.id, nama: `${r.nama} · ${r.rw.nama}` }))}
           rtTerkunci={
             pengguna.rt ? { id: pengguna.rt.id, nama: pengguna.rt.nama } : null
           }

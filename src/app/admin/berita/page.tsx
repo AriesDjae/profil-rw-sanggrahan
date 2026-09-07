@@ -6,7 +6,7 @@ import Kosong from "@/components/ui/Kosong";
 import { db } from "@/lib/db";
 import { tanggalSingkat } from "@/lib/format";
 import { PERAN_KONTEN, STATUS_KONTEN } from "@/lib/konstanta";
-import { wajibPeran } from "@/lib/otorisasi";
+import { lintasRw, saringRw, wajibPeran } from "@/lib/otorisasi";
 
 import { ubahStatusBerita } from "./aksi";
 
@@ -18,13 +18,18 @@ export default async function DaftarBeritaAdmin({
 }: {
   searchParams: Promise<{ pesan?: string; status?: string }>;
 }) {
-  await wajibPeran(PERAN_KONTEN);
+  const pengguna = await wajibPeran(PERAN_KONTEN);
   const sp = await searchParams;
 
+  const semuaRw = lintasRw(pengguna);
+
   const berita = await db.berita.findMany({
-    where: sp.status ? { status: sp.status } : undefined,
+    where: {
+      ...saringRw(pengguna),
+      ...(sp.status ? { status: sp.status } : {}),
+    },
     orderBy: { updatedAt: "desc" },
-    include: { penulis: { select: { nama: true } } },
+    include: { penulis: { select: { nama: true } }, rw: { select: { nama: true } } },
     take: 100,
   });
 
@@ -32,7 +37,11 @@ export default async function DaftarBeritaAdmin({
     <>
       <KepalaHalaman
         judul="Berita"
-        keterangan="Kelola kabar yang tampil di situs warga. Berita berstatus draf tidak terlihat publik."
+        keterangan={
+          semuaRw
+            ? "Kelola kabar dari ketiga RW. Berita berstatus draf tidak terlihat publik."
+            : `Kelola kabar ${pengguna.rw?.nama ?? "RW Anda"}. Berita tingkat kampung ikut tampil di sini karena muncul di laman RW Anda, tetapi hanya administrator kampung yang boleh menyuntingnya.`
+        }
         aksi={
           <Link
             href="/admin/berita/baru"
@@ -99,6 +108,14 @@ export default async function DaftarBeritaAdmin({
 
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
+                    <Lencana
+                      anak={b.rw?.nama ?? "Seluruh kampung"}
+                      warna={
+                        b.rw
+                          ? "bg-brand-50 text-brand-800 ring-brand-200"
+                          : "bg-aksen-50 text-aksen-800 ring-aksen-200"
+                      }
+                    />
                     <Lencana
                       anak={b.kategori}
                       warna="bg-slate-100 text-slate-600 ring-slate-200"

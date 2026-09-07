@@ -12,6 +12,7 @@ export type KegiatanKartu = {
   lokasi: string;
   kategori: string;
   penyelenggara: string | null;
+  rw?: { nomor: number; nama: string } | null;
 };
 
 /**
@@ -19,7 +20,14 @@ export type KegiatanKartu = {
  * keterangan di kanan, dipisahkan garis. Kegiatan dalam sepekan ditandai
  * kunyit agar langsung terlihat.
  */
-export default function KartuKegiatan({ kegiatan }: { kegiatan: KegiatanKartu }) {
+export default function KartuKegiatan({
+  kegiatan,
+  tampilkanRw = false,
+}: {
+  kegiatan: KegiatanKartu;
+  /** Lihat catatan yang sama di KartuBerita. */
+  tampilkanRw?: boolean;
+}) {
   const mulai = new Date(kegiatan.mulai);
   const hari = selisihHari(mulai);
   const segera = hari >= 0 && hari <= 7;
@@ -66,6 +74,14 @@ export default function KartuKegiatan({ kegiatan }: { kegiatan: KegiatanKartu })
             <dt className="sr-only">Lokasi</dt>
             <dd className="truncate">{kegiatan.lokasi}</dd>
           </div>
+          {tampilkanRw && (
+            <div className="flex items-baseline gap-1.5">
+              <dt className="sr-only">Rukun Warga</dt>
+              <dd className="font-medium text-brand-800">
+                {kegiatan.rw?.nama ?? "Se-kampung"}
+              </dd>
+            </div>
+          )}
           <div className="flex items-baseline gap-1.5">
             <dt className="sr-only">Hitung mundur</dt>
             <dd className={segera ? "font-semibold text-aksen-800" : ""}>

@@ -1,4 +1,8 @@
 // Uji alur persetujuan berjenjang: Bendahara -> Ketua RT -> Ketua RW -> publik
+//
+// Sejak situs melayani tiga RW, uji ini sekaligus menjaga batas antar-RW:
+// laporan RW 03 dikerjakan pengurus RW 03, dan Ketua RW 01 harus ditolak saat
+// mencoba menyentuhnya.
 import { chromium } from "playwright";
 
 const DASAR = process.env.DASAR ?? "http://localhost:3000";
@@ -26,8 +30,8 @@ async function masuk(browser, email) {
 const browser = await chromium.launch();
 
 try {
-  // ---------- 1. Bendahara RT 07 membuat & mengajukan laporan ----------
-  const b = await masuk(browser, "bendaharart07@rw05sanggrahan.id");
+  // ---------- 1. Bendahara RT 03 RW 03 membuat & mengajukan laporan ----------
+  const b = await masuk(browser, "bendaharart03.rw3@sanggrahan.id");
   cek("Bendahara dapat masuk ke panel", b.page.url().includes("/admin"));
 
   // Laporan yang masih bisa disunting bendahara: draf, atau yang dikembalikan
@@ -43,7 +47,7 @@ try {
     }
   }
   cek("Bendahara punya laporan yang dapat disunting", Boolean(tautanDraf));
-  if (!tautanDraf) throw new Error("tidak ada laporan draf/ditolak untuk RT 07");
+  if (!tautanDraf) throw new Error("tidak ada laporan draf/ditolak untuk RT 03 RW 03");
   await tautanDraf.click();
   await b.page.waitForURL(/\/admin\/keuangan\/\d+/);
   const urlLaporan = b.page.url();
@@ -88,17 +92,39 @@ try {
   );
 
   // ---------- 3. Ketua RT lain tidak boleh ikut campur ----------
-  const rtLain = await masuk(browser, "ketuart03@rw05sanggrahan.id");
+  const rtLain = await masuk(browser, "ketuart01.rw3@sanggrahan.id");
   const respLain = await rtLain.page.goto(`${DASAR}/admin/keuangan/${idLaporan}`);
   cek(
-    "Ketua RT lain tidak dapat membuka laporan RT 07",
+    "Ketua RT lain di RW yang sama tidak dapat membuka laporan ini",
     rtLain.page.url().includes("galat=akses") || respLain.status() === 404,
     rtLain.page.url(),
   );
   await rtLain.ctx.close();
 
-  // ---------- 4. Ketua RT 07 memverifikasi ----------
-  const rt = await masuk(browser, "ketuart07@rw05sanggrahan.id");
+  // ---------- 3b. Batas antar-RW ----------
+  // Nomor RT berulang di ketiga RW, jadi Ketua RT 03 RW 01 punya peran dan
+  // nomor RT yang sama persis dengan pemilik laporan ini. Yang membedakannya
+  // hanya RW — dan itulah yang harus menahannya.
+  const rtRwLain = await masuk(browser, "ketuart03.rw1@sanggrahan.id");
+  const respRwLain = await rtRwLain.page.goto(`${DASAR}/admin/keuangan/${idLaporan}`);
+  cek(
+    "Ketua RT bernomor sama dari RW lain ditolak",
+    rtRwLain.page.url().includes("galat=akses") || respRwLain.status() === 404,
+    rtRwLain.page.url(),
+  );
+  await rtRwLain.ctx.close();
+
+  const rwSalah = await masuk(browser, "ketuarw1@sanggrahan.id");
+  const respRwSalah = await rwSalah.page.goto(`${DASAR}/admin/keuangan/${idLaporan}`);
+  cek(
+    "Ketua RW 01 tidak dapat membuka laporan kas RW 03",
+    rwSalah.page.url().includes("galat=akses") || respRwSalah.status() === 404,
+    rwSalah.page.url(),
+  );
+  await rwSalah.ctx.close();
+
+  // ---------- 4. Ketua RT pemilik laporan memverifikasi ----------
+  const rt = await masuk(browser, "ketuart03.rw3@sanggrahan.id");
   await rt.page.goto(`${DASAR}/admin/persetujuan`);
   cek(
     "Laporan muncul di antrean Ketua RT",
@@ -134,7 +160,7 @@ try {
   await rt.ctx.close();
 
   // ---------- 5. Ketua RW menyetujui ----------
-  const rw = await masuk(browser, "ketuarw@rw05sanggrahan.id");
+  const rw = await masuk(browser, "ketuarw3@sanggrahan.id");
   await rw.page.goto(`${DASAR}/admin/keuangan/${idLaporan}`);
   await rw.page.fill("#catatan", "Uji otomatis: disetujui untuk warga.");
   await rw.page.click('button:has-text("Setujui & terbitkan")');
@@ -173,7 +199,7 @@ try {
   await rw.ctx.close();
 
   // ---------- 8. Batas akses peran ----------
-  const bendahara2 = await masuk(browser, "bendaharart01@rw05sanggrahan.id");
+  const bendahara2 = await masuk(browser, "bendaharart01.rw1@sanggrahan.id");
   await bendahara2.page.goto(`${DASAR}/admin/pengguna`);
   cek(
     "Bendahara tidak dapat membuka pengelolaan akun",
@@ -188,7 +214,7 @@ try {
   );
   await bendahara2.ctx.close();
 
-  const sekretaris = await masuk(browser, "sekretaris@rw05sanggrahan.id");
+  const sekretaris = await masuk(browser, "sekretaris.rw1@sanggrahan.id");
   await sekretaris.page.goto(`${DASAR}/admin/berita/baru`);
   cek(
     "Sekretaris dapat menulis berita",

@@ -4,8 +4,8 @@ import KepalaHalaman from "@/components/admin/KepalaHalaman";
 import TombolHapus from "@/components/admin/TombolHapus";
 import { Lencana } from "@/components/ui/LencanaStatus";
 import { db } from "@/lib/db";
-import { PERAN_KONTEN } from "@/lib/konstanta";
-import { wajibPeran } from "@/lib/otorisasi";
+import { LABEL_LEVEL_PENGURUS, PERAN_KONTEN } from "@/lib/konstanta";
+import { lingkupRw, lintasRw, opsiRw, saringRw, seRw, wajibPeran } from "@/lib/otorisasi";
 
 import { hapusPengurus } from "./aksi";
 import FormPengurus from "./FormPengurus";
@@ -14,6 +14,7 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Pengurus" };
 
 const LABEL_LEVEL: Record<string, string> = {
+  ...LABEL_LEVEL_PENGURUS,
   RW: "Pengurus RW",
   RT: "Pengurus RT",
   LEMBAGA: "Lembaga",
@@ -24,25 +25,44 @@ export default async function HalamanPengurusAdmin({
 }: {
   searchParams: Promise<{ sunting?: string }>;
 }) {
-  await wajibPeran(PERAN_KONTEN);
+  const pengguna = await wajibPeran(PERAN_KONTEN);
   const sp = await searchParams;
 
-  const [pengurus, rtList, sedangSunting] = await Promise.all([
-    db.pengurus.findMany({
-      orderBy: [{ level: "asc" }, { urutan: "asc" }],
-      include: { rt: { select: { nomor: true } } },
-    }),
-    db.rt.findMany({ orderBy: { nomor: "asc" } }),
-    sp.sunting
-      ? db.pengurus.findUnique({ where: { id: Number(sp.sunting) } })
-      : Promise.resolve(null),
-  ]);
+  const semuaRw = lintasRw(pengguna);
+  const rwSaya = lingkupRw(pengguna);
+
+  const [pengurus, rtList, sedangSuntingMentah, { rwList, rwTerkunci }] =
+    await Promise.all([
+      db.pengurus.findMany({
+        where: saringRw(pengguna),
+        orderBy: [{ rwId: "asc" }, { level: "asc" }, { urutan: "asc" }],
+        include: { rt: { select: { nomor: true } }, rw: { select: { nama: true } } },
+      }),
+      db.rt.findMany({
+        where: rwSaya === null ? {} : { rwId: rwSaya },
+        orderBy: [{ rwId: "asc" }, { nomor: "asc" }],
+        include: { rw: { select: { nama: true } } },
+      }),
+      sp.sunting
+        ? db.pengurus.findUnique({ where: { id: Number(sp.sunting) } })
+        : Promise.resolve(null),
+      opsiRw(pengguna),
+    ]);
+
+  const sedangSunting =
+    sedangSuntingMentah && seRw(pengguna, sedangSuntingMentah.rwId)
+      ? sedangSuntingMentah
+      : null;
 
   return (
     <>
       <KepalaHalaman
         judul="Struktur Pengurus"
-        keterangan="Daftar pengurus yang tampil pada halaman profil situs warga."
+        keterangan={
+          semuaRw
+            ? "Daftar pengurus yang tampil pada halaman profil tiap RW. Pengurus tingkat kampung tampil di ketiganya."
+            : `Daftar pengurus ${pengguna.rw?.nama ?? "RW Anda"} yang tampil pada halaman profilnya.`
+        }
       />
 
       <div className="grid gap-6 lg:grid-cols-[24rem_1fr]">
@@ -51,6 +71,10 @@ export default async function HalamanPengurusAdmin({
             {sedangSunting ? "Sunting pengurus" : "Tambah pengurus"}
           </h2>
           <FormPengurus
+            key={sedangSunting?.id ?? "baru"}
+            rwList={rwList}
+            rwTerkunci={rwTerkunci}
+            bolehTingkatKampung={semuaRw}
             awal={
               sedangSunting
                 ? {
@@ -58,6 +82,7 @@ export default async function HalamanPengurusAdmin({
                     nama: sedangSunting.nama,
                     jabatan: sedangSunting.jabatan,
                     level: sedangSunting.level,
+                    rwId: sedangSunting.rwId,
                     rtId: sedangSunting.rtId,
                     telepon: sedangSunting.telepon,
                     periode: sedangSunting.periode,
@@ -66,7 +91,11 @@ export default async function HalamanPengurusAdmin({
                   }
                 : null
             }
-            rtList={rtList.map((r) => ({ id: r.id, nama: r.nama }))}
+            rtList={rtList.map((r) => ({
+              id: r.id,
+              rwId: r.rwId,
+              nama: semuaRw ? `${r.nama} · ${r.rw.nama}` : r.nama,
+            }))}
           />
           {sedangSunting && (
             <Link href="/admin/pengurus"
@@ -92,6 +121,7 @@ export default async function HalamanPengurusAdmin({
                   <p className="truncate font-semibold text-slate-900">{p.nama}</p>
                   <p className="text-xs text-slate-500">
                     {p.jabatan}
+                    {` · ${p.rw?.nama ?? "Seluruh kampung"}`}
                     {p.rt ? ` · RT ${p.rt.nomor}` : ""}
                     {p.periode ? ` · ${p.periode}` : ""}
                   </p>

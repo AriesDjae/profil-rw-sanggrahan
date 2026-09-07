@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="Penanaman Taman Kampung RW 03 4">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#c9622f"/>
+      <stop offset="100%" stop-color="#f0a878"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#g)"/>
+  <circle cx="710" cy="447" r="241" fill="#f0a878" opacity="0.21"/>
+  <circle cx="319" cy="288" r="109" fill="#fdeee4" opacity="0.12"/>
+  <circle cx="234" cy="194" r="273" fill="#ffffff" opacity="0.17"/>
+  <circle cx="485" cy="605" r="256" fill="#f0a878" opacity="0.24"/>
+  <circle cx="523" cy="439" r="162" fill="#fdeee4" opacity="0.08"/>
+  <circle cx="290" cy="161" r="62" fill="#ffffff" opacity="0.09"/>
+  <circle cx="881" cy="589" r="189" fill="#f0a878" opacity="0.14"/>
+  <rect x="16" y="417" width="195" height="239" rx="14" fill="#fdeee4" opacity="0.14"/>
+  <rect x="850" y="584" width="137" height="120" rx="14" fill="#fdeee4" opacity="0.14"/>
+  <rect x="690" y="532" width="216" height="200" rx="14" fill="#fdeee4" opacity="0.12"/>
+  <rect x="520" y="612" width="159" height="265" rx="14" fill="#fdeee4" opacity="0.20"/>
+  <text x="72" y="594" font-family="Segoe UI, Arial, sans-serif" font-size="61" font-weight="700" letter-spacing="4" fill="#0f2e26" opacity="0.20">PTK</text>
+</svg>

@@ -1,17 +1,20 @@
 import Link from "next/link";
 
+import { IkonTautanLuar } from "@/components/ui/Ikon";
 import { UMKM } from "@/lib/tautanLuar";
 
 export default function Footer({
-  namaRw,
+  namaKampung,
   alamat,
   telepon,
   email,
+  daftarRw,
 }: {
-  namaRw: string;
+  namaKampung: string;
   alamat: string;
   telepon: string;
   email: string;
+  daftarRw: { nomor: number; nama: string }[];
 }) {
   return (
     <footer className="mt-24 bidang-hijau text-brand-100 tanpa-cetak">
@@ -25,12 +28,25 @@ export default function Footer({
               >
                 RW
               </span>
-              <span className="judul text-lg text-white">{namaRw}</span>
+              <span className="judul text-lg text-white">{namaKampung}</span>
             </div>
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-brand-200">
-              Papan informasi warga yang dikelola pengurus RW. Laporan kas yang
-              tampil di sini sudah diperiksa Ketua RT dan disahkan Ketua RW.
+              Satu papan informasi untuk tiga RW. Tiap RW dikelola pengurusnya
+              sendiri; laporan kas yang tampil di sini sudah diperiksa Ketua RT
+              dan disahkan Ketua RW yang bersangkutan.
             </p>
+
+            <nav aria-label="Laman tiap RW" className="mt-6 flex flex-wrap gap-2">
+              {daftarRw.map((r) => (
+                <Link
+                  key={r.nomor}
+                  href={`/rw/${r.nomor}`}
+                  className="border border-white/25 px-3 py-2 text-sm font-semibold text-white transition hover:border-aksen-400 hover:bg-white/5"
+                >
+                  {r.nama}
+                </Link>
+              ))}
+            </nav>
 
             {/*
               Urusan usaha warga punya situsnya sendiri. Warga yang mencarinya
@@ -51,25 +67,12 @@ export default function Footer({
                   {UMKM.keterangan}
                 </span>
               </span>
-              <svg
-                aria-hidden
-                className="mt-1 shrink-0 text-aksen-400"
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M7 17L17 7M9 7h8v8" />
-              </svg>
+              <IkonTautanLuar ukuran={14} className="mt-1 shrink-0 text-aksen-400" />
             </a>
           </div>
 
           <div>
-            <h2 className="judul text-sm text-white">Jelajahi</h2>
+            <h2 className="judul text-sm text-white">Jelajahi se-kampung</h2>
             <ul className="mt-4 space-y-2.5 text-sm">
               {[
                 { href: "/profil", label: "Profil dan pengurus" },
@@ -92,7 +95,7 @@ export default function Footer({
           </div>
 
           <div>
-            <h2 className="judul text-sm text-white">Sekretariat</h2>
+            <h2 className="judul text-sm text-white">Sekretariat kampung</h2>
             <ul className="mt-4 space-y-3 break-words text-sm text-brand-200">
               <li>{alamat || "Alamat belum diisi"}</li>
               {telepon && (
@@ -130,8 +133,8 @@ export default function Footer({
         <div className="border-t border-white/15">
           <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-5 text-xs text-brand-300 sm:flex-row sm:items-center sm:justify-between">
             <p>
-              &copy; {new Date().getFullYear()} {namaRw}. Dikelola pengurus RW
-              bersama warga.
+              &copy; {new Date().getFullYear()} {namaKampung}. Dikelola pengurus
+              RW 01, RW 02, dan RW 03 bersama warga.
             </p>
             <p>Dibangun untuk keterbukaan informasi warga.</p>
           </div>

@@ -35,6 +35,7 @@ export async function masuk(
 
   const pengguna = await db.user.findUnique({
     where: { email: email.toLowerCase() },
+    include: { rt: { select: { rwId: true } } },
   });
 
   // Pesan galat sengaja disamakan agar tidak membocorkan surel terdaftar
@@ -51,6 +52,8 @@ export async function masuk(
   await buatSesi({
     uid: pengguna.id,
     peran: pengguna.peran as Peran,
+    // RT yang menentukan RW bagi pengurus RT; sisanya memakai kolomnya sendiri.
+    rwId: pengguna.rt ? pengguna.rt.rwId : pengguna.rwId,
     rtId: pengguna.rtId,
     nama: pengguna.nama,
   });

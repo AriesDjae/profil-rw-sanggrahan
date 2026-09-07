@@ -8,7 +8,7 @@ import { db } from "@/lib/db";
 import { periode, rupiah, tanggalWaktu } from "@/lib/format";
 import { hitungRingkasan } from "@/lib/keuangan";
 import { PERAN, STATUS_LAPORAN } from "@/lib/konstanta";
-import { wajibMasuk } from "@/lib/otorisasi";
+import { lingkupRw, wajibMasuk } from "@/lib/otorisasi";
 
 import { setujuiRw, tolakRt, tolakRw, verifikasiRt } from "../keuangan/aksi";
 
@@ -24,12 +24,18 @@ export default async function HalamanPersetujuan() {
 
   if (!ketuaRt && !ketuaRw) redirect("/admin?galat=akses");
 
+  // Ketua RW hanya mengesahkan kas RW-nya sendiri; hanya administrator kampung
+  // yang melihat antrean ketiga RW sekaligus.
+  const rwSaya = lingkupRw(pengguna);
   const antrean = await db.laporanKeuangan.findMany({
     where: ketuaRt
       ? { rtId: pengguna.rtId ?? -1, status: STATUS_LAPORAN.DIAJUKAN }
-      : { status: STATUS_LAPORAN.DIVERIFIKASI_RT },
+      : {
+          status: STATUS_LAPORAN.DIVERIFIKASI_RT,
+          ...(rwSaya === null ? {} : { rt: { rwId: rwSaya } }),
+        },
     include: {
-      rt: true,
+      rt: { include: { rw: { select: { nama: true } } } },
       dibuatOleh: { select: { nama: true } },
       verifikasiRtOleh: { select: { nama: true } },
       transaksi: { select: { jenis: true, jumlah: true } },
@@ -40,7 +46,7 @@ export default async function HalamanPersetujuan() {
 
   const riwayatSaya = await db.riwayatPersetujuan.findMany({
     where: { olehId: pengguna.id, aksi: { in: ["VERIFIKASI_RT", "SETUJUI_RW", "TOLAK_RT", "TOLAK_RW"] } },
-    include: { laporan: { include: { rt: true } } },
+    include: { laporan: { include: { rt: { include: { rw: { select: { nama: true } } } } } } },
     orderBy: { createdAt: "desc" },
     take: 8,
   });
@@ -52,7 +58,9 @@ export default async function HalamanPersetujuan() {
         keterangan={
           ketuaRt
             ? `Laporan kas ${pengguna.rt?.nama ?? "RT Anda"} yang diajukan bendahara dan menunggu verifikasi Anda.`
-            : "Laporan kas yang telah diverifikasi Ketua RT dan menunggu persetujuan akhir Ketua RW sebelum tampil ke warga."
+            : rwSaya === null
+              ? "Laporan kas dari ketiga RW yang telah diverifikasi Ketua RT dan menunggu persetujuan akhir sebelum tampil ke warga."
+              : `Laporan kas ${pengguna.rw?.nama ?? "RW Anda"} yang telah diverifikasi Ketua RT dan menunggu persetujuan akhir Anda sebelum tampil ke warga.`
         }
       />
 
@@ -82,7 +90,7 @@ export default async function HalamanPersetujuan() {
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <div>
                       <h2 className="text-lg font-bold text-slate-900">
-                        {l.rt.nama} · {periode(l.bulan, l.tahun)}
+                        {l.rt.nama} · {l.rt.rw.nama} · {periode(l.bulan, l.tahun)}
                       </h2>
                       <p className="mt-1 text-xs text-slate-500">
                         Disusun {l.dibuatOleh?.nama ?? "-"} · {l._count.transaksi} transaksi ·
@@ -200,7 +208,8 @@ export default async function HalamanPersetujuan() {
                   href={`/admin/keuangan/${r.laporanId}`}
                   className="flex-1 text-sm font-medium text-slate-800 hover:text-brand-700"
                 >
-                  {r.laporan.rt.nama} · {periode(r.laporan.bulan, r.laporan.tahun)}
+                  {r.laporan.rt.nama} · {r.laporan.rt.rw.nama} ·{" "}
+                  {periode(r.laporan.bulan, r.laporan.tahun)}
                 </Link>
                 <span className="text-xs text-slate-500">{tanggalWaktu(r.createdAt)}</span>
               </li>

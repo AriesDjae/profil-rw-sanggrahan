@@ -13,12 +13,14 @@ import {
   Teks,
   TombolSimpan,
 } from "@/components/admin/Formulir";
+import PilihRw, { type OpsiRw } from "@/components/admin/PilihRw";
 import { KATEGORI_KEGIATAN } from "@/lib/konstanta";
 
 import { simpanKegiatan, type Hasil } from "./aksi";
 
 export type KegiatanAwal = {
   id: number;
+  rwId: number | null;
   judul: string;
   deskripsi: string;
   mulai: string;
@@ -31,7 +33,15 @@ export type KegiatanAwal = {
   gambar: string | null;
 } | null;
 
-export default function FormKegiatan({ awal }: { awal: KegiatanAwal }) {
+export default function FormKegiatan({
+  awal,
+  rwList,
+  rwTerkunci,
+}: {
+  awal: KegiatanAwal;
+  rwList: OpsiRw[];
+  rwTerkunci: OpsiRw | null;
+}) {
   const [status, aksi] = useActionState<Hasil, FormData>(simpanKegiatan, {});
   const v = pembacaNilai(status.nilai);
 
@@ -39,6 +49,13 @@ export default function FormKegiatan({ awal }: { awal: KegiatanAwal }) {
     <form action={aksi} className="space-y-5">
       {awal && <input type="hidden" name="id" value={awal.id} />}
       <PesanGalat pesan={status.galat} />
+
+      <PilihRw
+        rwList={rwList}
+        rwTerkunci={rwTerkunci}
+        nilaiAwal={v("rwId", awal?.rwId)}
+        keterangan="Kegiatan satu RW tampil di agenda RW itu. Pilih seluruh kampung untuk kegiatan bersama ketiga RW."
+      />
 
       <Teks
         label="Nama kegiatan"
@@ -69,7 +86,7 @@ export default function FormKegiatan({ awal }: { awal: KegiatanAwal }) {
         nama="lokasi"
         wajib
         nilaiAwal={v("lokasi", awal?.lokasi)}
-        placeholder="Contoh: Balai RW 05"
+        placeholder="Contoh: Balai RW 01"
       />
 
       <div className="grid gap-5 sm:grid-cols-2">
@@ -77,7 +94,7 @@ export default function FormKegiatan({ awal }: { awal: KegiatanAwal }) {
           label="Penyelenggara"
           nama="penyelenggara"
           nilaiAwal={v("penyelenggara", awal?.penyelenggara)}
-          placeholder="Contoh: Karang Taruna RW 05"
+          placeholder="Contoh: Karang Taruna RW 01"
         />
         <Teks
           label="Kontak panitia"
