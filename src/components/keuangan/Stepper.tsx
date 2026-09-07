@@ -1,3 +1,4 @@
+import { IkonCentang } from "@/components/ui/Ikon";
 import { STATUS_LAPORAN, type StatusLaporan } from "@/lib/konstanta";
 import { TAHAPAN, indeksTahap } from "@/lib/keuangan";
 
@@ -24,9 +25,7 @@ export default function Stepper({ status }: { status: string }) {
               }`}
             >
               {selesai ? (
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M4 12.5l5.5 5.5L20 7" />
-                </svg>
+                <IkonCentang ukuran={13} />
               ) : (
                 i + 1
               )}

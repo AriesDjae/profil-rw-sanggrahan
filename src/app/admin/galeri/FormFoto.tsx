@@ -42,7 +42,7 @@ export default function FormFoto({ albumId }: { albumId: number }) {
           className="w-full text-sm text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-brand-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-brand-700 hover:file:bg-brand-100"
         />
         <p className="mt-1.5 text-xs text-slate-500">
-          Dapat memilih beberapa foto sekaligus. Setiap berkas maksimal 4 MB.
+          Dapat memilih beberapa foto sekaligus. Setiap berkas maksimal 12 MB dan dikecilkan otomatis.
         </p>
       </div>
 

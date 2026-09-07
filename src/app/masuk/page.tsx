@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import { IkonPanahKiri } from "@/components/ui/Ikon";
 import { ambilPengaturan } from "@/lib/pengaturan";
 import { penggunaSaatIni } from "@/lib/sesi";
 
@@ -35,7 +36,7 @@ export default async function HalamanMasuk({
           <span className="grid h-11 w-11 place-items-center rounded-xl bg-white/15 text-sm font-extrabold backdrop-blur">
             RW
           </span>
-          <span className="font-bold">{pengaturan.namaRw}</span>
+          <span className="font-bold">{pengaturan.namaKampung}</span>
         </Link>
 
         <div className="relative max-w-md">
@@ -75,9 +76,7 @@ export default async function HalamanMasuk({
             href="/"
             className="mb-8 inline-flex items-center gap-2 text-xs font-semibold text-slate-500 hover:text-brand-700"
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-              <path d="M19 12H5M11 18l-6-6 6-6" />
-            </svg>
+            <IkonPanahKiri ukuran={14} />
             Kembali ke situs warga
           </Link>
 

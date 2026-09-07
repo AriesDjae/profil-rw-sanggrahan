@@ -111,7 +111,7 @@ export default function FormTransaksi({
         label="Bukti (opsional)"
         nama="bukti"
         terima="image/*,application/pdf"
-        keterangan="Foto nota atau bukti transfer, maksimal 4 MB."
+        keterangan="Foto nota atau bukti transfer. Foto maksimal 12 MB dan dikecilkan otomatis, PDF maksimal 4 MB."
       />
 
       <TombolSimpan label="Tambahkan transaksi" labelProses="Menyimpan..." />

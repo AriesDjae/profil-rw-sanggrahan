@@ -47,3 +47,6 @@ next-env.d.ts
 
 # contoh berkas lingkungan tetap disertakan
 !.env.example
+
+# Tangkapan layar hasil alat review, bukan bagian aplikasi
+.impeccable/
