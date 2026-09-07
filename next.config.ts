@@ -8,8 +8,12 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     serverActions: {
-      // Cukup untuk unggahan foto kegiatan/bukti transaksi (batas per berkas 4 MB)
-      bodySizeLimit: "8mb",
+      // Cukup untuk unggahan foto kegiatan/bukti transaksi. Harus di atas batas
+      // 12 MB di src/lib/unggah.ts, sebab pembungkus multipart menambah sedikit
+      // dari ukuran berkas aslinya. Batas ini dijaga Next.js sebelum permintaan
+      // sampai ke kode kita, jadi kalau lebih kecil dari batas unggahan, foto
+      // besar ditolak tanpa pesan yang berguna bagi pengurus.
+      bodySizeLimit: "14mb",
     },
   },
 };
