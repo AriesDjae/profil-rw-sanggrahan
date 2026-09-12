@@ -1,12 +1,42 @@
+<div align="center">
+
 # Website Kampung Sanggrahan
 
-Portal informasi warga sekaligus panel pengelolaan untuk pengurus, melayani
-**tiga RW dalam satu situs**: RW 01, RW 02, dan RW 03 Kampung Sanggrahan,
-Kelurahan Semaki, Kemantren Umbulharjo, Kota Yogyakarta. Berisi berita, agenda
-kegiatan, data kependudukan, galeri, dan **laporan keuangan kas RT dengan alur
-persetujuan berjenjang Bendahara RT → Ketua RT → Ketua RW**.
+**Portal informasi warga sekaligus panel pengelolaan untuk pengurus — tiga RW
+dalam satu situs.** Berita, agenda kegiatan, data kependudukan, galeri, dan
+laporan keuangan kas RT dengan alur persetujuan berjenjang
+**Bendahara RT → Ketua RT → Ketua RW**.
 
-Dibangun dengan Next.js 16 (App Router + Server Actions), Prisma, PostgreSQL, dan Tailwind CSS 4.
+[**Lihat situsnya →**](https://profil-rw-sanggrahan.vercel.app)
+
+![Next.js](https://img.shields.io/badge/Next.js-16-000000?logo=nextdotjs&logoColor=white)
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=white)
+![Prisma](https://img.shields.io/badge/Prisma-6-2D3748?logo=prisma&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Neon-4169E1?logo=postgresql&logoColor=white)
+![Playwright](https://img.shields.io/badge/Playwright-8_berkas_uji-2EAD33?logo=playwright&logoColor=white)
+
+RW 01, RW 02, dan RW 03 Kampung Sanggrahan, Kelurahan Semaki,
+Kemantren Umbulharjo, Kota Yogyakarta.
+
+</div>
+
+---
+
+## Daftar isi
+
+1. [Tiga RW dalam satu situs](#tiga-rw-dalam-satu-situs)
+2. [Mulai cepat](#mulai-cepat)
+3. [Akun demo](#akun-demo)
+4. [Alur persetujuan laporan keuangan](#alur-persetujuan-laporan-keuangan)
+5. [Peran dan hak akses](#peran-dan-hak-akses)
+6. [Halaman](#halaman)
+7. [Struktur proyek](#struktur-proyek)
+8. [Basis data](#basis-data)
+9. [Pengujian](#pengujian)
+10. [Penerapan](#penerapan)
+11. [Situs warga yang bersebelahan](#situs-warga-yang-bersebelahan)
 
 ---
 
@@ -43,16 +73,20 @@ RW yang sama dengan penggunanya.
 
 ---
 
-## Menjalankan
+## Mulai cepat
 
-Membutuhkan basis data PostgreSQL. Untuk pengembangan bisa memakai Postgres lokal
-atau basis data gratis dari [Neon](https://neon.tech).
+Butuh Node.js 20+ dan basis data PostgreSQL. Untuk pengembangan bisa memakai
+Postgres lokal atau basis data gratis dari [Neon](https://neon.tech).
 
 ```bash
+git clone https://github.com/AriesDjae/profil-rw-sanggrahan.git
+cd profil-rw-sanggrahan
 npm install
+
 cp .env.example .env          # isi DATABASE_URL dan SESSION_SECRET
 npx prisma migrate deploy     # menyiapkan tabel
 npm run db:seed               # mengisi data contoh (sangat disarankan)
+
 npm run dev                   # http://localhost:3000
 ```
 
@@ -62,15 +96,21 @@ Untuk produksi:
 npm run build && npm start
 ```
 
+Seed mengisi data contoh yang cukup untuk menilai seluruh alur: **3 RW, 9 RT,
+±825 jiwa, 36 laporan kas** beserta transaksi dan jejak persetujuannya, ditambah
+berita, kegiatan, pengumuman, dan album galeri.
+
 ### Berkas lingkungan (`.env`)
 
 | Nama | Wajib | Keterangan |
 | --- | --- | --- |
-| `DATABASE_URL` | ya | Alamat PostgreSQL, mis. `postgresql://…?sslmode=require`. |
+| `DATABASE_URL` | ya | Alamat PostgreSQL, mis. `postgresql://…?sslmode=require`. Di Neon, pakai connection string **pooled** untuk aplikasi. |
 | `SESSION_SECRET` | ya | Kunci penanda tangan sesi, **minimal 32 karakter**. |
 | `BLOB_READ_WRITE_TOKEN` | tidak | Bila diisi, unggahan disimpan ke Vercel Blob. Bila kosong, unggahan ditulis ke `public/unggahan` (dipakai saat lokal dan saat dipasang di VPS sendiri). |
+| `NEXT_PUBLIC_URL_UMKM` | tidak | Alamat situs Registri Usaha Warga, ditautkan dari kop dan kaki halaman. Kosong = memakai bawaan di `src/lib/tautanLuar.ts`. |
 
 ---
+
 ## Akun demo
 
 Seluruh akun contoh memakai kata sandi **`sanggrahan123`**. Ganti melalui
@@ -173,19 +213,6 @@ Galeri · Data Warga · Pengurus · Akun Pengguna · Pengaturan Situs.
 
 ---
 
-## Situs warga yang bersebelahan
-
-Urusan usaha warga punya situsnya sendiri:
-**[Usaha Warga Sanggrahan](https://umkm-sanggrahan.vercel.app)** — registri UMKM
-dan jasa warga RW 1 dan RW 3, dengan basis data dan panel pengurusnya sendiri.
-Kedua situs berdiri terpisah tetapi melayani warga yang sama, jadi kop dan kaki
-halaman keduanya saling menautkan.
-
-Alamat tujuannya ada di `src/lib/tautanLuar.ts`, dan bisa ditimpa lewat env
-`NEXT_PUBLIC_URL_UMKM` tanpa mengubah kode.
-
----
-
 ## Struktur proyek
 
 ```
@@ -193,6 +220,7 @@ prisma/
   schema.prisma        Skema basis data
   seed.ts              Data contoh: 3 RW, 9 RT, ±825 jiwa, 36 laporan kas, berita, kegiatan
   gambar.ts            Pembuat gambar SVG contoh (ditulis ke public/contoh)
+  migrations/          20260903100000_init, 20260907090000_kampung_tiga_rw
 src/
   app/
     unggahan/[...jalur]/ Penyaji berkas unggahan pengurus (lihat catatan di bawah)
@@ -217,6 +245,8 @@ src/
     keuangan.ts        Perhitungan kas dan tahapan persetujuan
     kueri.ts           Kueri bersama halaman publik
     unggah.ts          Penyimpanan berkas: Vercel Blob atau folder lokal
+    gambar.ts          Pengecil foto: maks 1600px, WEBP, EXIF (termasuk GPS) dibuang
+    tautanLuar.ts      Alamat situs Registri Usaha Warga
 uji/
   alur-persetujuan.mjs Uji ujung-ke-ujung alur ACC (Playwright)
   qc-tampilan.mjs      QC tata letak & aksesibilitas lintas ukuran layar
@@ -227,6 +257,32 @@ uji/
   crud-galeri.mjs      Album dan foto, termasuk unggahan sungguhan yang benar-benar termuat
   crud-warga.mjs       Data warga: kerahasiaan identitas dan batas wilayah antar-RW
 ```
+
+### Basis data
+
+Tiga belas model di `prisma/schema.prisma`, dengan tiga aturan lingkup yang
+dipegang seluruh skema:
+
+- **`Rt` wajib milik satu `Rw`.** Nomor RT hanya unik di dalam RW-nya
+  (`@@unique([rwId, nomor])`).
+- **`User.rwId` kosong hanya untuk peran `ADMIN`** — administrator tingkat
+  kampung. Peran lain wajib terikat satu RW; Ketua RT dan Bendahara RT
+  dipersempit lagi ke satu RT.
+- **`Warga` dan `LaporanKeuangan` tidak menyimpan `rwId`** — RW-nya dibaca lewat
+  `Rt`, supaya tidak ada dua sumber kebenaran yang bisa berselisih.
+
+| Kelompok | Model |
+| --- | --- |
+| Wilayah | `Rw`, `Rt` |
+| Akun | `User` |
+| Konten publik | `Berita`, `Kegiatan`, `Pengumuman`, `Album`, `Foto`, `Pengurus` |
+| Kependudukan | `Warga` |
+| Keuangan | `LaporanKeuangan`, `Transaksi`, `RiwayatPersetujuan` |
+| Identitas situs | `Pengaturan` (baris tunggal, `id = 1`) |
+
+Kolom `status` dan `peran` memakai `String`, bukan enum, agar nilainya terkunci
+di satu tempat (`src/lib/konstanta.ts`) dan penambahan nilai baru tidak
+memerlukan migrasi tipe.
 
 ---
 
@@ -259,12 +315,14 @@ Bila server berjalan di alamat lain, setel `DASAR`, misalnya
 > untuk mengembalikan data contoh ke keadaan semula.
 
 ---
+
 ## Penerapan
 
 ### Demo di Vercel
 
-Vercel dipakai sebagai etalase MVP. Dua penyesuaian sudah dilakukan agar berjalan
-di sana, karena sistem berkas Vercel bersifat hanya-baca dan sementara:
+Vercel dipakai sebagai etalase MVP, region **Singapura** (`sin1`, disetel di
+`vercel.json`). Dua penyesuaian sudah dilakukan agar berjalan di sana, karena
+sistem berkas Vercel bersifat hanya-baca dan sementara:
 
 - **Basis data** memakai PostgreSQL (Neon), bukan berkas SQLite.
 - **Unggahan berkas** otomatis dialihkan ke Vercel Blob bila
@@ -304,3 +362,28 @@ PostgreSQL, kosongkan `BLOB_READ_WRITE_TOKEN` agar unggahan memakai folder
   Jalankan di belakang HTTPS agar cookie sesi dikirim dengan atribut `secure`.
 - **Data pribadi.** Halaman publik hanya menampilkan angka agregat; nama, NIK, dan
   alamat warga hanya dapat diakses dari panel pengurus sesuai lingkup perannya.
+  Foto yang diunggah dikecilkan dan dibuang metadata EXIF-nya, termasuk titik GPS,
+  sehingga alamat rumah warga tidak ikut terbawa.
+- **Batas unggahan.** `next.config.ts` menyetel `serverActions.bodySizeLimit`
+  ke 14 MB — sengaja di atas batas 12 MB di `src/lib/unggah.ts`, sebab pembungkus
+  multipart menambah sedikit dari ukuran berkas aslinya.
+
+---
+
+## Situs warga yang bersebelahan
+
+Urusan usaha warga punya situsnya sendiri:
+**[Usaha Warga Sanggrahan](https://umkm-sanggrahan.vercel.app)** — registri UMKM
+dan jasa warga RW 1 dan RW 3, dengan basis data dan panel pengurusnya sendiri
+([repositori](https://github.com/AriesDjae/umkm-sanggrahan)).
+
+Kedua situs berdiri terpisah tetapi melayani warga yang sama, jadi kop dan kaki
+halaman keduanya saling menautkan. Alamat tujuannya ada di
+`src/lib/tautanLuar.ts`, dan bisa ditimpa lewat env `NEXT_PUBLIC_URL_UMKM` tanpa
+mengubah kode.
+
+---
+
+<div align="center">
+<sub>Dibangun swadaya untuk warga Kampung Sanggrahan, Semaki, Umbulharjo, Yogyakarta.</sub>
+</div>
