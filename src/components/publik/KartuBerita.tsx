@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import { potong, tanggal } from "@/lib/format";
@@ -38,10 +39,16 @@ export default function KartuBerita({
       <div className="overflow-hidden bg-brand-100">
         <div className={utama ? "aspect-[4/3]" : "aspect-[16/10]"}>
           {berita.gambar ? (
-            <img
+            <Image
               src={berita.gambar}
               alt=""
-              loading="lazy"
+              width={800}
+              height={utama ? 600 : 500}
+              sizes={
+                utama
+                  ? "(min-width: 1152px) 560px, (min-width: 640px) 50vw, 100vw"
+                  : "(min-width: 1024px) 360px, (min-width: 640px) 50vw, 100vw"
+              }
               className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
             />
           ) : (

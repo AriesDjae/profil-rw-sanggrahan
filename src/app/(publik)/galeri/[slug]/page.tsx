@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -84,11 +85,13 @@ export default async function DetailAlbum({
             rel="noopener noreferrer"
             className="mb-4 block overflow-hidden rounded-xl border border-garis bg-white"
           >
-            <img
+            <Image
               src={f.url}
               alt={f.judul ?? album.nama}
-              loading="lazy"
-              className="w-full transition duration-500 hover:scale-105"
+              width={800}
+              height={600}
+              sizes="(min-width: 1024px) 280px, (min-width: 640px) 33vw, 50vw"
+              className="h-auto w-full transition duration-500 hover:scale-105"
             />
             {f.judul && <p className="px-3 py-2 text-xs text-slate-600">{f.judul}</p>}
           </a>

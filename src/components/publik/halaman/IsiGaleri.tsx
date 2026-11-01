@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import JudulBagian from "@/components/ui/JudulBagian";
@@ -48,11 +49,13 @@ export default async function IsiGaleri({ lingkup }: { lingkup: Lingkup }) {
             >
               <div className="grid aspect-[4/3] grid-cols-2 gap-0.5 bg-slate-100">
                 {a.foto.slice(0, 4).map((f, i) => (
-                  <img
+                  <Image
                     key={f.id}
                     src={f.url}
                     alt=""
-                    loading="lazy"
+                    width={400}
+                    height={300}
+                    sizes="(min-width: 1024px) 180px, (min-width: 640px) 25vw, 50vw"
                     className={`h-full w-full object-cover transition duration-500 group-hover:scale-105 ${
                       a.foto.length === 1 ? "col-span-2 row-span-2" : ""
                     } ${a.foto.length === 3 && i === 0 ? "row-span-2" : ""}`}

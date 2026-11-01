@@ -70,7 +70,7 @@ export default async function HalamanMasuk({
         </p>
       </div>
 
-      <div className="flex items-center justify-center px-4 py-16">
+      <main id="konten" tabIndex={-1} className="flex items-center justify-center px-4 py-16">
         <div className="w-full max-w-sm">
           <Link
             href="/"
@@ -96,7 +96,7 @@ export default async function HalamanMasuk({
             {pengaturan.telepon ? ` di ${pengaturan.telepon}` : ""} untuk penyetelan ulang.
           </p>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

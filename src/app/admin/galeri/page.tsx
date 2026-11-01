@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import KepalaHalaman from "@/components/admin/KepalaHalaman";
@@ -72,7 +73,13 @@ export default async function DaftarAlbumAdmin({
                 >
                   <div className="aspect-[16/9] bg-slate-100">
                     {a.foto[0] ? (
-                      <img src={a.foto[0].url} alt="" className="h-full w-full object-cover" />
+                      <Image
+                        src={a.foto[0].url}
+                        alt=""
+                        width={640}
+                        height={360}
+                        className="h-full w-full object-cover"
+                      />
                     ) : (
                       <div className="grid h-full place-items-center text-xs text-slate-400">
                         Belum ada foto

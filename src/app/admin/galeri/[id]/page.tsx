@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { notFound } from "next/navigation";
 
 import KepalaHalaman from "@/components/admin/KepalaHalaman";
@@ -83,7 +84,13 @@ export default async function KelolaAlbum({
                   key={f.id}
                   className="overflow-hidden rounded-xl border border-slate-200 bg-white"
                 >
-                  <img src={f.url} alt={f.judul ?? ""} className="aspect-square w-full object-cover" />
+                  <Image
+                    src={f.url}
+                    alt={f.judul ?? ""}
+                    width={320}
+                    height={320}
+                    className="aspect-square w-full object-cover"
+                  />
                   <div className="flex items-center justify-between gap-2 px-3 py-2">
                     <p className="truncate text-xs text-slate-500">{f.judul ?? "Tanpa judul"}</p>
                     <form action={hapusFoto}>

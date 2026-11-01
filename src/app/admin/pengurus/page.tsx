@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import KepalaHalaman from "@/components/admin/KepalaHalaman";
@@ -6,6 +7,7 @@ import { Lencana } from "@/components/ui/LencanaStatus";
 import { db } from "@/lib/db";
 import { LABEL_LEVEL_PENGURUS, PERAN_KONTEN } from "@/lib/konstanta";
 import { lingkupRw, lintasRw, opsiRw, saringRw, seRw, wajibPeran } from "@/lib/otorisasi";
+import { labelRt } from "@/lib/rw";
 
 import { hapusPengurus } from "./aksi";
 import FormPengurus from "./FormPengurus";
@@ -94,7 +96,7 @@ export default async function HalamanPengurusAdmin({
             rtList={rtList.map((r) => ({
               id: r.id,
               rwId: r.rwId,
-              nama: semuaRw ? `${r.nama} · ${r.rw.nama}` : r.nama,
+              nama: semuaRw ? labelRt(r, r.rw) : r.nama,
             }))}
           />
           {sedangSunting && (
@@ -111,7 +113,13 @@ export default async function HalamanPengurusAdmin({
             {pengurus.map((p) => (
               <li key={p.id} className="flex flex-wrap items-center gap-4 p-4">
                 {p.foto ? (
-                  <img src={p.foto} alt="" className="h-12 w-12 rounded-xl object-cover" />
+                  <Image
+                    src={p.foto}
+                    alt=""
+                    width={48}
+                    height={48}
+                    className="h-12 w-12 rounded-xl object-cover"
+                  />
                 ) : (
                   <span className="grid h-12 w-12 place-items-center rounded-xl bg-brand-50 text-sm font-bold text-brand-700">
                     {p.nama.slice(0, 1)}

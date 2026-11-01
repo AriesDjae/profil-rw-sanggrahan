@@ -23,6 +23,7 @@ import {
   bolehVerifikasiRt,
   wajibMasuk,
 } from "@/lib/otorisasi";
+import { labelRt } from "@/lib/rw";
 
 import {
   ajukanLaporan,
@@ -105,7 +106,7 @@ export default async function DetailLaporanAdmin({
   return (
     <>
       <KepalaHalaman
-        judul={`${laporan.rt.nama} · ${laporan.rt.rw.nama} · ${periode(laporan.bulan, laporan.tahun)}`}
+        judul={`${labelRt(laporan.rt, laporan.rt.rw)} · ${periode(laporan.bulan, laporan.tahun)}`}
         keterangan={tahapBerikutnya(laporan.status as never)}
         kembali={{ href: "/admin/keuangan", label: "Kembali ke daftar laporan" }}
         aksi={

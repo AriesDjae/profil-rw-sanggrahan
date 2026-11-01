@@ -4,6 +4,7 @@ import Sidebar, { type ItemMenu } from "@/components/admin/Sidebar";
 import { db } from "@/lib/db";
 import { LABEL_PERAN, PERAN, STATUS_LAPORAN } from "@/lib/konstanta";
 import { lingkupRw, wajibMasuk } from "@/lib/otorisasi";
+import { labelRt } from "@/lib/rw";
 
 import { keluar } from "../masuk/aksi";
 
@@ -13,6 +14,11 @@ export const metadata: Metadata = {
 };
 
 export const dynamic = "force-dynamic";
+
+/** Kata pertama yang bukan gelar: "H. Suryanto Wibowo" disapa "Suryanto". */
+function namaPanggilan(nama: string): string {
+  return nama.split(" ").find((kata) => !kata.endsWith(".")) ?? nama;
+}
 
 export default async function LayoutAdmin({
   children,
@@ -86,7 +92,7 @@ export default async function LayoutAdmin({
   // Baris kecil di bawah judul laci navigasi. Ini satu-satunya tempat pengurus
   // melihat batas kewenangannya tanpa harus membuka halaman apa pun.
   const lingkup = pengguna.rt
-    ? `${pengguna.rt.nama} · ${pengguna.rw?.nama ?? "-"}`
+    ? labelRt(pengguna.rt, pengguna.rw)
     : rwSaya === null
       ? "Seluruh kampung"
       : (pengguna.rw?.nama ?? "RW Anda");
@@ -104,7 +110,7 @@ export default async function LayoutAdmin({
         <header className="hidden items-center justify-between border-b border-slate-200 bg-white px-8 py-4 lg:flex">
           <div>
             <p className="text-sm font-semibold text-slate-900">
-              Selamat datang, {pengguna.nama.split(" ")[0]}
+              Selamat datang, {namaPanggilan(pengguna.nama)}
             </p>
             <p className="text-xs text-slate-500">
               {LABEL_PERAN[pengguna.peran] ?? pengguna.peran}
@@ -122,7 +128,9 @@ export default async function LayoutAdmin({
           </form>
         </header>
 
-        <div className="p-5 sm:p-8">{children}</div>
+        <main id="konten" tabIndex={-1} className="p-5 sm:p-8">
+          {children}
+        </main>
       </div>
     </div>
   );

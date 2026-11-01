@@ -25,7 +25,9 @@ export default async function LayoutPublik({
         tagline={pengaturan.tagline}
         daftarRw={nav}
       />
-      <main className="flex-1">{children}</main>
+      <main id="konten" tabIndex={-1} className="flex-1">
+        {children}
+      </main>
       <Footer
         namaKampung={pengaturan.namaKampung}
         alamat={pengaturan.alamat}
