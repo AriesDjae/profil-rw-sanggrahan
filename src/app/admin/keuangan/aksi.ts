@@ -1,8 +1,10 @@
 "use server";
 
+import { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+import { STATUS_DAPAT_DISUNTING, pindahStatusLaporan } from "@/lib/alurLaporan";
 import { db } from "@/lib/db";
 import { segarkanLamanRw } from "@/lib/rw";
 import { nilaiForm, type HasilAksi } from "@/lib/formulir";
@@ -16,6 +18,12 @@ import {
 import { simpanBerkas } from "@/lib/unggah";
 
 export type Hasil = HasilAksi;
+
+/** Masih di bawah batas kolom Int (32-bit), supaya galatnya bisa dibaca pengurus. */
+const JUMLAH_MAKS = 2_000_000_000;
+
+/** Pesan saat laporan sudah dipindahkan orang lain sebelum tombolnya ditekan. */
+const GALAT_KEDULUAN = "Laporan baru saja diproses pengurus lain, silakan periksa statusnya";
 
 /** Mengubah "1.500.000" atau "Rp 1.500.000" menjadi 1500000. */
 function keAngka(nilai: FormDataEntryValue | null): number {
@@ -38,17 +46,6 @@ async function segarkan(laporanId?: number) {
     revalidatePath(`/admin/keuangan/${laporanId}`);
     revalidatePath(`/keuangan/${laporanId}`);
   }
-}
-
-async function catat(
-  laporanId: number,
-  aksi: string,
-  olehId: number,
-  catatan?: string | null,
-) {
-  await db.riwayatPersetujuan.create({
-    data: { laporanId, aksi, olehId, catatan: catatan?.trim() || null },
-  });
 }
 
 /* -------------------------------------------------------------------------- */
@@ -90,21 +87,34 @@ export async function buatLaporan(_prev: Hasil, formData: FormData): Promise<Has
   // Saldo awal diusulkan dari saldo akhir laporan sebelumnya bila kosong
   let saldoAwal = keAngka(formData.get("saldoAwal"));
   if (!formData.get("saldoAwal")) saldoAwal = 0;
+  if (Math.abs(saldoAwal) > JUMLAH_MAKS) return { galat: "Saldo awal terlalu besar.", nilai };
 
-  const laporan = await db.laporanKeuangan.create({
-    data: {
-      judul: `Laporan Kas ${rt.nama} - ${NAMA_BULAN[bulan - 1]} ${tahun}`,
-      bulan,
-      tahun,
-      rtId,
-      saldoAwal,
-      status: STATUS_LAPORAN.DRAFT,
-      catatan: String(formData.get("catatan") ?? "").trim() || null,
-      dibuatOlehId: pengguna.id,
-    },
-  });
+  let laporan;
+  try {
+    // Pengecekan `kembar` di atas hanya untuk pesan yang ramah. Penjaga
+    // sebenarnya adalah @@unique([rtId, tahun, bulan]) di basis data.
+    laporan = await db.laporanKeuangan.create({
+      data: {
+        judul: `Laporan Kas ${rt.nama} - ${NAMA_BULAN[bulan - 1]} ${tahun}`,
+        bulan,
+        tahun,
+        rtId,
+        saldoAwal,
+        status: STATUS_LAPORAN.DRAFT,
+        catatan: String(formData.get("catatan") ?? "").trim() || null,
+        dibuatOlehId: pengguna.id,
+        riwayat: {
+          create: { aksi: "BUAT", olehId: pengguna.id, catatan: "Laporan dibuat." },
+        },
+      },
+    });
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
+      return { galat: "Laporan untuk periode ini baru saja dibuat.", nilai };
+    }
+    throw e;
+  }
 
-  await catat(laporan.id, "BUAT", pengguna.id, "Laporan dibuat.");
   await segarkan(laporan.id);
   redirect(`/admin/keuangan/${laporan.id}`);
 }
@@ -125,13 +135,17 @@ export async function ubahLaporan(_prev: Hasil, formData: FormData): Promise<Has
     return { galat: "Laporan yang sudah diajukan tidak dapat diubah.", nilai };
   }
 
-  await db.laporanKeuangan.update({
-    where: { id },
+  const saldoAwal = keAngka(formData.get("saldoAwal"));
+  if (Math.abs(saldoAwal) > JUMLAH_MAKS) return { galat: "Saldo awal terlalu besar.", nilai };
+
+  const { count } = await db.laporanKeuangan.updateMany({
+    where: { id, status: { in: STATUS_DAPAT_DISUNTING } },
     data: {
-      saldoAwal: keAngka(formData.get("saldoAwal")),
+      saldoAwal,
       catatan: String(formData.get("catatan") ?? "").trim() || null,
     },
   });
+  if (count === 0) return { galat: "Laporan yang sudah diajukan tidak dapat diubah.", nilai };
 
   await segarkan(id);
   return { sukses: "Perubahan laporan tersimpan." };
@@ -150,7 +164,11 @@ export async function hapusLaporan(formData: FormData) {
     return;
   }
 
-  await db.laporanKeuangan.delete({ where: { id } });
+  const { count } = await db.laporanKeuangan.deleteMany({
+    where: { id, status: { in: STATUS_DAPAT_DISUNTING } },
+  });
+  if (count === 0) return;
+
   await segarkan();
   redirect("/admin/keuangan?pesan=laporan-dihapus");
 }
@@ -182,6 +200,7 @@ export async function tambahTransaksi(_prev: Hasil, formData: FormData): Promise
 
   const jumlah = keAngka(formData.get("jumlah"));
   if (jumlah <= 0) return { galat: "Jumlah transaksi harus lebih dari nol.", nilai };
+  if (jumlah > JUMLAH_MAKS) return { galat: "Jumlah transaksi terlalu besar.", nilai };
 
   const keterangan = String(formData.get("keterangan") ?? "").trim();
   if (!keterangan) return { galat: "Keterangan transaksi wajib diisi.", nilai };
@@ -197,17 +216,23 @@ export async function tambahTransaksi(_prev: Hasil, formData: FormData): Promise
     return { galat: e instanceof Error ? e.message : "Gagal mengunggah bukti.", nilai };
   }
 
-  await db.transaksi.create({
-    data: {
-      laporanId,
-      tanggal,
-      jenis,
-      kategori: String(formData.get("kategori") ?? "Lain-lain"),
-      keterangan,
-      jumlah,
-      bukti,
-    },
-  });
+  try {
+    await db.transaksi.create({
+      data: {
+        laporanId,
+        tanggal,
+        jenis,
+        kategori: String(formData.get("kategori") ?? "Lain-lain"),
+        keterangan,
+        jumlah,
+        bukti,
+      },
+    });
+  } catch {
+    // Laporan bisa saja diajukan di sela pemeriksaan di atas dan penulisan ini;
+    // trigger basis data menolaknya.
+    return { galat: "Laporan sedang dalam proses persetujuan dan tidak dapat diubah.", nilai };
+  }
 
   await segarkan(laporanId);
   return { sukses: "Transaksi ditambahkan." };
@@ -229,7 +254,11 @@ export async function hapusTransaksi(formData: FormData) {
     return;
   }
 
-  await db.transaksi.delete({ where: { id } });
+  try {
+    await db.transaksi.delete({ where: { id } });
+  } catch {
+    return;
+  }
   await segarkan(transaksi.laporanId);
 }
 
@@ -260,10 +289,15 @@ export async function ajukanLaporan(formData: FormData) {
     );
   }
 
-  await db.laporanKeuangan.update({
-    where: { id },
+  const berhasil = await pindahStatusLaporan(db, {
+    id,
+    dari: STATUS_DAPAT_DISUNTING,
+    ke: STATUS_LAPORAN.DIAJUKAN,
+    aksi: "AJUKAN",
+    olehId: pengguna.id,
+    catatan: "Laporan diajukan untuk diverifikasi Ketua RT.",
+    syarat: { transaksi: { some: {} } },
     data: {
-      status: STATUS_LAPORAN.DIAJUKAN,
       diajukanAt: new Date(),
       // Bersihkan hasil pemeriksaan sebelumnya bila ini pengajuan ulang
       verifikasiRtOlehId: null,
@@ -274,8 +308,8 @@ export async function ajukanLaporan(formData: FormData) {
       catatanRw: null,
     },
   });
+  if (!berhasil) redirect(`/admin/keuangan/${id}?galat=${GALAT_KEDULUAN}`);
 
-  await catat(id, "AJUKAN", pengguna.id, "Laporan diajukan untuk diverifikasi Ketua RT.");
   await segarkan(id);
   redirect(`/admin/keuangan/${id}?pesan=Laporan berhasil diajukan ke Ketua RT`);
 }
@@ -294,17 +328,21 @@ export async function verifikasiRt(formData: FormData) {
     redirect(`/admin/keuangan/${id}?galat=Laporan tidak berada pada tahap verifikasi RT`);
   }
 
-  await db.laporanKeuangan.update({
-    where: { id },
+  const berhasil = await pindahStatusLaporan(db, {
+    id,
+    dari: [STATUS_LAPORAN.DIAJUKAN],
+    ke: STATUS_LAPORAN.DIVERIFIKASI_RT,
+    aksi: "VERIFIKASI_RT",
+    olehId: pengguna.id,
+    catatan: catatan,
     data: {
-      status: STATUS_LAPORAN.DIVERIFIKASI_RT,
       verifikasiRtOlehId: pengguna.id,
       verifikasiRtAt: new Date(),
       catatanRt: catatan || null,
     },
   });
+  if (!berhasil) redirect(`/admin/keuangan/${id}?galat=${GALAT_KEDULUAN}`);
 
-  await catat(id, "VERIFIKASI_RT", pengguna.id, catatan);
   await segarkan(id);
   redirect(`/admin/keuangan/${id}?pesan=Laporan diteruskan ke Ketua RW`);
 }
@@ -326,17 +364,21 @@ export async function tolakRt(formData: FormData) {
     redirect(`/admin/keuangan/${id}?galat=Isi alasan pengembalian agar bendahara dapat merevisi`);
   }
 
-  await db.laporanKeuangan.update({
-    where: { id },
+  const berhasil = await pindahStatusLaporan(db, {
+    id,
+    dari: [STATUS_LAPORAN.DIAJUKAN],
+    ke: STATUS_LAPORAN.DITOLAK,
+    aksi: "TOLAK_RT",
+    olehId: pengguna.id,
+    catatan: catatan,
     data: {
-      status: STATUS_LAPORAN.DITOLAK,
       verifikasiRtOlehId: pengguna.id,
       verifikasiRtAt: new Date(),
       catatanRt: catatan,
     },
   });
+  if (!berhasil) redirect(`/admin/keuangan/${id}?galat=${GALAT_KEDULUAN}`);
 
-  await catat(id, "TOLAK_RT", pengguna.id, catatan);
   await segarkan(id);
   redirect(`/admin/keuangan/${id}?pesan=Laporan dikembalikan kepada bendahara`);
 }
@@ -362,17 +404,21 @@ export async function setujuiRw(formData: FormData) {
     );
   }
 
-  await db.laporanKeuangan.update({
-    where: { id },
+  const berhasil = await pindahStatusLaporan(db, {
+    id,
+    dari: [STATUS_LAPORAN.DIVERIFIKASI_RT],
+    ke: STATUS_LAPORAN.DISETUJUI,
+    aksi: "SETUJUI_RW",
+    olehId: pengguna.id,
+    catatan: catatan,
     data: {
-      status: STATUS_LAPORAN.DISETUJUI,
       persetujuanRwOlehId: pengguna.id,
       persetujuanRwAt: new Date(),
       catatanRw: catatan || null,
     },
   });
+  if (!berhasil) redirect(`/admin/keuangan/${id}?galat=${GALAT_KEDULUAN}`);
 
-  await catat(id, "SETUJUI_RW", pengguna.id, catatan);
   await segarkan(id);
   redirect(`/admin/keuangan/${id}?pesan=Laporan disetujui dan kini tampil untuk warga`);
 }
@@ -397,17 +443,21 @@ export async function tolakRw(formData: FormData) {
     redirect(`/admin/keuangan/${id}?galat=Isi alasan pengembalian laporan`);
   }
 
-  await db.laporanKeuangan.update({
-    where: { id },
+  const berhasil = await pindahStatusLaporan(db, {
+    id,
+    dari: [STATUS_LAPORAN.DIVERIFIKASI_RT],
+    ke: STATUS_LAPORAN.DITOLAK,
+    aksi: "TOLAK_RW",
+    olehId: pengguna.id,
+    catatan: catatan,
     data: {
-      status: STATUS_LAPORAN.DITOLAK,
       persetujuanRwOlehId: pengguna.id,
       persetujuanRwAt: new Date(),
       catatanRw: catatan,
     },
   });
+  if (!berhasil) redirect(`/admin/keuangan/${id}?galat=${GALAT_KEDULUAN}`);
 
-  await catat(id, "TOLAK_RW", pengguna.id, catatan);
   await segarkan(id);
   redirect(`/admin/keuangan/${id}?pesan=Laporan dikembalikan untuk direvisi`);
 }
@@ -438,17 +488,21 @@ export async function bukaKembali(formData: FormData) {
     redirect(`/admin/keuangan/${id}?galat=Isi alasan pembukaan kembali laporan`);
   }
 
-  await db.laporanKeuangan.update({
-    where: { id },
+  const berhasil = await pindahStatusLaporan(db, {
+    id,
+    dari: [STATUS_LAPORAN.DISETUJUI],
+    ke: STATUS_LAPORAN.DITOLAK,
+    aksi: "TOLAK_RW",
+    olehId: pengguna.id,
+    catatan: `Dibuka kembali: ${catatan}`,
     data: {
-      status: STATUS_LAPORAN.DITOLAK,
       catatanRw: catatan,
       persetujuanRwOlehId: null,
       persetujuanRwAt: null,
     },
   });
+  if (!berhasil) redirect(`/admin/keuangan/${id}?galat=${GALAT_KEDULUAN}`);
 
-  await catat(id, "TOLAK_RW", pengguna.id, `Dibuka kembali: ${catatan}`);
   await segarkan(id);
   redirect(`/admin/keuangan/${id}?pesan=Laporan dibuka kembali dan ditarik dari halaman publik`);
 }

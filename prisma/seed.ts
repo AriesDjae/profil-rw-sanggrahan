@@ -187,8 +187,9 @@ const NAMA_BENDAHARA_RT: Record<number, string[]> = {
 /* -------------------------------------------------------------------------- */
 
 async function bersihkan() {
+  // Transaksi tidak dihapus sendiri: trigger basis data menolaknya pada laporan
+  // yang sudah disetujui. Menghapus laporan membawa transaksinya lewat CASCADE.
   await db.riwayatPersetujuan.deleteMany();
-  await db.transaksi.deleteMany();
   await db.laporanKeuangan.deleteMany();
   await db.foto.deleteMany();
   await db.album.deleteMany();
@@ -1097,7 +1098,9 @@ async function main() {
           tahun: p.tahun,
           rtId: rt.id,
           saldoAwal,
-          status,
+          // Trigger basis data mengunci transaksi di luar DRAFT dan DITOLAK, jadi
+          // status akhirnya dipasang setelah transaksinya masuk (lihat di bawah).
+          status: "DRAFT",
           catatan: status === "DRAFT" ? "Masih menunggu bukti setoran dari dua KK." : null,
           dibuatOlehId: rt.bendaharaId,
           diajukanAt: status === "DRAFT" ? null : tanggalAjukan,
@@ -1115,6 +1118,7 @@ async function main() {
           transaksi: { create: transaksi },
         },
       });
+      await db.laporanKeuangan.update({ where: { id: laporan.id }, data: { status } });
 
       await catat(
         laporan.id,
