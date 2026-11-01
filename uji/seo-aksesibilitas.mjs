@@ -152,6 +152,24 @@ try {
     `${gambarHalaman.semua} gambar`,
   );
 
+  // Berkas font yang terunduh belum tentu terpakai: variabel CSS yang salah tempat
+  // membuat peramban diam-diam jatuh ke font sistem tanpa galat apa pun.
+  const font = await page.evaluate(async () => {
+    await document.fonts.ready;
+    return {
+      teks: getComputedStyle(document.querySelector("main p")).fontFamily,
+      judul: getComputedStyle(document.querySelector(".judul")).fontFamily,
+      termuat: [...document.fonts].filter((f) => f.status === "loaded").map((f) => f.family),
+    };
+  });
+  cek("Isi halaman memakai font teks", font.teks.startsWith("teks"), font.teks.slice(0, 40));
+  cek("Judul memakai font judul", font.judul.startsWith("judul"), font.judul.slice(0, 40));
+  cek(
+    "Kedua font benar-benar termuat",
+    font.termuat.includes("teks") && font.termuat.includes("judul"),
+    font.termuat.join(", "),
+  );
+
   const ikon = await page.locator('link[rel="icon"]').first().getAttribute("href");
   const adaIkon = await ambil(ikon);
   cek("Ikon situs tersedia", adaIkon.status === 200, ikon);

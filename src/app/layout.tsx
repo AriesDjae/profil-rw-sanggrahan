@@ -48,8 +48,11 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="id">
-      <body className={`${judul.variable} ${teks.variable} font-sans antialiased`}>
+    // Kelas font harus di <html>, bukan <body>: --font-sans di globals.css berada di
+    // :root dan merujuk --font-teks. Kalau variabelnya baru ada di <body>, rujukan itu
+    // tidak sah dan peramban diam-diam memakai font sistem.
+    <html lang="id" className={`${judul.variable} ${teks.variable}`}>
+      <body className="font-sans antialiased">
         <a href="#konten" className="tautan-lewati tanpa-cetak">
           Lewati ke konten utama
         </a>
