@@ -1,0 +1,10 @@
+# `vercel deploy` mengunggah folder ini dan tidak membaca .gitignore.
+# Rahasia produksi disimpan di pengaturan proyek Vercel, bukan ikut terunggah.
+.env
+.env.*
+!.env.example
+
+# Tidak dibutuhkan untuk build.
+docs/
+public/unggahan/
+tsconfig.tsbuildinfo
