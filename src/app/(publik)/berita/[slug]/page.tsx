@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -9,6 +10,7 @@ import Paragraf from "@/components/ui/Paragraf";
 import { db } from "@/lib/db";
 import { potong, tanggal } from "@/lib/format";
 import { STATUS_KONTEN } from "@/lib/konstanta";
+import { gambarBagikan } from "@/lib/situs";
 
 // Dirender sekali lalu disajikan dari cache. Setiap perubahan dari panel
 // pengurus memanggil revalidatePath, jadi halaman ini tetap segar seketika;
@@ -51,6 +53,7 @@ export async function generateMetadata({
   return {
     title: berita.judul,
     description: potong(berita.ringkasan, 155),
+    ...gambarBagikan(berita.gambar),
   };
 }
 
@@ -133,9 +136,13 @@ export default async function DetailBerita({
       </div>
 
       {berita.gambar && (
-        <img
+        <Image
           src={berita.gambar}
           alt=""
+          width={1200}
+          height={675}
+          sizes="(min-width: 768px) 720px, 100vw"
+          loading="eager"
           className="mt-8 aspect-[16/9] w-full rounded-2xl object-cover shadow-sm"
         />
       )}
