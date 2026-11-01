@@ -6,7 +6,7 @@
 // pengumuman kampung harus muncul di ketiga laman RW.
 //
 // Jalankan dengan server hidup:  DASAR=http://localhost:3311 node uji/crud-pengumuman.mjs
-import { chromium } from "playwright";
+import { bukaPeramban } from "./peramban.mjs";
 
 const DASAR = process.env.DASAR ?? "http://localhost:3000";
 const SANDI = "sanggrahan123";
@@ -70,7 +70,7 @@ const JUDUL_KAMPUNG = `Pemadaman listrik se-Sanggrahan uji ${TANDA}`;
 const ISI_KAMPUNG =
   "PLN memberitahukan pemadaman terjadwal Sabtu pukul 08.00 sampai 12.00 di seluruh wilayah Kampung Sanggrahan.";
 
-const browser = await chromium.launch();
+const browser = await bukaPeramban();
 
 try {
   const ctxWarga = await browser.newContext({ viewport: { width: 1440, height: 1200 } });

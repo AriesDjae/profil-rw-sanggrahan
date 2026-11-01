@@ -5,7 +5,7 @@
 // antar-RW pada tulisan yang sama — pengurus RW lain tidak boleh menyuntingnya.
 //
 // Jalankan dengan server hidup:  DASAR=http://localhost:3311 node uji/crud-berita.mjs
-import { chromium } from "playwright";
+import { bukaPeramban } from "./peramban.mjs";
 
 const DASAR = process.env.DASAR ?? "http://localhost:3000";
 const SANDI = "sanggrahan123";
@@ -52,7 +52,7 @@ const KONTEN = [
 
 const KONTEN_REVISI = `${KONTEN}\n\nPembaruan: seluruh isi situs dikelola langsung oleh pengurus melalui panel, tanpa perlu mengubah kode program.`;
 
-const browser = await chromium.launch();
+const browser = await bukaPeramban();
 
 try {
   /* ------------------------------------------------------------------ */

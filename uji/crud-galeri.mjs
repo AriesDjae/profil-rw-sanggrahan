@@ -9,7 +9,7 @@ import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
-import { chromium } from "playwright";
+import { bukaPeramban } from "./peramban.mjs";
 
 const DASAR = process.env.DASAR ?? "http://localhost:3000";
 const SANDI = "sanggrahan123";
@@ -66,7 +66,7 @@ const NAMA_ALBUM = `Kerja Bakti Uji Galeri ${TANDA}`;
 const NAMA_BARU = `Kerja Bakti Uji Galeri ${TANDA} (revisi)`;
 const DESKRIPSI = "Dokumentasi kerja bakti membersihkan saluran air bersama warga tiga RT.";
 
-const browser = await chromium.launch();
+const browser = await bukaPeramban();
 
 try {
   const ctxWarga = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
@@ -117,7 +117,7 @@ try {
   await potret(sek.page, "galeri-1-album-admin");
 
   await sek.page.reload();
-  const jumlahFoto = await sek.page.locator('img[src^="/unggahan/galeri"]').count();
+  const jumlahFoto = await sek.page.locator('img[src*="unggahan%2Fgaleri"]').count();
   cek("Dua foto tercatat di album", jumlahFoto === 2, `terhitung ${jumlahFoto}`);
 
   /* ------------------------------------------------------------------ */
@@ -138,7 +138,7 @@ try {
 
   // Beranda RW memuat petikan foto terbaru; ini menguji revalidasi laman RW.
   await warga.goto(`${DASAR}/rw/1`, { waitUntil: "load" });
-  const fotoBeranda = await warga.locator('img[src^="/unggahan/galeri"]').count();
+  const fotoBeranda = await warga.locator('img[src*="unggahan%2Fgaleri"]').count();
   cek(
     "Foto baru langsung muncul di petikan galeri beranda RW 01",
     fotoBeranda > 0,
@@ -226,7 +226,7 @@ try {
   await sek.page.locator('button:has-text("Hapus")').last().click();
   await sek.page.waitForTimeout(2000);
   await sek.page.reload();
-  const sisaFoto = await sek.page.locator('img[src^="/unggahan/galeri"]').count();
+  const sisaFoto = await sek.page.locator('img[src*="unggahan%2Fgaleri"]').count();
   cek("Satu foto terhapus, satu tersisa", sisaFoto === 1, `tersisa ${sisaFoto}`);
 
   /* ------------------------------------------------------------------ */

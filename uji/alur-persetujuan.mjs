@@ -3,7 +3,7 @@
 // Sejak situs melayani tiga RW, uji ini sekaligus menjaga batas antar-RW:
 // laporan RW 03 dikerjakan pengurus RW 03, dan Ketua RW 01 harus ditolak saat
 // mencoba menyentuhnya.
-import { chromium } from "playwright";
+import { bukaPeramban } from "./peramban.mjs";
 
 const DASAR = process.env.DASAR ?? "http://localhost:3000";
 const SANDI = "sanggrahan123";
@@ -27,7 +27,7 @@ async function masuk(browser, email) {
   return { ctx, page };
 }
 
-const browser = await chromium.launch();
+const browser = await bukaPeramban();
 
 try {
   // ---------- 1. Bendahara RT 03 RW 03 membuat & mengajukan laporan ----------

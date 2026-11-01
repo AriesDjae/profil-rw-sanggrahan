@@ -9,7 +9,7 @@
 //     ke dalam formulir.
 //
 // Jalankan dengan server hidup:  DASAR=http://localhost:3311 node uji/crud-warga.mjs
-import { chromium } from "playwright";
+import { bukaPeramban } from "./peramban.mjs";
 
 const DASAR = process.env.DASAR ?? "http://localhost:3000";
 const SANDI = "sanggrahan123";
@@ -59,7 +59,7 @@ const NIK = `34710101${TANDA}01`.slice(0, 16).padEnd(16, "0");
 const NO_KK = `34710102${TANDA}02`.slice(0, 16).padEnd(16, "0");
 const ALAMAT = `Gang Uji Nomor ${TANDA}`;
 
-const browser = await chromium.launch();
+const browser = await bukaPeramban();
 
 try {
   const ctxWarga = await browser.newContext({ viewport: { width: 1440, height: 1000 } });

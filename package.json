@@ -20,9 +20,14 @@
     "uji:crud:pengumuman": "node uji/crud-pengumuman.mjs",
     "uji:crud:galeri": "node uji/crud-galeri.mjs",
     "uji:crud:warga": "node uji/crud-warga.mjs",
-    "uji": "node uji/alur-persetujuan.mjs && node uji/qc-tampilan.mjs && node uji/qc-fungsi.mjs && node uji/crud-berita.mjs && node uji/crud-kegiatan.mjs && node uji/crud-pengumuman.mjs && node uji/crud-galeri.mjs && node uji/crud-warga.mjs",
+    "uji": "node uji/alur-persetujuan.mjs && node uji/qc-tampilan.mjs && node uji/qc-fungsi.mjs && node uji/crud-berita.mjs && node uji/crud-kegiatan.mjs && node uji/crud-pengumuman.mjs && node uji/crud-galeri.mjs && node uji/crud-warga.mjs && tsx uji/integritas.mts && node uji/api.mjs && node uji/seo-aksesibilitas.mjs && node uji/keamanan-masuk.mjs",
     "postinstall": "prisma generate",
-    "db:deploy": "prisma migrate deploy"
+    "db:deploy": "prisma migrate deploy",
+    "uji:api": "node uji/api.mjs",
+    "uji:integritas": "tsx uji/integritas.mts",
+    "uji:masuk": "node uji/keamanan-masuk.mjs",
+    "uji:seo": "node uji/seo-aksesibilitas.mjs",
+    "akun:ganti-sandi": "tsx prisma/ganti-sandi.ts"
   },
   "dependencies": {
     "@neon/config": "^0.0.0",
