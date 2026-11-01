@@ -273,6 +273,8 @@ export async function ringkasanLaporanPublik(opsi?: {
   rtId?: number;
   tahun?: number;
   rwId?: number | null;
+  ambil?: number;
+  lewati?: number;
 }): Promise<RingkasanLaporan[]> {
   const baris = await db.$queryRaw<
     {
@@ -287,8 +289,8 @@ export async function ringkasanLaporanPublik(opsi?: {
       rwnomor: number;
       rwnama: string;
       saldoawal: number;
-      pemasukan: number;
-      pengeluaran: number;
+      pemasukan: bigint;
+      pengeluaran: bigint;
       disetujuioleh: string | null;
       diverifikasioleh: string | null;
       persetujuanrwat: Date | null;
@@ -298,8 +300,8 @@ export async function ringkasanLaporanPublik(opsi?: {
            r.id AS rtid, r.nomor, r.nama AS namart,
            w.id AS rwid, w.nomor AS rwnomor, w.nama AS rwnama,
            l."saldoAwal" AS saldoawal,
-           COALESCE(SUM(t.jumlah) FILTER (WHERE t.jenis = 'PEMASUKAN'), 0)::int AS pemasukan,
-           COALESCE(SUM(t.jumlah) FILTER (WHERE t.jenis = 'PENGELUARAN'), 0)::int AS pengeluaran,
+           COALESCE(SUM(t.jumlah) FILTER (WHERE t.jenis = 'PEMASUKAN'), 0)::bigint AS pemasukan,
+           COALESCE(SUM(t.jumlah) FILTER (WHERE t.jenis = 'PENGELUARAN'), 0)::bigint AS pengeluaran,
            urw.nama AS disetujuioleh,
            urt.nama AS diverifikasioleh,
            l."persetujuanRwAt" AS persetujuanrwat
@@ -314,7 +316,8 @@ export async function ringkasanLaporanPublik(opsi?: {
       AND (${opsi?.tahun ?? null}::int IS NULL OR l.tahun = ${opsi?.tahun ?? null}::int)
       AND (${opsi?.rwId ?? null}::int IS NULL OR r."rwId" = ${opsi?.rwId ?? null}::int)
     GROUP BY l.id, r.id, w.id, urw.nama, urt.nama
-    ORDER BY l.tahun DESC, l.bulan DESC, w.nomor ASC, r.nomor ASC`;
+    ORDER BY l.tahun DESC, l.bulan DESC, w.nomor ASC, r.nomor ASC
+    LIMIT ${opsi?.ambil ?? null}::int OFFSET ${opsi?.lewati ?? 0}::int`;
 
   return baris.map((b) => ({
     id: b.id,
@@ -324,9 +327,9 @@ export async function ringkasanLaporanPublik(opsi?: {
     rt: { id: b.rtid, nomor: b.nomor, nama: b.namart },
     rw: { id: b.rwid, nomor: b.rwnomor, nama: b.rwnama },
     saldoAwal: b.saldoawal,
-    pemasukan: b.pemasukan,
-    pengeluaran: b.pengeluaran,
-    saldoAkhir: b.saldoawal + b.pemasukan - b.pengeluaran,
+    pemasukan: Number(b.pemasukan),
+    pengeluaran: Number(b.pengeluaran),
+    saldoAkhir: b.saldoawal + Number(b.pemasukan) - Number(b.pengeluaran),
     disetujuiOleh: b.disetujuioleh,
     diverifikasiOleh: b.diverifikasioleh,
     persetujuanRwAt: b.persetujuanrwat,
