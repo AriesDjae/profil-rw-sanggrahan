@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link, { useLinkStatus } from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 
@@ -12,6 +12,23 @@ export type ItemMenu = {
   ikon: string;
   lencana?: number;
 };
+
+/**
+ * Titik pada menu saat halaman tujuan sedang dimuat. Panel sengaja tidak memakai
+ * loading.tsx: di bawahnya tanggapan sudah terkirim sebelum pemeriksaan wilayah
+ * selesai, sehingga 404 untuk laporan RW lain berubah menjadi 200.
+ */
+function PenandaProses() {
+  const { pending } = useLinkStatus();
+  return (
+    <span
+      aria-hidden
+      className={`h-2 w-2 shrink-0 rounded-full bg-aksen-400 ${
+        pending ? "motion-safe:animate-pulse" : "invisible"
+      }`}
+    />
+  );
+}
 
 export default function Sidebar({
   menu,
@@ -60,6 +77,7 @@ export default function Sidebar({
           >
             <IkonMenuAdmin nama={m.ikon} ukuran={17} />
             <span className="flex-1">{m.label}</span>
+            <PenandaProses />
             {m.lencana ? (
               <span className="rounded-full bg-aksen-400 px-2 py-0.5 text-[10px] font-bold text-aksen-800">
                 {m.lencana}
