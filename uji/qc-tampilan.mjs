@@ -221,7 +221,7 @@ try {
     await admin.goto(`${DASAR}/masuk`);
     await admin.fill("#email", "admin@sanggrahan.id");
     await admin.fill("#kataSandi", SANDI);
-    await admin.click('button[type="submit"]');
+    await admin.click('form:has(#kataSandi) button[type="submit"]');
     await admin.waitForURL(/\/admin/, { timeout: 20000 });
     for (const [nama, jalur] of HALAMAN_ADMIN) {
       await periksa(admin, nama, ukuran, jalur);

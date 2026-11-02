@@ -16,7 +16,7 @@ const browser = await bukaPeramban();
 async function cobaMasuk(page, email, sandi) {
   await page.fill("#email", email);
   await page.fill("#kataSandi", sandi);
-  await page.click('button[type="submit"]');
+  await page.click('form:has(#kataSandi) button[type="submit"]');
 }
 
 try {
