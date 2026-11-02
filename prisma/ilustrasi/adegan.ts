@@ -44,7 +44,7 @@ import {
   type GayaRumah,
   type WaktuHari,
 } from "./benda";
-import { Lembar } from "./kertas";
+import { Lembar, pengacak, type Titik } from "./kertas";
 
 const dinding = (i: number) => WARNA.dinding[i % WARNA.dinding.length];
 
@@ -73,9 +73,29 @@ type OpsiLatar = {
   rongga?: readonly [number, number];
 };
 
-/** Langit, Merapi, dan deret rumah; adegan menambahkan peristiwanya di atasnya. */
+/**
+ * Tempat kejadian. Tanpa pilihan ini setiap gambar berlatar deret rumah dan
+ * Merapi yang sama, dan galeri satu album tampak seperti foto yang diulang.
+ */
+export type Latar = "kampung" | "kali" | "gangSempit" | "lapangan";
+
+type Variasi = { latar: Latar; waktu?: WaktuHari };
+
+/** Diisi adeganUntuk sebelum adegan digambar, dibaca latarKampung. */
+let variasi: Variasi = { latar: "kampung" };
+
+/** Langit, latar tempat, dan tanah; adegan menambahkan peristiwanya di atasnya. */
 function latarKampung(l: Lembar, opsi: OpsiLatar = {}): number {
-  const waktu = opsi.waktu ?? "pagi";
+  // Adegan sore dan malam memang terjadi pada waktu itu (rapat, ronda, lampu);
+  // adegan pagi atau siang boleh digeser ke waktu lain supaya tidak seragam.
+  const diminta = opsi.waktu ?? "pagi";
+  const waktu = diminta === "pagi" || diminta === "siang" ? (variasi.waktu ?? diminta) : diminta;
+  // Bangunan utama di tengah (pendapa, tenda, papan) tidak cocok berdiri di
+  // tepi kali; adegan semacam itu memakai latar lain.
+  const latar: Latar =
+    opsi.rongga && variasi.latar === "kali" ? (l.acak() > 0.5 ? "lapangan" : "kampung") : variasi.latar;
+  if (latar !== "kampung") return latarLain(l, latar, waktu, opsi);
+
   const malam = waktu === "malam";
   const y = opsi.tanah ?? Math.round(l.tinggi * 0.76);
   const cakrawala = y - 70;
@@ -127,6 +147,180 @@ function latarKampung(l: Lembar, opsi: OpsiLatar = {}): number {
 }
 
 const LANGIT_MALAM = "#162542";
+
+/** Langit beserta matahari dan awan, atau bulan dan bintang bila malam. */
+function langitWaktu(l: Lembar, waktu: WaktuHari, cakrawala: number): void {
+  langit(l, waktu, cakrawala);
+  if (waktu === "malam") {
+    bintang(l, cakrawala, 34);
+    const xb = l.lebar * l.antara(0.6, 0.85);
+    l.lonjong(xb, 96, 34, 34, "#F6E7B5", 0.015, 10);
+    l.lonjong(xb + 13, 88, 30, 30, LANGIT_MALAM, 0.015, 10);
+    return;
+  }
+  const sore = waktu === "sore";
+  matahari(l, l.lebar * l.antara(0.12, 0.88), l.antara(70, 110), 34, sore ? "#F4B23C" : WARNA.kunyitMuda);
+  const warnaAwan = sore ? "#FBE3C6" : "#FFFFFF";
+  for (let i = 0, n = Math.floor(l.antara(1, 4)); i < n; i++) {
+    awan(l, l.lebar * l.antara(0.05, 0.95), l.antara(60, 170), l.antara(0.5, 1), warnaAwan);
+  }
+}
+
+/** Warna yang berubah menurut waktu: [pagi, siang, sore, malam]. */
+function menurutWaktu(waktu: WaktuHari, pilihan: readonly [string, string, string, string]): string {
+  return pilihan[["pagi", "siang", "sore", "malam"].indexOf(waktu)];
+}
+
+/** Latar selain deret rumah: tepi kali, gang sempit bertembok, dan lapangan. */
+function latarLain(l: Lembar, latar: Exclude<Latar, "kampung">, waktu: WaktuHari, opsi: OpsiLatar): number {
+  const malam = waktu === "malam";
+  const y = opsi.tanah ?? Math.round(l.tinggi * 0.76);
+  const [awalRongga, akhirRongga] = opsi.rongga ?? [-1, -1];
+  const diRongga = (x: number, w: number) => x + w > awalRongga && x < akhirRongga;
+  let i = Math.floor(l.antara(0, 6));
+
+  if (latar === "kali") {
+    // Kali Gajah Wong mengalir di timur Umbulharjo: talud batu, rumah di seberang.
+    const cakrawala = y - 170;
+    langitWaktu(l, waktu, cakrawala);
+    rimbunJauh(l, cakrawala + 6, menurutWaktu(waktu, ["#A8C8B6", "#9CC3AA", "#B98A5C", "#1A3148"]), 30);
+    const seberang = y - 112;
+    for (let x = l.antara(-60, 0); x < l.lebar; ) {
+      const w = l.antara(90, 140);
+      if (l.acak() > 0.78) {
+        // Rumpun bambu di sela rumah.
+        for (let k = 0; k < 5; k++) {
+          const xb = x + k * 12;
+          l.lengkung([xb, seberang], [xb + l.antara(-8, 8), seberang - 70], [xb + l.antara(-26, 26), seberang - l.antara(110, 150)], malam ? "#1F3A33" : WARNA.daun, 5);
+        }
+      } else {
+        rumah(l, x, seberang, w, l.antara(58, 80), { dinding: dinding(i++), atap: l.acak() > 0.7 ? "seng" : "genteng", nyala: malam });
+      }
+      x += w + l.antara(4, 18);
+    }
+    const batu = menurutWaktu(waktu, ["#A39C8C", "#A7A090", "#9C8A78", "#3A4556"]);
+    const batuTua = menurutWaktu(waktu, ["#8A8474", "#8E8878", "#80705F", "#2C3646"]);
+    l.kotak(-20, seberang, l.lebar + 40, 22, batu, 0.6);
+    const air = menurutWaktu(waktu, ["#8DB7C4", "#7FB0C6", "#C9A07A", "#2B4060"]);
+    l.kotak(-20, seberang + 20, l.lebar + 40, y - seberang - 40, air, 0);
+    const kilau: Titik[][] = [];
+    for (let k = 0; k < 22; k++) {
+      const xk = l.antara(0, l.lebar);
+      const yk = l.antara(seberang + 30, y - 30);
+      kilau.push([[xk, yk], [xk + l.antara(20, 60), yk]]);
+    }
+    l.garisBanyak(kilau, menurutWaktu(waktu, ["#C6DDE3", "#BEDCE8", "#F0CFA3", "#4A6488"]), 2);
+    // Talud di sisi jalan, lalu pagar besi pengaman.
+    l.kotak(-20, y - 22, l.lebar + 40, 24, batuTua, 0.4);
+    for (let x = 0; x < l.lebar; x += l.antara(30, 46)) {
+      l.lonjong(x, y - 11, l.antara(10, 16), l.antara(6, 9), batu, 0.1, 7);
+    }
+    const tiang: Titik[][] = [];
+    for (let x = 30; x < l.lebar; x += 110) tiang.push([[x, y + 4], [x, y - 52]]);
+    l.garisBanyak(tiang, malam ? "#55647A" : "#5C6B74", 4);
+    l.garis([[-20, y - 50], [l.lebar + 20, y - 50]], malam ? "#55647A" : "#5C6B74", 4);
+    l.garis([[-20, y - 26], [l.lebar + 20, y - 26]], malam ? "#55647A" : "#5C6B74", 3);
+  } else if (latar === "gangSempit") {
+    // Gang selebar dua motor: tembok pagar tinggi, atap mengintip di atasnya.
+    const puncak = y - 250;
+    langitWaktu(l, waktu, puncak + 40);
+    for (let x = l.antara(-80, -20); x < l.lebar; x += l.antara(150, 230)) {
+      const w = l.antara(140, 210);
+      const h = l.antara(26, 46);
+      const atap = l.acak() > 0.7 ? WARNA.seng : WARNA.genteng;
+      l.potong([[x, puncak + 46], [x + w * 0.5, puncak + 46 - h], [x + w, puncak + 46]], malam ? "#3A3F55" : atap, 0.6);
+    }
+    const tembok = [
+      ["#F7EBD3", "#E2CFAE"],
+      ["#E9DDBF", "#CDBE9A"],
+      ["#CFE2C6", "#ABC8A2"],
+      ["#F4DA9A", "#DDBB6F"],
+      ["#C98463", "#A9674A"],
+    ] as const;
+    for (let x = l.antara(-60, -10); x < l.lebar; ) {
+      const w = l.antara(170, 270);
+      if (diRongga(x, w)) {
+        x = akhirRongga + 6;
+        continue;
+      }
+      const h = l.antara(180, 226);
+      const [muka, bayang] = tembok[i++ % tembok.length];
+      l.kotak(x, y - h, w, h, malam ? "#3B4A66" : muka, 0.5);
+      l.kotak(x - 5, y - h - 9, w + 10, 11, malam ? "#2C3850" : bayang, 0.3);
+      if (muka === "#C98463") {
+        // Tembok bata yang belum diplester.
+        const bata: Titik[][] = [];
+        for (let yy = y - h + 18; yy < y - 6; yy += 18) bata.push([[x + 4, yy], [x + w - 4, yy]]);
+        l.garisBanyak(bata, malam ? "#2C3850" : bayang, 1.6);
+      }
+      const ciri = l.acak();
+      if (ciri < 0.4) {
+        // Pintu pagar besi.
+        const xp = x + w * l.antara(0.2, 0.5);
+        l.kotak(xp, y - 150, 74, 150, malam ? "#25324A" : WARNA.wedelTua, 0.3);
+        const jeruji: Titik[][] = [];
+        for (let k = 1; k < 6; k++) jeruji.push([[xp + k * 12.3, y - 144], [xp + k * 12.3, y - 4]]);
+        l.garisBanyak(jeruji, malam ? "#3B4A66" : WARNA.wedel, 3);
+      } else if (ciri < 0.75) {
+        // Roster lubang angin.
+        const xr = x + w * l.antara(0.15, 0.55);
+        for (let b = 0; b < 2; b++) {
+          for (let k = 0; k < 4; k++) {
+            l.kotak(xr + k * 22, y - h + 34 + b * 22, 16, 16, malam ? "#1E2940" : bayang, 0.1);
+          }
+        }
+      }
+      if (l.acak() > 0.5) {
+        potBunga(l, x + w * l.antara(0.6, 0.9), y + 6, 0.9, l.pilih([WARNA.merah, WARNA.kunyit, WARNA.pethak]));
+      }
+      x += w + l.antara(0, 10);
+    }
+    const t = tiangListrik(l, l.lebar * l.antara(0.08, 0.3), y + 6, 330);
+    kabel(l, [-20, y - 300], t[0], 18, malam ? "#55647A" : "#3A4650");
+    kabel(l, t[0], [l.lebar + 20, y - 286], 30, malam ? "#55647A" : "#3A4650");
+    if (malam) lampuJalan(l, l.lebar * l.antara(0.6, 0.9), y + 10, 240);
+  } else {
+    // Lapangan kampung: rumput, gawang, rumah dan pepohonan di kejauhan.
+    const cakrawala = y - 80;
+    langitWaktu(l, waktu, cakrawala);
+    if (opsi.gunung ?? l.acak() > 0.5) {
+      merapi(l, l.lebar * l.antara(0.3, 0.7), cakrawala + 16, l.lebar * 0.8, cakrawala * 0.62, {
+        terang: menurutWaktu(waktu, ["#B7CDD8", "#AFC9D6", "#D79B7E", "#2A3F63"]),
+        gelap: menurutWaktu(waktu, ["#9DB6C4", "#94B2C2", "#C2876D", "#223552"]),
+        asap: malam ? "#3A5075" : "#EDF3F3",
+      });
+    }
+    rimbunJauh(l, cakrawala + 6, menurutWaktu(waktu, ["#A8C8B6", "#9CC3AA", "#B98A5C", "#1A3148"]), 30);
+    for (let x = l.antara(-40, 0); x < l.lebar; x += l.antara(100, 150)) {
+      rumah(l, x, cakrawala + 40, l.antara(80, 110), l.antara(46, 62), { dinding: dinding(i++), atap: "genteng", nyala: malam });
+    }
+    const rumput = menurutWaktu(waktu, ["#A9C77F", "#9CC173", "#B9B06A", "#2E4A3A"]);
+    const rumputTua = menurutWaktu(waktu, ["#93B56A", "#86AE5F", "#A39A58", "#263E31"]);
+    l.kotak(-20, cakrawala + 38, l.lebar + 40, l.tinggi, rumput, 0);
+    for (let k = 0; k < 4; k++) {
+      const yy = cakrawala + 60 + k * 44;
+      l.potong([[-20, yy], [l.lebar + 20, yy - 6], [l.lebar + 20, yy + 18], [-20, yy + 24]], rumputTua, 0.4);
+    }
+    for (let k = 0, n = Math.floor(l.antara(2, 5)); k < n; k++) {
+      const xp = l.antara(0, l.lebar);
+      if (diRongga(xp - 60, 120)) continue;
+      pohon(l, xp, cakrawala + 48, l.antara(0.5, 0.8), malam ? ["#13261E", "#1A3328", "#22402F"] : undefined);
+    }
+    // Gawang bambu di ujung lapangan.
+    const xg = l.pilih([l.lebar * 0.08, l.lebar * 0.78]);
+    l.garisBanyak([[[xg, cakrawala + 104], [xg, cakrawala + 40]], [[xg + 150, cakrawala + 104], [xg + 150, cakrawala + 40]]], WARNA.pethak, 5);
+    l.garis([[xg - 2, cakrawala + 40], [xg + 152, cakrawala + 40]], WARNA.pethak, 5);
+    if (!malam) layangan(l, l.lebar * l.antara(0.2, 0.8), l.antara(90, 160), 0.7);
+    // Jalan setapak tanah tempat warga berdiri.
+    l.potong([[-20, y + 4], [l.lebar + 20, y - 4], [l.lebar + 20, l.tinggi + 20], [-20, l.tinggi + 20]], menurutWaktu(waktu, [WARNA.tanah, WARNA.tanah, "#D1AE85", "#3A4152"]), 0.8);
+    if (malam) l.kotak(-20, -20, l.lebar + 40, l.tinggi + 40, "#0E183055", 0);
+    return y;
+  }
+
+  if (malam) l.kotak(-20, -20, l.lebar + 40, l.tinggi + 40, "#0E183055", 0);
+  gang(l, y, malam ? ["#39465A", "#2C3849"] : undefined);
+  return y;
+}
 
 function deretRumah(
   l: Lembar,
@@ -306,14 +500,16 @@ export function panoramaRw(nomor: number): string {
   gang(l, jalan);
 
   if (nomor === 1) {
-    // RW 01: padat, banyak usaha rumahan.
+    // RW 01: padat, banyak usaha rumahan, dengan masjid kampung di ujung gang.
+    masjid(l, 1180, jalan + 2, 0.9);
     warung(l, 620, jalan + 2, 122, 78);
     angkringan(l, 800, jalan + 24, 0.62);
     posRonda(l, 240, jalan + 22, 0.74);
     sepeda(l, 1120, jalan + 46, 0.74);
     orang(l, 1170, jalan + 44, 58, warga(l, { condong: 0.02 }));
   } else if (nomor === 2) {
-    // RW 02: lampu gang yang baru diganti, dan gang yang dijaga tetap lapang.
+    // RW 02: gapura masuk, lampu gang yang baru diganti, gang yang dijaga lapang.
+    gapura(l, 1300, jalan + 4, 170, 150, WARNA.soga);
     lampuJalan(l, 300, jalan + 8, 136, false);
     lampuJalan(l, 760, jalan + 8, 136, false);
     lampuJalan(l, 1240, jalan + 8, 136, false);
@@ -322,7 +518,9 @@ export function panoramaRw(nomor: number): string {
     orang(l, 960, jalan + 44, 58, warga(l));
     orang(l, 1000, jalan + 46, 44, warga(l, { sarung: false, kepala: "rambut" }));
   } else {
-    // RW 03: taman kampung dan pepohonan.
+    // RW 03: taman kampung, pepohonan, dan layangan anak-anak di atas lapangan.
+    layangan(l, 1020, 150, 0.9);
+    layangan(l, 1240, 110, 0.7);
     pohon(l, 300, jalan + 4, 0.74);
     pohon(l, 1180, jalan + 4, 0.86);
     pisang(l, 640, jalan + 6, 0.9);
@@ -785,9 +983,86 @@ function papanWarga(l: Lembar): void {
   orang(l, 610, y + 134, 96, warga(l, { kepala: "rambut", sarung: false, bawah: WARNA.wedel }));
 }
 
+/** Siang hari, petugas listrik di tiang dan warga yang menunggu di bawahnya. */
+function petugasListrik(l: Lembar): void {
+  const y = latarKampung(l, { waktu: "siang", rongga: [430, 760] });
+  const t = tiangListrik(l, 600, y + 10, 400);
+  kabel(l, [-20, y - 330], t[0], 24);
+  kabel(l, t[0], [L + 20, y - 320], 30);
+  tangga(l, [650, y + 18], [612, y - 310]);
+  orang(l, 636, y - 180, 118, warga(l, {
+    kepala: "caping",
+    warnaKepala: WARNA.kunyit,
+    sarung: false,
+    baju: WARNA.kunyit,
+    bawah: WARNA.wedelTua,
+    condong: -0.1,
+    lengan: [[-0.22, -0.32], [-0.18, 0.04]],
+    kaki: [[0.06, 0.34], [-0.08, 0.42]],
+  }));
+  // Rekan yang memegangi tangga, dan mobil bak petugas.
+  orang(l, 700, y + 120, 136, warga(l, {
+    kepala: "caping",
+    warnaKepala: WARNA.kunyit,
+    sarung: false,
+    baju: WARNA.kunyit,
+    bawah: WARNA.wedelTua,
+    lengan: [[-0.3, -0.2], [-0.2, -0.1]],
+  }));
+  l.kotak(830, y - 4, 260, 96, WARNA.pethak, 0.6);
+  l.kotak(1010, y - 70, 110, 166, WARNA.pethak, 0.6);
+  l.kotak(1030, y - 56, 70, 44, "#A5BDCB", 0.3);
+  l.kotak(830, y + 30, 290, 14, WARNA.kunyit, 0.3);
+  for (const xr of [890, 1060]) {
+    l.bulatan(xr, y + 100, 26, "#2A3540");
+    l.bulatan(xr, y + 100, 10, WARNA.semenTua);
+  }
+  orang(l, 200, y + 126, 132, warga(l, { kepala: "kerudung", lengan: [[0.16, -0.3], [-0.1, 0.3]] }));
+  orang(l, 300, y + 132, 92, warga(l, { kepala: "rambut", sarung: false }));
+}
+
+/** Bendahara RT menerima iuran di teras; warga antre membawa amplop. */
+function iuran(l: Lembar): void {
+  const y = latarKampung(l, { waktu: "pagi", rongga: [140, 700] });
+  rumah(l, 150, y, 540, 300, { dinding: dinding(Math.floor(l.antara(0, 6))), atap: "genteng" });
+  meja(l, 300, y + 70, 220, 70, WARNA.soga);
+  l.kotak(330, y - 14, 78, 12, WARNA.pethak, 0.2);
+  l.kotak(330, y - 22, 78, 8, WARNA.merah, 0.2);
+  l.kotak(450, y - 30, 34, 28, "#7E8D95", 0.3);
+  orangDuduk(l, 410, y - 30, 120, warga(l, {
+    kepala: l.pilih(["kerudung", "peci"] as const),
+    lengan: [[0.3, 0.06], [0.2, 0.1]],
+  }));
+  for (const [k, x] of [610, 740, 850, 950].entries()) {
+    const { tangan } = orang(l, x, y + 128 - (k % 2) * 8, 136 - k * 4, warga(l, {
+      lengan: k === 0 ? [[-0.32, -0.04], [-0.1, 0.3]] : undefined,
+    }));
+    if (k === 0) l.kotak(tangan[0] - 18, tangan[1] - 10, 26, 16, WARNA.pethak, 0.2);
+  }
+  ayam(l, 1110, y + 90, 0.9);
+}
+
+/** Warga antre mengambil kartu di balai: meja petugas di bawah pendapa. */
+function antreanBalai(l: Lembar): void {
+  const y = latarKampung(l, { waktu: "pagi", rongga: [180, 900] });
+  pendapa(l, 200, y + 16, 680, 300);
+  meja(l, 300, y + 40, 260, 60, WARNA.pethak);
+  for (let k = 0; k < 6; k++) l.kotak(320 + k * 36, y - 26, 24, 16, l.pilih([WARNA.kunyitMuda, "#CBDCE6", WARNA.pethak]), 0.2);
+  orangDuduk(l, 400, y - 30, 112, warga(l, { kepala: "kerudung", warnaKepala: WARNA.pethak }));
+  orangDuduk(l, 500, y - 30, 112, warga(l, { kepala: "peci" }));
+  for (let k = 0; k < 5; k++) {
+    orang(l, 640 + k * 92, y + 126 - (k % 2) * 6, l.antara(118, 140), warga(l));
+  }
+  orang(l, 1100, y + 134, 86, warga(l, { kepala: "rambut", sarung: false }));
+}
+
 const DAFTAR_ADEGAN: readonly [RegExp, (l: Lembar) => void][] = [
-  [/kemerdekaan|hut |agustus|lomba/i, agustusan],
+  // Bulu tangkis didahulukan: "lomba bulu tangkis" bukan lomba Agustusan.
   [/bulu tangkis|turnamen/i, buluTangkis],
+  [/kemerdekaan|hut |agustus|lomba/i, agustusan],
+  [/pemadaman listrik|listrik/i, petugasListrik],
+  [/iuran/i, iuran],
+  [/kartu|antre/i, antreanBalai],
   [/saluran|kerja bakti/i, (l) => (/pengecatan|pos ronda/i.test(judulSekarang) ? pengecatan(l) : kerjaBakti(l))],
   [/ronda/i, ronda],
   [/lampu|penerangan/i, lampu],
@@ -805,18 +1080,53 @@ const DAFTAR_ADEGAN: readonly [RegExp, (l: Lembar) => void][] = [
 
 let judulSekarang = "";
 
-/** Adegan yang cocok dengan judul; bila tidak ada, warga di papan pengumuman. */
+/** Angka tetap dari teks, supaya judul berbeda dengan benih sama tetap berbeda gambar. */
+function sidikJudul(teks: string): number {
+  let h = 2166136261;
+  for (let k = 0; k < teks.length; k++) h = Math.imul(h ^ teks.charCodeAt(k), 16777619);
+  return h >>> 0;
+}
+
+const SEMUA_LATAR: readonly Latar[] = ["kampung", "kampung", "kali", "gangSempit", "lapangan"];
+const WAKTU_SIANG: readonly WaktuHari[] = ["pagi", "pagi", "siang", "sore"];
+
+/**
+ * Adegan yang cocok dengan judul; bila tidak ada, warga di papan pengumuman.
+ *
+ * Judul menentukan peristiwanya, benih menentukan cara memandangnya: latar
+ * tempat, waktu, jarak bidik, dan arah hadap. Foto dalam satu album berbagi
+ * peristiwa yang sama, jadi variasi inilah yang membuat mereka tidak kembar.
+ */
 export function adeganUntuk(judul: string, benih: number, lebar = L, tinggi = T): string {
   judulSekarang = judul;
+  const acak = pengacak(benih * 977 + sidikJudul(judul));
+  const pilih = <U,>(daftar: readonly U[]) => daftar[Math.floor(acak() * daftar.length)];
+  variasi = { latar: pilih(SEMUA_LATAR), waktu: pilih(WAKTU_SIANG) };
+
   const l = new Lembar(L, T, benih + 7);
   const adegan = DAFTAR_ADEGAN.find(([pola]) => pola.test(judul))?.[1] ?? papanWarga;
   adegan(l);
-  const svg = l.svg(judul);
-  if (lebar === L && tinggi === T) return svg;
-  // Potongan persegi dari tengah adegan, untuk gambar berasio lain.
+  variasi = { latar: "kampung" };
+
+  let svg = l.svg(judul);
+  // Dicerminkan separuh waktu; ilustrasinya tanpa tulisan, jadi aman dibalik.
+  if (acak() < 0.5) {
+    svg = svg
+      .replace("</style>", `</style><g transform="translate(${L} 0) scale(-1 1)">`)
+      .replace(/<\/svg>\n?$/, "</g></svg>\n");
+  }
+
+  // Jarak bidik: lebar, sedang, atau dekat. Bagian bawah tetap terlihat karena
+  // di sanalah warga berdiri.
+  const kotak = lebar !== L || tinggi !== T;
+  const zoom = pilih(kotak ? [1, 1.15, 1.35] : [1, 1, 1.2, 1.4]);
+  const vh = T / zoom;
+  const vw = kotak ? vh : L / zoom;
+  const vx = Math.round(acak() * (L - vw));
+  const vy = Math.round((T - vh) * 0.9);
   return svg.replace(
     `viewBox="0 0 ${L} ${T}" width="${L}" height="${T}"`,
-    `viewBox="${(L - T) / 2} 0 ${T} ${T}" width="${tinggi}" height="${tinggi}"`,
+    `viewBox="${vx} ${vy} ${Math.round(vw)} ${Math.round(vh)}" width="${kotak ? tinggi : L}" height="${kotak ? tinggi : T}"`,
   );
 }
 
