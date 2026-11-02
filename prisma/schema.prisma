@@ -16,8 +16,12 @@
 //     Rt, supaya tidak ada dua sumber kebenaran yang bisa berselisih.
 //
 // Kolom status memakai String, bukan enum, agar nilainya terkunci di satu
-// tempat (src/lib/konstanta.ts) dan penambahan status baru tidak memerlukan
-// migrasi tipe. Basis data: PostgreSQL (Neon di lingkungan demo).
+// tempat (src/lib/konstanta.ts). Nilai yang sah dijaga CHECK di basis data,
+// jadi status baru perlu ditambahkan di konstanta sekaligus di migrasi.
+// Basis data: PostgreSQL (Neon di lingkungan demo).
+//
+// Aturan yang tidak bisa ditulis di berkas ini (CHECK dan trigger) ada di
+// migrasi 20261101120000_perkuat_integritas.
 
 generator client {
   provider = "prisma-client-js"
@@ -239,7 +243,7 @@ model Warga {
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 
-  rt Rt @relation(fields: [rtId], references: [id], onDelete: Cascade)
+  rt Rt @relation(fields: [rtId], references: [id], onDelete: Restrict)
 
   @@index([rtId])
   @@index([noKk])
@@ -271,8 +275,8 @@ model LaporanKeuangan {
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
 
-  rt                Rt    @relation(fields: [rtId], references: [id], onDelete: Cascade)
-  dibuatOleh        User? @relation("LaporanDibuatOleh", fields: [dibuatOlehId], references: [id], onDelete: SetNull)
+  rt                Rt    @relation(fields: [rtId], references: [id], onDelete: Restrict)
+  dibuatOleh       User? @relation("LaporanDibuatOleh", fields: [dibuatOlehId], references: [id], onDelete: SetNull)
   verifikasiRtOleh  User? @relation("LaporanVerifikasiRt", fields: [verifikasiRtOlehId], references: [id], onDelete: SetNull)
   persetujuanRwOleh User? @relation("LaporanPersetujuanRw", fields: [persetujuanRwOlehId], references: [id], onDelete: SetNull)
 
@@ -333,6 +337,17 @@ model Pengurus {
 
   @@index([level, urutan])
   @@index([rwId, urutan])
+}
+
+/// Hitungan gagal masuk per surel dan per alamat IP. Ditaruh di basis data
+/// karena fungsi serverless tidak berbagi memori antar-instance.
+model PercobaanMasuk {
+  kunci          String    @id
+  jumlah         Int       @default(0)
+  mulaiAt        DateTime  @default(now())
+  terkunciSampai DateTime?
+
+  @@index([mulaiAt])
 }
 
 /// Pengaturan situs tingkat kampung (baris tunggal, id = 1).

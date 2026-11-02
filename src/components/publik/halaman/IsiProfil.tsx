@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import JudulBagian from "@/components/ui/JudulBagian";
@@ -134,9 +135,11 @@ export default async function IsiProfil({ lingkup }: { lingkup: Lingkup }) {
                   className="flex items-center gap-4 rounded-2xl border border-garis bg-white p-4 shadow-sm"
                 >
                   {p.foto ? (
-                    <img
+                    <Image
                       src={p.foto}
                       alt=""
+                      width={64}
+                      height={64}
                       className="h-16 w-16 shrink-0 rounded-xl object-cover"
                     />
                   ) : (

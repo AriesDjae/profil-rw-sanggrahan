@@ -3,7 +3,7 @@
  * galat konsol, permintaan gagal, gulir mendatar, gambar rusak, dan hierarki judul.
  * Jalankan dengan server hidup: node uji/qc-tampilan.mjs
  */
-import { chromium } from "playwright";
+import { bukaPeramban } from "./peramban.mjs";
 
 const DASAR = process.env.DASAR ?? "http://localhost:3000";
 const SANDI = "sanggrahan123";
@@ -199,7 +199,7 @@ async function periksa(page, nama, ukuran, jalur) {
   page.off("response", onResponse);
 }
 
-const browser = await chromium.launch();
+const browser = await bukaPeramban();
 
 try {
   for (const ukuran of UKURAN) {

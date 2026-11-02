@@ -15,7 +15,8 @@ laporan keuangan kas RT dengan alur persetujuan berjenjang
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=white)
 ![Prisma](https://img.shields.io/badge/Prisma-6-2D3748?logo=prisma&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Neon-4169E1?logo=postgresql&logoColor=white)
-![Playwright](https://img.shields.io/badge/Playwright-8_berkas_uji-2EAD33?logo=playwright&logoColor=white)
+![Playwright](https://img.shields.io/badge/Uji-12_berkas-2EAD33?logo=playwright&logoColor=white)
+![CI](https://github.com/AriesDjae/profil-rw-sanggrahan/actions/workflows/ci.yml/badge.svg)
 
 RW 01, RW 02, dan RW 03 Kampung Sanggrahan, Kelurahan Semaki,
 Kemantren Umbulharjo, Kota Yogyakarta.
@@ -26,17 +27,35 @@ Kemantren Umbulharjo, Kota Yogyakarta.
 
 ## Daftar isi
 
-1. [Tiga RW dalam satu situs](#tiga-rw-dalam-satu-situs)
-2. [Mulai cepat](#mulai-cepat)
-3. [Akun demo](#akun-demo)
-4. [Alur persetujuan laporan keuangan](#alur-persetujuan-laporan-keuangan)
-5. [Peran dan hak akses](#peran-dan-hak-akses)
-6. [Halaman](#halaman)
-7. [Struktur proyek](#struktur-proyek)
-8. [Basis data](#basis-data)
-9. [Pengujian](#pengujian)
-10. [Penerapan](#penerapan)
-11. [Situs warga yang bersebelahan](#situs-warga-yang-bersebelahan)
+1. [Tampilan](#tampilan)
+2. [Tiga RW dalam satu situs](#tiga-rw-dalam-satu-situs)
+3. [Mulai cepat](#mulai-cepat)
+4. [Akun demo](#akun-demo)
+5. [Alur persetujuan laporan keuangan](#alur-persetujuan-laporan-keuangan)
+6. [Peran dan hak akses](#peran-dan-hak-akses)
+7. [Halaman](#halaman)
+8. [Struktur proyek](#struktur-proyek)
+9. [Basis data](#basis-data)
+10. [REST API publik](#rest-api-publik)
+11. [Keputusan teknis](#keputusan-teknis)
+12. [Pengujian](#pengujian)
+13. [Penerapan](#penerapan)
+14. [Situs warga yang bersebelahan](#situs-warga-yang-bersebelahan)
+15. [Lisensi](#lisensi)
+
+---
+
+## Tampilan
+
+![Beranda Kampung Sanggrahan: pintu masuk ke tiga RW](docs/tangkapan/beranda.png)
+
+| Antrean persetujuan Ketua RW | Laporan kas yang terbuka untuk warga |
+| --- | --- |
+| ![Panel pengurus berisi laporan kas yang menunggu persetujuan akhir](docs/tangkapan/panel-persetujuan.png) | ![Halaman laporan kas publik dengan penyaring tahun dan RT](docs/tangkapan/laporan-kas.png) |
+
+| Laman satu RW | Tampilan ponsel |
+| --- | --- |
+| ![Laman RW 01 dengan statistik warga dan sorotan kabar](docs/tangkapan/laman-rw.png) | <img src="docs/tangkapan/seluler.png" alt="Laman RW 01 pada layar ponsel" width="240"> |
 
 ---
 
@@ -64,7 +83,9 @@ pernah cukup: Ketua RW 02 punya peran yang sama persis dengan Ketua RW 01, jadi
 setiap pemeriksaan menanyakan dua hal — perannya tepat, **dan** barisnya berada di
 RW yang sama dengan penggunanya.
 
-> **Catatan data.** Yang terverifikasi dari sumber publik hanyalah bahwa Kampung
+> **Catatan data.** Seluruh warga, pengurus, berita, dan laporan kas di situs demo
+> adalah data contoh hasil seed, bukan data warga sungguhan. Yang terverifikasi
+> dari sumber publik hanyalah bahwa Kampung
 > Sanggrahan terdiri atas RW 01, 02, dan 03, dan bahwa **RW 01 membawahi RT 01,
 > RT 02, dan RT 03**. Jumlah RT di RW 02 dan RW 03 tidak dipublikasikan di mana
 > pun, sehingga seed memberi keduanya tiga RT mengikuti pola RW 01 — itu **dugaan
@@ -108,13 +129,16 @@ berita, kegiatan, pengumuman, dan album galeri.
 | `SESSION_SECRET` | ya | Kunci penanda tangan sesi, **minimal 32 karakter**. |
 | `BLOB_READ_WRITE_TOKEN` | tidak | Bila diisi, unggahan disimpan ke Vercel Blob. Bila kosong, unggahan ditulis ke `public/unggahan` (dipakai saat lokal dan saat dipasang di VPS sendiri). |
 | `NEXT_PUBLIC_URL_UMKM` | tidak | Alamat situs Registri Usaha Warga, ditautkan dari kop dan kaki halaman. Kosong = memakai bawaan di `src/lib/tautanLuar.ts`. |
+| `NEXT_PUBLIC_SITE_URL` | tidak | Alamat kanonik untuk sitemap dan pratinjau tautan. Kosong = memakai bawaan di `src/lib/situs.ts`. |
 
 ---
 
 ## Akun demo
 
-Seluruh akun contoh memakai kata sandi **`sanggrahan123`**. Ganti melalui
-**Panel Pengurus → Akun Pengguna** sebelum dipakai sungguhan.
+Seluruh akun hasil `npm run db:seed` memakai kata sandi **`sanggrahan123`**. Sandi
+ini hanya untuk basis data lokal dan tidak berlaku di situs demo. Sebelum dipakai
+sungguhan, ganti semua akun sekaligus dengan `npm run akun:ganti-sandi` (keterangan
+ada di awal `prisma/ganti-sandi.ts`).
 
 | Surel                              | Peran         | Kewenangan                                                        |
 | ---------------------------------- | ------------- | ----------------------------------------------------------------- |
@@ -220,16 +244,22 @@ prisma/
   schema.prisma        Skema basis data
   seed.ts              Data contoh: 3 RW, 9 RT, ±825 jiwa, 36 laporan kas, berita, kegiatan
   gambar.ts            Pembuat gambar SVG contoh (ditulis ke public/contoh)
-  migrations/          20260903100000_init, 20260907090000_kampung_tiga_rw
+  ganti-sandi.ts       Mengganti sandi bawaan seluruh akun sekaligus
+  migrations/          Riwayat skema, termasuk CHECK dan trigger di _perkuat_integritas
 src/
   app/
     unggahan/[...jalur]/ Penyaji berkas unggahan pengurus (lihat catatan di bawah)
+    api/v1/            REST API publik hanya-baca beserta spesifikasi OpenAPI
     (publik)/          Halaman untuk warga
       page.tsx           Pintu masuk kampung
+      (daftar)/          Halaman daftar gabungan, satu kerangka muat
       rw/[rw]/           Laman tiap RW (memakai komponen isi yang sama)
     admin/             Panel pengurus (dilindungi sesi + peran)
       keuangan/aksi.ts Server action alur persetujuan
     masuk/             Halaman dan aksi otentikasi
+    sitemap.ts, robots.ts, opengraph-image.tsx   Peta situs dan pratinjau tautan
+    not-found.tsx, error.tsx, global-error.tsx   Halaman 404 dan halaman galat
+  fonts/               Berkas font beserta lisensinya
   components/
     admin/             Sidebar, primitif formulir, tombol
     keuangan/          Stepper, jejak persetujuan, tabel transaksi
@@ -241,6 +271,8 @@ src/
     db.ts              Klien Prisma
     sesi.ts            Sesi JWT pada cookie httpOnly
     otorisasi.ts       Pemeriksaan peran dan lingkup RW/RT — inti pemisahan antar-RW
+    alurLaporan.ts     Perpindahan status laporan beserta jejaknya dalam satu transaksi
+    pembatasMasuk.ts   Pembatas percobaan masuk yang disimpan di basis data
     rw.ts              Pembacaan daftar RW, penerjemah alamat /rw/<n>, penyegar laman RW
     keuangan.ts        Perhitungan kas dan tahapan persetujuan
     kueri.ts           Kueri bersama halaman publik
@@ -256,11 +288,16 @@ uji/
   crud-pengumuman.mjs  Pengumuman tingkat RW dan tingkat kampung, beserta pemisahannya
   crud-galeri.mjs      Album dan foto, termasuk unggahan sungguhan yang benar-benar termuat
   crud-warga.mjs       Data warga: kerahasiaan identitas dan batas wilayah antar-RW
+  integritas.mts       Aturan basis data: CHECK, trigger, dan pengajuan serentak
+  api.mjs              Seluruh endpoint /api/v1
+  seo-aksesibilitas.mjs  Sitemap, pratinjau tautan, status 404, CSP, dan papan ketik
+  keamanan-masuk.mjs   Pengalihan setelah masuk, pembatas percobaan, header keamanan
+docs/tangkapan/        Tangkapan layar README
 ```
 
 ### Basis data
 
-Tiga belas model di `prisma/schema.prisma`, dengan tiga aturan lingkup yang
+Lima belas model di `prisma/schema.prisma`, dengan tiga aturan lingkup yang
 dipegang seluruh skema:
 
 - **`Rt` wajib milik satu `Rw`.** Nomor RT hanya unik di dalam RW-nya
@@ -274,22 +311,87 @@ dipegang seluruh skema:
 | Kelompok | Model |
 | --- | --- |
 | Wilayah | `Rw`, `Rt` |
-| Akun | `User` |
+| Akun | `User`, `PercobaanMasuk` |
 | Konten publik | `Berita`, `Kegiatan`, `Pengumuman`, `Album`, `Foto`, `Pengurus` |
 | Kependudukan | `Warga` |
 | Keuangan | `LaporanKeuangan`, `Transaksi`, `RiwayatPersetujuan` |
 | Identitas situs | `Pengaturan` (baris tunggal, `id = 1`) |
 
 Kolom `status` dan `peran` memakai `String`, bukan enum, agar nilainya terkunci
-di satu tempat (`src/lib/konstanta.ts`) dan penambahan nilai baru tidak
-memerlukan migrasi tipe.
+di satu tempat (`src/lib/konstanta.ts`). Nilai yang sah tetap dijaga `CHECK` di
+basis data, jadi nilai baru perlu ditambahkan di konstanta sekaligus di migrasi.
+
+#### Aturan yang dijaga basis data
+
+Pemeriksaan di aplikasi bisa terlewat oleh skrip, konsol, atau bug. Aturan yang
+menyangkut uang dan jejak audit karena itu ditaruh di PostgreSQL
+(migrasi `20261101120000_perkuat_integritas`):
+
+| Aturan | Cara kerja |
+| --- | --- |
+| Nilai harus sah | `CHECK` pada status, peran, jenis transaksi, bulan, tahun, dan jumlah transaksi di atas nol. |
+| Laporan sah wajib lengkap | Laporan `DISETUJUI` wajib punya waktu persetujuan. |
+| Transaksi terkunci selama proses | Trigger menolak tambah, ubah, dan hapus transaksi pada laporan di luar `DRAFT` dan `DITOLAK`. |
+| Jejak audit tidak bisa ditulis ulang | Trigger menolak perubahan isi `RiwayatPersetujuan`. |
+| Arsip tidak ikut terhapus | `ON DELETE RESTRICT` dari `LaporanKeuangan` dan `Warga` ke `Rt`. |
+
+Perpindahan status memakai `pindahStatusLaporan` di `src/lib/alurLaporan.ts`.
+Statusnya diperiksa di dalam `UPDATE`, dan status beserta riwayatnya ditulis dalam
+satu transaksi. Bila dua pengurus menekan tombol bersamaan, hanya satu yang berhasil.
+
+---
+
+## REST API publik
+
+API hanya-baca di `/api/v1` menyajikan data yang memang sudah tampil di situs.
+Data warga perorangan, laporan yang masih berproses, dan berkas bukti transaksi
+tidak punya jalur di sini. Spesifikasi OpenAPI ada di `/api/v1/openapi.json`.
+
+| Metode dan alamat | Isi | Kueri |
+| --- | --- | --- |
+| `GET /api/v1/rw` | Daftar RW beserta RT-nya | |
+| `GET /api/v1/berita` | Berita terbit | `rw`, `kategori`, `halaman`, `per_halaman` |
+| `GET /api/v1/berita/{slug}` | Rincian berita | |
+| `GET /api/v1/kegiatan` | Kegiatan terbit dan arsip | `rw`, `waktu`, `halaman`, `per_halaman` |
+| `GET /api/v1/keuangan` | Ringkasan laporan kas yang disetujui | `rw`, `tahun`, `halaman`, `per_halaman` |
+| `GET /api/v1/keuangan/{id}` | Rincian laporan beserta transaksinya | |
+
+Jawaban daftar berbentuk `{ "data": [...], "meta": { "halaman", "per_halaman",
+"total", "total_halaman" } }`. Galat selalu berbentuk
+`{ "galat": { "kode", "pesan", "rincian" } }`. Kueri tidak sah dijawab 400, dan
+laporan yang belum disetujui dijawab 404 seperti data yang tidak ada.
+
+```bash
+curl "https://profil-rw-sanggrahan.vercel.app/api/v1/keuangan?rw=1&tahun=2026&per_halaman=5"
+```
+
+---
+
+## Keputusan teknis
+
+- **Halaman publik disajikan dari cache.** Halaman rincian dibangun statis dengan
+  ISR, dan panel memanggil `revalidatePath` setiap kali menyimpan, sehingga warga
+  jarang memicu kueri ke basis data di Singapura.
+- **CSP tanpa nonce.** Nonce mewajibkan setiap halaman dirender per permintaan dan
+  mematikan cache di atas. Harganya, `'unsafe-inline'` tetap dibutuhkan untuk skrip
+  sebaris buatan Next.js, sementara asal skrip, formulir, dan bingkai tetap dibatasi.
+- **Kerangka muat dipasang sempit.** Di bawah `loading.tsx` tanggapan sudah terkirim
+  sebelum halaman selesai, sehingga `notFound()` dijawab 200. Karena itu kerangka muat
+  hanya membungkus halaman daftar. Laman RW diperiksa lebih dulu di layout-nya, dan
+  panel memakai penanda pada menu, supaya status 404 untuk data di luar wilayah
+  pengurus tidak berubah.
+- **Font disimpan di repositori.** Build tidak bergantung pada Google Fonts, dan
+  pemuat font Google di Turbopack 16.3.4 memang gagal pada proyek ini.
+- **Aturan uang dijaga basis data.** Lihat
+  [Aturan yang dijaga basis data](#aturan-yang-dijaga-basis-data).
 
 ---
 
 ## Pengujian
 
-Delapan berkas uji berbasis Playwright menjalankan aplikasi sungguhan di peramban.
-Nyalakan server lebih dulu (`npm run dev`), lalu di jendela lain:
+Dua belas berkas uji menjalankan aplikasi sungguhan, sepuluh di antaranya di
+peramban lewat Playwright. Nyalakan server lebih dulu (`npm run dev`), lalu di
+jendela lain:
 
 | Perintah | Cakupan |
 | --- | --- |
@@ -302,7 +404,11 @@ Nyalakan server lebih dulu (`npm run dev`), lalu di jendela lain:
 | `npm run uji:crud:galeri` | Album dibuat, diisi dua foto sungguhan, tampil di galeri RW 01 tetapi tidak di RW 02/03, fotonya benar-benar termuat (bukan sekadar ada elemennya), diganti nama sehingga alamatnya berpindah — alamat lama harus berhenti menyajikan salinan usang — lalu foto dan albumnya dihapus. |
 | `npm run uji:crud:warga` | Validasi NIK 16 digit dan NIK ganda, statistik publik RW 01 dan kampung ikut bertambah sementara RW 02 tidak, **identitas pribadi tidak muncul di enam halaman publik**, pengurus RW 02 ditolak melihat maupun menyunting warga RW 01 termasuk saat menyisipkan `rtId` milik RW 01 ke formulirnya. |
 | `npm run uji:crud` | Menjalankan kelima uji CRUD di atas. |
-| `npm run uji` | Menjalankan kedelapannya berurutan. |
+| `npm run uji:integritas` | Aturan basis data: `CHECK`, trigger, dan 10 pengajuan serentak yang hanya boleh berhasil satu kali. Hanya mau berjalan terhadap `localhost`. |
+| `npm run uji:api` | Seluruh endpoint `/api/v1`: bentuk jawaban, halaman, saringan RW, validasi kueri, dan data yang tidak boleh keluar. |
+| `npm run uji:seo` | Sitemap, `robots.txt`, pratinjau tautan seperti yang dibaca WhatsApp, status 404 sungguhan, CSP yang benar-benar menolak skrip luar, tautan lewati, penanda fokus, dan kerangka muat. Pada `npm run dev`, setel `UJI_DEV=1`. |
+| `npm run uji:masuk` | Pengalihan setelah masuk tidak bisa dibelokkan ke situs luar, pembatas percobaan masuk, dan header keamanan. |
+| `npm run uji` | Menjalankan semuanya berurutan. |
 
 Uji alur dan uji CRUD sekaligus menjaga pemisahan antar-RW: Ketua RT bernomor
 sama dari RW lain, dan Ketua RW dari RW lain, harus sama-sama ditolak saat
@@ -311,8 +417,13 @@ membuka laporan yang bukan wilayahnya.
 Bila server berjalan di alamat lain, setel `DASAR`, misalnya
 `DASAR=http://localhost:3100 npm run uji`.
 
-> Uji fungsi dan uji alur mengubah data. Jalankan `npm run db:seed` setelahnya
-> untuk mengembalikan data contoh ke keadaan semula.
+> Uji fungsi dan uji alur mengubah data, dan `.env` yang mengarah ke Neon akan ikut
+> berubah. Arahkan `DATABASE_URL` ke PostgreSQL lokal dan kosongkan
+> `BLOB_READ_WRITE_TOKEN` sebelum menjalankan server uji. Jalankan `npm run db:seed`
+> setelahnya untuk mengembalikan data contoh.
+
+GitHub Actions menjalankan `tsc`, ESLint, build, dan seluruh uji di atas terhadap
+PostgreSQL sementara pada setiap push ke `master` dan setiap pull request.
 
 ---
 
@@ -347,7 +458,7 @@ Langkah deploy:
 
 Migrasi skema **tidak** dijalankan saat build Vercel. Setelah mengubah
 `schema.prisma`, jalankan `npm run db:deploy` dari komputer sambil diarahkan ke
-basis data produksi.
+basis data produksi, **sebelum** kode barunya di-deploy.
 
 ### Pemasangan sendiri (VPS)
 
@@ -360,6 +471,7 @@ PostgreSQL, kosongkan `BLOB_READ_WRITE_TOKEN` agar unggahan memakai folder
 - **Cadangan.** Sertakan basis data dan folder `public/unggahan` dalam pencadangan rutin.
 - **Keamanan.** Ganti `SESSION_SECRET` dan seluruh kata sandi demo sebelum dipakai warga.
   Jalankan di belakang HTTPS agar cookie sesi dikirim dengan atribut `secure`.
+  Header keamanan dan CSP disetel di `next.config.ts`.
 - **Data pribadi.** Halaman publik hanya menampilkan angka agregat; nama, NIK, dan
   alamat warga hanya dapat diakses dari panel pengurus sesuai lingkup perannya.
   Foto yang diunggah dikecilkan dan dibuang metadata EXIF-nya, termasuk titik GPS,
@@ -381,6 +493,13 @@ Kedua situs berdiri terpisah tetapi melayani warga yang sama, jadi kop dan kaki
 halaman keduanya saling menautkan. Alamat tujuannya ada di
 `src/lib/tautanLuar.ts`, dan bisa ditimpa lewat env `NEXT_PUBLIC_URL_UMKM` tanpa
 mengubah kode.
+
+---
+
+## Lisensi
+
+Kode dirilis dengan [lisensi MIT](LICENSE). Font Bricolage Grotesque dan Instrument
+Sans berlisensi SIL Open Font License, salinannya ada di `src/fonts`.
 
 ---
 

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useFormStatus } from "react-dom";
 
 const KELAS_INPUT =
@@ -176,9 +177,11 @@ export function Berkas({
       anak={
         <div className="flex items-center gap-4">
           {pratinjau && (
-            <img
+            <Image
               src={pratinjau}
               alt=""
+              width={96}
+              height={64}
               className="h-16 w-24 shrink-0 rounded-lg border border-slate-200 object-cover"
             />
           )}

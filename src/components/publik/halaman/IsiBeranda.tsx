@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import BatangGanda from "@/components/grafik/BatangGanda";
@@ -312,10 +313,12 @@ export default async function IsiBeranda({ lingkup }: { lingkup: Lingkup }) {
                 href={`/galeri/${f.album.slug}`}
                 className="group relative aspect-square overflow-hidden rounded-xl border border-garis bg-white"
               >
-                <img
+                <Image
                   src={f.url}
                   alt={f.judul ?? f.album.nama}
-                  loading="lazy"
+                  width={300}
+                  height={300}
+                  sizes="(min-width: 1024px) 190px, (min-width: 640px) 33vw, 50vw"
                   className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                 />
                 <span className="absolute inset-x-0 bottom-0 bg-brand-950/80 p-2 text-[11px] text-white opacity-0 transition group-hover:opacity-100">

@@ -4,7 +4,7 @@
 // bahwa agenda satu RW tidak bocor ke agenda RW lain.
 //
 // Jalankan dengan server hidup:  DASAR=http://localhost:3311 node uji/crud-kegiatan.mjs
-import { chromium } from "playwright";
+import { bukaPeramban } from "./peramban.mjs";
 
 const DASAR = process.env.DASAR ?? "http://localhost:3000";
 const SANDI = "sanggrahan123";
@@ -56,7 +56,7 @@ const DESKRIPSI =
 const LOKASI_AWAL = `Balai RW 01 (uji ${TANDA})`;
 const LOKASI_BARU = `Lapangan RT 02 RW 01 (uji ${TANDA})`;
 
-const browser = await chromium.launch();
+const browser = await bukaPeramban();
 
 try {
   /* ------------------------------------------------------------------ */

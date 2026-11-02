@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
@@ -76,10 +77,14 @@ export default function SorotanUtama({ daftar }: { daftar: Sorotan[] }) {
                 Untuk kabar seperti itu latar hijau polos sudah cukup. */}
             {daftar.map((k, i) =>
               k.gambar ? (
-                <img
+                <Image
                   key={k.slug}
                   src={k.gambar}
                   alt=""
+                  width={1200}
+                  height={750}
+                  sizes="(min-width: 1024px) 720px, 100vw"
+                  loading={i === 0 ? "eager" : "lazy"}
                   aria-hidden={i !== aktif}
                   className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
                     i === aktif ? "opacity-100" : "opacity-0"

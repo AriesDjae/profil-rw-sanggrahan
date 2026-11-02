@@ -51,6 +51,56 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Penanda fokus papan ketik: garis hijau tua dengan celah putih di dalamnya.
+   Garisnya terbaca di atas kertas, celahnya terbaca di atas bidang hijau, jadi
+   satu aturan cukup untuk kedua latar. Sengaja di luar @layer agar mengalahkan
+   utilitas outline-none pada kolom isian. */
+:focus-visible {
+  outline: 2px solid var(--color-brand-800);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px #fff;
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline-offset: 0;
+  box-shadow: none;
+}
+
+/* Sasaran tautan "lewati ke konten". Fokus mendarat di sini, tetapi bingkai satu
+   halaman penuh tidak membantu siapa pun, jadi penandanya dihilangkan. */
+#konten {
+  scroll-margin-top: 7rem;
+}
+
+#konten:focus,
+#konten:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Tersembunyi sampai ditekan Tab, lalu muncul di atas kop yang menempel. */
+.tautan-lewati {
+  position: fixed;
+  left: 1rem;
+  top: 0.75rem;
+  z-index: 50;
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0 1.25rem;
+  background-color: var(--color-brand-800);
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transform: translateY(calc(-100% - 1.5rem));
+}
+
+.tautan-lewati:focus {
+  transform: translateY(0);
+}
+
 /* Judul memakai Bricolage Grotesque dengan spasi rapat */
 .judul {
   font-family: var(--font-judul);

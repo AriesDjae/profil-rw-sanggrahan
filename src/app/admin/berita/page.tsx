@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import KepalaHalaman from "@/components/admin/KepalaHalaman";
@@ -97,9 +98,11 @@ export default async function DaftarBeritaAdmin({
             {berita.map((b) => (
               <li key={b.id} className="flex flex-wrap items-center gap-4 p-4 sm:p-5">
                 {b.gambar ? (
-                  <img
+                  <Image
                     src={b.gambar}
                     alt=""
+                    width={96}
+                    height={64}
                     className="h-16 w-24 shrink-0 rounded-lg object-cover"
                   />
                 ) : (

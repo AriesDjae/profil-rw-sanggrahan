@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -6,6 +7,7 @@ import KartuKegiatan from "@/components/publik/KartuKegiatan";
 import Paragraf from "@/components/ui/Paragraf";
 import { db } from "@/lib/db";
 import { hitungMundur, jam, potong, selisihHari, tanggal } from "@/lib/format";
+import { gambarBagikan } from "@/lib/situs";
 
 // Dirender sekali lalu disajikan dari cache. Setiap perubahan dari panel
 // pengurus memanggil revalidatePath, jadi halaman ini tetap segar seketika;
@@ -42,7 +44,11 @@ export async function generateMetadata({
   const { slug } = await params;
   const k = await ambilKegiatan(slug);
   if (!k) return { title: "Kegiatan tidak ditemukan" };
-  return { title: k.judul, description: potong(k.deskripsi, 155) };
+  return {
+    title: k.judul,
+    description: potong(k.deskripsi, 155),
+    ...gambarBagikan(k.gambar),
+  };
 }
 
 export default async function DetailKegiatan({
@@ -112,7 +118,15 @@ export default async function DetailKegiatan({
 
       <div className="overflow-hidden rounded-3xl border border-garis bg-white shadow-sm">
         {kegiatan.gambar && (
-          <img src={kegiatan.gambar} alt="" className="h-56 w-full object-cover sm:h-72" />
+          <Image
+            src={kegiatan.gambar}
+            alt=""
+            width={1200}
+            height={400}
+            sizes="(min-width: 896px) 864px, 100vw"
+            loading="eager"
+            className="h-56 w-full object-cover sm:h-72"
+          />
         )}
 
         <div className="p-6 sm:p-8">

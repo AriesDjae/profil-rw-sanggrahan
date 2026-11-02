@@ -68,6 +68,15 @@ export function labelRw(rw: { nomor: number } | null | undefined): string {
   return rw ? `RW ${String(rw.nomor).padStart(2, "0")}` : "Kampung";
 }
 
+/**
+ * "RT 02 / RW 01". Nama RT umumnya sudah menyebut RW-nya, jadi RW hanya ditambahkan
+ * bila belum ada, supaya panel tidak menulis "RT 02 / RW 01 · RW 01".
+ */
+export function labelRt(rt: { nama: string }, rw: { nama: string } | null | undefined): string {
+  if (!rw || rt.nama.includes(rw.nama)) return rt.nama;
+  return `${rt.nama} · ${rw.nama}`;
+}
+
 /** Alamat laman sebuah RW. */
 export function tautanRw(nomor: number, sub = ""): string {
   return `/rw/${nomor}${sub}`;

@@ -3,7 +3,7 @@
  * memeriksa dampaknya pada halaman publik, serta menguji penolakan masukan tidak sah.
  * Jalankan dengan server hidup: node uji/qc-fungsi.mjs
  */
-import { chromium } from "playwright";
+import { bukaPeramban } from "./peramban.mjs";
 import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -47,7 +47,7 @@ async function masuk(browser, email) {
   return { ctx, page };
 }
 
-const browser = await chromium.launch();
+const browser = await bukaPeramban();
 const anonimCtx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
 const publik = await anonimCtx.newPage();
 
@@ -231,7 +231,7 @@ try {
   await page.locator('button:has-text("Hapus foto")').first().click();
   await page.waitForTimeout(1500);
   await page.reload();
-  const sisaFoto = await page.locator('img[src^="/unggahan/galeri"]').count();
+  const sisaFoto = await page.locator('img[src*="unggahan%2Fgaleri"]').count();
   cek("satu foto terhapus", sisaFoto === 1, `sisa ${sisaFoto}`);
 
   page.once("dialog", (d) => d.accept());
@@ -444,7 +444,10 @@ try {
   await page.waitForTimeout(1500);
   await page.reload();
   cek("RT kosong dapat dihapus", (await page.locator("text=RT 99").count()) === 0);
-  const rtTerpakai = page.locator("tr", { hasText: "RT 01 / RW 05" }).first();
+  // Barisnya harus ditemukan dulu: baris yang tidak ada pun tidak punya tombol
+  // hapus, jadi tanpa pemeriksaan ini uji di bawah selalu lolos.
+  const rtTerpakai = page.locator("tr", { hasText: "RT 01 / RW 01" }).first();
+  cek("baris RT yang terpakai tampil di daftar", (await rtTerpakai.count()) === 1);
   cek(
     "RT yang masih terpakai tidak punya tombol hapus",
     (await rtTerpakai.locator('button:has-text("Hapus")').count()) === 0,
@@ -508,7 +511,8 @@ try {
   await publik.goto(`${DASAR}/keuangan`);
   const tautanRt = await publik.locator('a[href*="/keuangan?rt="]').first().getAttribute("href");
   await publik.goto(DASAR + tautanRt);
-  const tabelLaporan = publik.locator("table").last();
+  // :visible, sebab streaming React menyisakan <table hidden> kosong di akhir dokumen.
+  const tabelLaporan = publik.locator("table:visible").last();
   const barisRt = await tabelLaporan.locator("tbody tr").count();
   const semuaRtTeks = await tabelLaporan.locator("tbody").innerText();
   cek(

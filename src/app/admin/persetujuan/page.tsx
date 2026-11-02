@@ -9,6 +9,7 @@ import { periode, rupiah, tanggalWaktu } from "@/lib/format";
 import { hitungRingkasan } from "@/lib/keuangan";
 import { PERAN, STATUS_LAPORAN } from "@/lib/konstanta";
 import { lingkupRw, wajibMasuk } from "@/lib/otorisasi";
+import { labelRt } from "@/lib/rw";
 
 import { setujuiRw, tolakRt, tolakRw, verifikasiRt } from "../keuangan/aksi";
 
@@ -90,7 +91,7 @@ export default async function HalamanPersetujuan() {
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <div>
                       <h2 className="text-lg font-bold text-slate-900">
-                        {l.rt.nama} · {l.rt.rw.nama} · {periode(l.bulan, l.tahun)}
+                        {labelRt(l.rt, l.rt.rw)} · {periode(l.bulan, l.tahun)}
                       </h2>
                       <p className="mt-1 text-xs text-slate-500">
                         Disusun {l.dibuatOleh?.nama ?? "-"} · {l._count.transaksi} transaksi ·
@@ -208,7 +209,7 @@ export default async function HalamanPersetujuan() {
                   href={`/admin/keuangan/${r.laporanId}`}
                   className="flex-1 text-sm font-medium text-slate-800 hover:text-brand-700"
                 >
-                  {r.laporan.rt.nama} · {r.laporan.rt.rw.nama} ·{" "}
+                  {labelRt(r.laporan.rt, r.laporan.rt.rw)} ·{" "}
                   {periode(r.laporan.bulan, r.laporan.tahun)}
                 </Link>
                 <span className="text-xs text-slate-500">{tanggalWaktu(r.createdAt)}</span>
