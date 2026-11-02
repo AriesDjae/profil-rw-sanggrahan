@@ -62,7 +62,6 @@ export default async function IsiBerita({
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
       <JudulBagian
-        kicker="Kabar Warga"
         judul={`Berita ${lingkup.nama}`}
         tingkat="h1"
         keterangan={

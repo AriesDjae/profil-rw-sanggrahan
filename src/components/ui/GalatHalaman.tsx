@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 
 /**
@@ -18,11 +19,12 @@ export default function GalatHalaman({
   labelTujuan?: string;
 }) {
   return (
-    <section className="mx-auto max-w-3xl px-4 py-20 sm:py-28">
-      <h1 className="judul text-3xl text-brand-950 sm:text-4xl">
+    <section className="mx-auto grid max-w-5xl items-center gap-10 px-4 py-14 sm:py-20 md:grid-cols-2">
+      <div className="min-w-0">
+      <h1 className="judul text-3xl text-brand-900 sm:text-4xl">
         Halaman ini belum bisa ditampilkan
       </h1>
-      <p className="mt-4 max-w-xl leading-relaxed text-tinta/70">
+      <p className="mt-4 max-w-md leading-relaxed text-tinta/70">
         Terjadi gangguan saat memuat data. Data warga dan laporan kas tidak berubah. Coba lagi
         beberapa saat, atau kabari pengurus bila masih berulang.
       </p>
@@ -48,6 +50,14 @@ export default function GalatHalaman({
           Kode galat: <code>{error.digest}</code>
         </p>
       )}
+      </div>
+      <Image
+        src="/ilustrasi/listrik-padam.svg"
+        alt="Malam hari, petugas memperbaiki kabel di tiang listrik kampung"
+        width={640}
+        height={420}
+        className="potongan h-auto w-full"
+      />
     </section>
   );
 }

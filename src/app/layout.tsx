@@ -20,22 +20,23 @@ const judul = localFont({
   ],
 });
 
-// Teks: sedikit menyempit, terbaca pada layar kecil dan tabel angka.
+// Teks: Gantari, rancangan Lafontype dari Indonesia. Bentuknya bulat dan ramah,
+// tetap jelas pada ukuran kecil dan tabel angka.
 const teks = localFont({
   variable: "--font-teks",
   display: "swap",
   src: [
-    { path: "../fonts/instrument-sans-latin-400-normal.woff2", weight: "400" },
-    { path: "../fonts/instrument-sans-latin-500-normal.woff2", weight: "500" },
-    { path: "../fonts/instrument-sans-latin-600-normal.woff2", weight: "600" },
-    { path: "../fonts/instrument-sans-latin-700-normal.woff2", weight: "700" },
+    { path: "../fonts/gantari-latin-400-normal.woff2", weight: "400" },
+    { path: "../fonts/gantari-latin-500-normal.woff2", weight: "500" },
+    { path: "../fonts/gantari-latin-600-normal.woff2", weight: "600" },
+    { path: "../fonts/gantari-latin-700-normal.woff2", weight: "700" },
   ],
 });
 
 export const metadata: Metadata = {
   metadataBase: new URL(URL_SITUS),
   title: {
-    default: "Kampung Sanggrahan — Portal Informasi Warga",
+    default: "Kampung Sanggrahan, Portal Informasi Warga",
     template: "%s | Kampung Sanggrahan",
   },
   description:

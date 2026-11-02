@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import KepalaPanorama from "@/components/publik/KepalaPanorama";
 import JudulBagian from "@/components/ui/JudulBagian";
 import Paragraf from "@/components/ui/Paragraf";
 import { db } from "@/lib/db";
@@ -46,42 +47,29 @@ export default async function IsiProfil({ lingkup }: { lingkup: Lingkup }) {
 
   return (
     <>
-      <section className="bidang-hijau text-white">
-        <div className="motif-kawung mx-auto max-w-5xl px-4 py-16 text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-200">
-            {pengaturan.namaKampung} · Kelurahan {pengaturan.kelurahan}
-          </p>
-          <h1 className="judul mt-3 text-[2.2rem] text-white sm:text-[3rem]">
-            {lingkup.rw ? lingkup.nama : pengaturan.namaKampung}
-          </h1>
-          <p className="mx-auto mt-4 max-w-lg text-[15px] leading-relaxed text-brand-100">
-            {tagline}
-          </p>
-          <dl className="mx-auto mt-10 grid max-w-3xl grid-cols-2 gap-3 sm:grid-cols-4">
-            {[
-              { l: "Rukun Tetangga", v: angka(rtList.length) },
-              { l: "Kepala Keluarga", v: angka(statistik.totalKk) },
-              { l: "Jumlah Jiwa", v: angka(statistik.totalJiwa) },
-              {
-                l: lingkup.rw ? "Pengurus RW" : "Rukun Warga",
-                v: angka(lingkup.rw ? pengurusRw.length : 3),
-              },
-            ].map((s) => (
-              <div key={s.l} className="border-t border-white/25 pt-3 text-left">
-                <dd className="judul angka-kas text-[1.6rem]">{s.v}</dd>
-                <dt className="mt-1 text-[12px] text-brand-200">{s.l}</dt>
-              </div>
-            ))}
-          </dl>
-        </div>
-      </section>
+      <KepalaPanorama
+        gambar={rwPenuh?.heroFoto || pengaturan.heroFoto || "/ilustrasi/panorama-kampung.svg"}
+        alt={`Suasana ${lingkup.rw ? lingkup.nama : pengaturan.namaKampung}`}
+      >
+        <p className="text-sm font-medium text-brand-800/80">
+          Profil {pengaturan.namaKampung}, Kelurahan {pengaturan.kelurahan}
+        </p>
+        <h1 className="judul mt-2 text-[2.6rem] leading-[0.98] text-brand-900 sm:text-[3.6rem]">
+          {lingkup.rw ? lingkup.nama : pengaturan.namaKampung}
+        </h1>
+        <p className="mt-4 max-w-xl text-[17px] leading-relaxed text-brand-900/85">{tagline}</p>
+        <p className="mt-3 text-[15px] text-brand-900/75">
+          {angka(rtList.length)} rukun tetangga, {angka(statistik.totalKk)} kepala keluarga, dan{" "}
+          {angka(statistik.totalJiwa)} jiwa
+          {lingkup.rw ? `, dengan ${angka(pengurusRw.length)} pengurus RW.` : ", dalam 3 rukun warga."}
+        </p>
+      </KepalaPanorama>
 
       <div className="mx-auto max-w-5xl px-4 py-16">
         {/* Sejarah */}
         {profil.sejarah && (
           <section className="mb-16">
             <JudulBagian
-              kicker="Riwayat"
               judul={lingkup.rw ? `Sejarah Singkat ${lingkup.nama}` : "Sejarah Singkat Kampung"}
             />
             <div className="rounded-2xl border border-garis bg-white p-6 sm:p-8">
@@ -117,7 +105,6 @@ export default async function IsiProfil({ lingkup }: { lingkup: Lingkup }) {
         {/* Struktur pengurus */}
         <section className="mb-16">
           <JudulBagian
-            kicker="Kepengurusan"
             judul={lingkup.rw ? `Struktur Organisasi ${lingkup.nama}` : "Struktur Organisasi"}
             keterangan={
               pengurusRw[0]?.periode ? `Masa bakti ${pengurusRw[0].periode}.` : undefined
@@ -170,13 +157,12 @@ export default async function IsiProfil({ lingkup }: { lingkup: Lingkup }) {
         {/* Daftar RT */}
         <section className="mb-16">
           <JudulBagian
-            kicker="Wilayah"
             judul={lingkup.rw ? `Rukun Tetangga di ${lingkup.nama}` : "Rukun Tetangga se-Kampung"}
             keterangan="Setiap RT dipimpin seorang Ketua RT dan memiliki bendahara yang mengelola kas RT."
           />
           <div className="overflow-x-auto gulir-halus rounded-2xl border border-garis bg-white">
             <table className="w-full min-w-[44rem] text-left text-sm">
-              <thead className="bg-kertas text-xs uppercase tracking-wide text-slate-500">
+              <thead className="bg-kertas text-xs text-slate-500">
                 <tr>
                   <th className="px-4 py-3 font-semibold">RT</th>
                   {!lingkup.rw && <th className="px-4 py-3 font-semibold">RW</th>}
@@ -235,7 +221,6 @@ export default async function IsiProfil({ lingkup }: { lingkup: Lingkup }) {
         {/* Kontak */}
         <section>
           <JudulBagian
-            kicker="Hubungi Kami"
             judul={lingkup.rw ? `Sekretariat ${lingkup.nama}` : "Sekretariat Kampung"}
           />
           <div className="grid gap-5 sm:grid-cols-3">
@@ -245,7 +230,7 @@ export default async function IsiProfil({ lingkup }: { lingkup: Lingkup }) {
               { label: "Surel", isi: profil.email || pengaturan.email || "-" },
             ].map((k) => (
               <div key={k.label} className="rounded-2xl border border-garis bg-white p-5">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                <p className="text-xs font-semibold text-slate-500">
                   {k.label}
                 </p>
                 <p className="mt-2 text-sm font-medium leading-relaxed text-slate-800">

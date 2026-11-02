@@ -70,7 +70,7 @@ export default function SorotanUtama({ daftar }: { daftar: Sorotan[] }) {
       <div className="mx-auto grid max-w-6xl lg:grid-cols-[1.65fr_1fr]">
         {/* Panel kabar terpilih */}
         <article className="relative min-w-0 border-garis lg:border-r">
-          <div className="relative aspect-[16/10] w-full overflow-hidden bg-brand-100 sm:aspect-[16/9] lg:aspect-auto lg:h-[31rem]">
+          <div className="relative aspect-[16/9] w-full overflow-hidden bg-brand-100">
             {/* Berita tanpa foto adalah hal biasa: pengurus sering menulis kabar
                 singkat tanpa sempat memotret. Yang tidak boleh terjadi adalah
                 <img src=""> — peramban memperlakukannya sebagai gambar rusak.
@@ -100,34 +100,30 @@ export default function SorotanUtama({ daftar }: { daftar: Sorotan[] }) {
                 />
               ),
             )}
-            <div
-              aria-hidden
-              className="absolute inset-0 bg-gradient-to-t from-brand-950 via-brand-950/55 to-transparent"
-            />
+          </div>
 
-            <div className="absolute inset-x-0 bottom-0 p-5 sm:p-8">
-              <p className="text-[13px] font-medium text-aksen-200">
-                {kabar.kategori}, {kabar.tanggal}
-              </p>
-              <h2 className="judul mt-2 max-w-xl text-[1.6rem] text-white sm:text-[2.1rem]">
-                <Link
-                  href={`/berita/${kabar.slug}`}
-                  className="underline-offset-[6px] hover:underline focus-visible:underline"
-                >
-                  {kabar.judul}
-                </Link>
-              </h2>
-              <p className="mt-3 hidden max-w-lg text-sm leading-relaxed text-brand-100 sm:block">
-                {kabar.ringkasan}
-              </p>
-            </div>
+          <div className="p-5 sm:p-7">
+            <p className="text-[13px] font-medium text-soga-700">
+              {kabar.kategori}, {kabar.tanggal}
+            </p>
+            <h2 className="judul mt-2 max-w-xl text-[1.5rem] text-brand-900 sm:text-[1.9rem]">
+              <Link
+                href={`/berita/${kabar.slug}`}
+                className="underline-offset-[6px] hover:underline focus-visible:underline"
+              >
+                {kabar.judul}
+              </Link>
+            </h2>
+            <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-tinta/75">
+              {kabar.ringkasan}
+            </p>
           </div>
         </article>
 
         {/* Daftar judul sebagai pemilih */}
         <div className="flex flex-col">
-          <p className="border-b border-garis px-5 py-3 text-[13px] font-medium text-brand-700 sm:px-6">
-            Sedang jadi perbincangan warga
+          <p className="border-b border-garis px-5 py-3 text-[13px] font-medium text-soga-700 sm:px-6">
+            Kabar terbaru
           </p>
 
           <ul className="flex-1">

@@ -230,6 +230,7 @@ Yang **tidak** boleh dilakukan Ketua RW, dan diuji otomatis:
 | `/profil`              | Profil kampung dan pengurus tingkat kampung.                             |
 | `/data-warga`          | Statistik kependudukan se-kampung.                                       |
 | `/galeri`              | Album dari ketiga RW.                                                    |
+| `/peta`                | Peta kampung dengan titik usaha warga, ditambah `/rw/[n]/peta` per RW.   |
 
 Halaman detail (`/berita/[slug]`, `/kegiatan/[slug]`, `/galeri/[slug]`,
 `/keuangan/[id]`) sengaja tidak digandakan per RW: satu tulisan punya satu alamat
@@ -249,7 +250,9 @@ Galeri · Data Warga · Pengurus · Akun Pengguna · Pengaturan Situs.
 prisma/
   schema.prisma        Skema basis data
   seed.ts              Data contoh: 3 RW, 9 RT, ±825 jiwa, 36 laporan kas, berita, kegiatan
-  gambar.ts            Pembuat gambar SVG contoh (ditulis ke public/contoh)
+  gambar.ts            Memilih ilustrasi contoh dari judul (ditulis ke public/contoh)
+  ilustrasi/           Ilustrasi potongan kertas: alat gambar, benda kampung, adegan
+  buat-ilustrasi.ts    Menulis ilustrasi situs ke public/ilustrasi (npm run ilustrasi)
   ganti-sandi.ts       Mengganti sandi bawaan seluruh akun sekaligus
   migrations/          Riwayat skema, termasuk CHECK dan trigger di _perkuat_integritas
 src/
@@ -266,6 +269,7 @@ src/
     sitemap.ts, robots.ts, opengraph-image.tsx   Peta situs dan pratinjau tautan
     not-found.tsx, error.tsx, global-error.tsx   Halaman 404 dan halaman galat
   fonts/               Berkas font beserta lisensinya
+  data/titik-usaha.json  Titik usaha warga, disalin dari registri Usaha Warga
   components/
     admin/             Sidebar, primitif formulir, tombol
     keuangan/          Stepper, jejak persetujuan, tabel transaksi
@@ -388,6 +392,21 @@ curl "https://profil-rw-sanggrahan.vercel.app/api/v1/keuangan?rw=1&tahun=2026&pe
   pengurus tidak berubah.
 - **Font disimpan di repositori.** Build tidak bergantung pada Google Fonts, dan
   pemuat font Google di Turbopack 16.3.4 memang gagal pada proyek ini.
+- **Identitas visual diambil dari Yogyakarta.** Warnanya dari batik gaya Yogyakarta:
+  latar putih pethak, biru wedel, dan cokelat soga, ditambah kunyit sebagai penanda.
+  Font teksnya Gantari, rancangan Lafontype dari Indonesia. Warga memilih RW lewat
+  papan penunjuk jalan seperti di mulut gang, dan pengumuman tampil sebagai kertas
+  di papan warga.
+- **Ilustrasi dihitung dari kode, bukan gambar raster.** `prisma/ilustrasi` menyusun
+  adegan bergaya potongan kertas: Merapi di utara, gapura, pos ronda, kabel listrik,
+  angkringan, sampai bulu tangkis di gang. Pinggir guntingannya dihitung saat berkas
+  dibuat, jadi hasilnya tetap path biasa tanpa filter. Adegan terbesar 19 KB, panorama
+  39 KB, sebelum dikompresi. Adegannya dipilih dari judul kabar, jadi berita kerja bakti
+  memang bergambar kerja bakti, dan pengurus bisa menggantinya dengan foto dari panel.
+- **Peta dimuat saat terlihat.** Leaflet dan kepingan OpenStreetMap baru diminta ketika
+  petanya hampir masuk layar, supaya warga yang hanya memilih RW tidak ikut menanggung
+  bebannya. Titiknya berasal dari registri Usaha Warga, dan 25 dari 26 titik ditandai
+  sebagai perkiraan karena memang belum diukur di tempat.
 - **Aturan uang dijaga basis data.** Lihat
   [Aturan yang dijaga basis data](#aturan-yang-dijaga-basis-data).
 
@@ -412,7 +431,7 @@ jendela lain:
 | `npm run uji:crud` | Menjalankan kelima uji CRUD di atas. |
 | `npm run uji:integritas` | Aturan basis data: `CHECK`, trigger, dan 10 pengajuan serentak yang hanya boleh berhasil satu kali. Hanya mau berjalan terhadap `localhost`. |
 | `npm run uji:api` | Seluruh endpoint `/api/v1`: bentuk jawaban, halaman, saringan RW, validasi kueri, dan data yang tidak boleh keluar. |
-| `npm run uji:seo` | Sitemap, `robots.txt`, pratinjau tautan seperti yang dibaca WhatsApp, status 404 sungguhan, CSP yang benar-benar menolak skrip luar, tautan lewati, penanda fokus, dan kerangka muat. Pada `npm run dev`, setel `UJI_DEV=1`. |
+| `npm run uji:seo` | Sitemap, `robots.txt`, pratinjau tautan seperti yang dibaca WhatsApp, status 404 sungguhan, CSP yang benar-benar menolak skrip luar, font yang benar-benar terpakai, tautan lewati, penanda fokus, kerangka muat, dan peta yang baru dimuat saat terlihat. Pada `npm run dev`, setel `UJI_DEV=1`. |
 | `npm run uji:masuk` | Pengalihan setelah masuk tidak bisa dibelokkan ke situs luar, pembatas percobaan masuk, dan header keamanan. |
 | `npm run uji` | Menjalankan semuanya berurutan. |
 
@@ -438,7 +457,8 @@ PostgreSQL sementara pada setiap push ke `master` dan setiap pull request.
 ### Demo di Vercel
 
 Vercel dipakai sebagai etalase MVP, region **Singapura** (`sin1`, disetel di
-`vercel.json`). Dua penyesuaian sudah dilakukan agar berjalan di sana, karena
+`vercel.json`). Proyek ini tidak tersambung ke GitHub di Vercel, jadi push tidak
+mengubah situs; deploy dilakukan dengan `npx vercel deploy --prod`. Dua penyesuaian sudah dilakukan agar berjalan di sana, karena
 sistem berkas Vercel bersifat hanya-baca dan sementara:
 
 - **Basis data** memakai PostgreSQL (Neon), bukan berkas SQLite.
@@ -544,8 +564,9 @@ mengubah kode.
 
 ## Lisensi
 
-Kode dirilis dengan [lisensi MIT](LICENSE). Font Bricolage Grotesque dan Instrument
-Sans berlisensi SIL Open Font License, salinannya ada di `src/fonts`.
+Kode dan ilustrasi dirilis dengan [lisensi MIT](LICENSE). Font Bricolage Grotesque dan
+Gantari berlisensi SIL Open Font License, salinannya ada di `src/fonts`. Data peta
+&copy; kontributor [OpenStreetMap](https://www.openstreetmap.org/copyright).
 
 ---
 

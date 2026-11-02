@@ -92,7 +92,6 @@ export default async function IsiKeuangan({
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
       <JudulBagian
-        kicker="Transparansi Keuangan"
         judul={`Laporan Kas RT ${lingkup.nama}`}
         tingkat="h1"
         keterangan="Halaman ini hanya menampilkan laporan yang telah melewati verifikasi Ketua RT dan persetujuan Ketua RW. Laporan yang masih berstatus draf, diajukan, atau ditolak tidak ditampilkan kepada publik."
@@ -135,7 +134,7 @@ export default async function IsiKeuangan({
       {/* Penyaring */}
       <div className="mb-8 space-y-4 rounded-2xl border border-garis bg-white p-5">
         <div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+          <p className="mb-2 text-xs font-semibold text-slate-500">
             Tahun anggaran
           </p>
           <div className="flex flex-wrap gap-2">
@@ -156,7 +155,7 @@ export default async function IsiKeuangan({
         </div>
 
         <div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+          <p className="mb-2 text-xs font-semibold text-slate-500">
             Rukun Tetangga
           </p>
           <div className="flex flex-wrap gap-2">
@@ -197,7 +196,7 @@ export default async function IsiKeuangan({
         <>
           <div className="grid gap-4 sm:grid-cols-3">
             <div className="rounded-2xl border border-garis bg-white p-5 shadow-sm">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <p className="text-xs font-semibold text-slate-500">
                 Pemasukan {tahun}
               </p>
               <p className="mt-2 text-2xl font-bold tabular-nums text-seri-1">
@@ -208,7 +207,7 @@ export default async function IsiKeuangan({
               </p>
             </div>
             <div className="rounded-2xl border border-garis bg-white p-5 shadow-sm">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <p className="text-xs font-semibold text-slate-500">
                 Pengeluaran {tahun}
               </p>
               <p className="mt-2 text-2xl font-bold tabular-nums text-seri-2">
@@ -221,7 +220,7 @@ export default async function IsiKeuangan({
               </p>
             </div>
             <div className="rounded-2xl border border-brand-100 bg-brand-50 p-5 shadow-sm">
-              <p className="text-xs font-semibold uppercase tracking-wide text-brand-700">
+              <p className="text-xs font-semibold text-brand-700">
                 Saldo Kas Terakhir
               </p>
               <p className="mt-2 text-2xl font-bold tabular-nums text-brand-800">
@@ -263,7 +262,7 @@ export default async function IsiKeuangan({
             </h2>
             <div className="overflow-x-auto gulir-halus rounded-2xl border border-garis bg-white">
               <table className="w-full min-w-[56rem] text-left text-sm">
-                <thead className="bg-kertas text-xs uppercase tracking-wide text-slate-500">
+                <thead className="bg-kertas text-xs text-slate-500">
                   <tr>
                     <th className="px-4 py-3 font-semibold">Periode</th>
                     <th className="px-4 py-3 font-semibold">RT</th>

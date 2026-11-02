@@ -4,6 +4,7 @@ import Link from "next/link";
 import BatangGanda from "@/components/grafik/BatangGanda";
 import KartuBerita from "@/components/publik/KartuBerita";
 import KartuKegiatan from "@/components/publik/KartuKegiatan";
+import KepalaPanorama from "@/components/publik/KepalaPanorama";
 import SorotanUtama from "@/components/publik/SorotanUtama";
 import JudulBagian from "@/components/ui/JudulBagian";
 import Kosong from "@/components/ui/Kosong";
@@ -72,96 +73,77 @@ export default async function IsiBeranda({ lingkup }: { lingkup: Lingkup }) {
     seri2: nilai.pengeluaran,
   }));
 
-  const angkaRw = [
-    { nilai: angka(statistik.totalKk), label: "kepala keluarga" },
-    { nilai: angka(statistik.totalJiwa), label: "jiwa terdata" },
-    { nilai: angka(rtList.length), label: "rukun tetangga" },
-    { nilai: angka(keuangan.jumlahLaporan), label: `laporan kas terbit ${tahunIni}` },
+  const tautanRw = [
+    { href: `${dasar}/keuangan`, label: "Laporan kas RT" },
+    { href: `${dasar}/kegiatan`, label: "Agenda kegiatan" },
+    { href: `${dasar}/data-warga`, label: "Data warga" },
+    { href: `${dasar}/peta`, label: "Peta" },
+    { href: `${dasar}/profil`, label: "Pengurus dan kontak" },
   ];
 
   return (
     <>
-      {/* Kepala halaman */}
-      <section className="bidang-hijau text-white">
-        <div className="motif-kawung">
-          <div className="mx-auto max-w-6xl px-4 py-12 sm:py-16">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-200">
-              <Link href="/" className="underline-offset-4 hover:text-white hover:underline">
-                {pengaturan.namaKampung}
+      <KepalaPanorama
+        gambar={rwPenuh?.heroFoto || `/ilustrasi/panorama-kampung.svg`}
+        alt={`Suasana gang di ${rw.nama} Kampung Sanggrahan`}
+      >
+        <p className="text-sm font-medium text-brand-800/80">
+          <Link href="/" className="underline underline-offset-4 hover:text-brand-950">
+            {pengaturan.namaKampung}
+          </Link>
+        </p>
+        <h1 className="judul mt-2 text-[2.9rem] leading-[0.98] text-brand-900 sm:text-[4.25rem]">
+          {rw.nama}
+        </h1>
+        <p className="mt-4 max-w-xl text-[17px] leading-relaxed text-brand-900/85">
+          {rwPenuh?.deskripsi || rw.tagline || pengaturan.tagline}
+        </p>
+        <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-brand-900/75">
+          {angka(statistik.totalKk)} kepala keluarga dan {angka(statistik.totalJiwa)} jiwa di{" "}
+          {angka(rtList.length)} RT. Tahun ini {angka(keuangan.jumlahLaporan)} laporan kas sudah
+          disahkan.
+        </p>
+        <ul className="mt-5 flex flex-wrap gap-x-5 gap-y-2">
+          {tautanRw.map((t) => (
+            <li key={t.href}>
+              <Link
+                href={t.href}
+                className="text-[15px] font-semibold text-brand-800 underline decoration-aksen-400 decoration-2 underline-offset-4 hover:text-brand-950"
+              >
+                {t.label}
               </Link>
-            </p>
-            <h1 className="judul mt-3 text-[2.4rem] leading-[1] text-white sm:text-[3.4rem]">
-              {rw.nama}
-            </h1>
-            <p className="mt-4 max-w-xl text-[17px] leading-relaxed text-brand-100">
-              {rwPenuh?.deskripsi || rw.tagline || pengaturan.tagline}
-            </p>
-
-            <div className="mt-8 flex flex-wrap gap-2.5">
-              {[
-                { href: `${dasar}/keuangan`, label: "Laporan kas RT", utama: true },
-                { href: `${dasar}/kegiatan`, label: "Agenda kegiatan" },
-                { href: `${dasar}/data-warga`, label: "Data warga" },
-                { href: `${dasar}/profil`, label: "Pengurus & kontak" },
-              ].map((t) => (
-                <Link
-                  key={t.href}
-                  href={t.href}
-                  className={`rounded-xl px-5 py-3 text-sm font-semibold transition ${
-                    t.utama
-                      ? "bg-aksen-400 text-brand-950 hover:bg-aksen-200"
-                      : "border border-white/30 text-white hover:bg-white/10"
-                  }`}
-                >
-                  {t.label}
-                </Link>
-              ))}
-            </div>
-
-            <dl className="mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-2xl bg-white/15 sm:grid-cols-4">
-              {angkaRw.map((a) => (
-                <div key={a.label} className="bg-brand-800/95 px-5 py-4">
-                  <dd className="judul angka-kas text-[1.7rem] text-white">{a.nilai}</dd>
-                  <dt className="mt-1 text-[13px] text-brand-200">{a.label}</dt>
-                </div>
-              ))}
-            </dl>
-          </div>
-        </div>
-      </section>
+            </li>
+          ))}
+        </ul>
+      </KepalaPanorama>
 
       {sorotan.length > 0 && <SorotanUtama daftar={sorotan} />}
 
       {/* Pengumuman */}
       {pengumuman.length > 0 && (
-        <section className="mx-auto max-w-6xl px-4 py-12">
-          <h2 className="judul text-lg text-brand-950">Pengumuman</h2>
-          <ul className="mt-4 grid gap-4 sm:grid-cols-3">
-            {pengumuman.map((p) => (
-              <li
-                key={p.id}
-                className={`kartu p-5 ${p.penting ? "border-aksen-200 bg-aksen-50" : ""}`}
-              >
-                <p className="mb-2 flex flex-wrap gap-x-2 text-[12px] font-semibold">
-                  {p.penting && <span className="text-aksen-800">Perlu perhatian</span>}
-                  {p.rwId === null && (
-                    <span className="text-brand-700">Seluruh kampung</span>
+        <section className="bg-soga-100">
+          <div className="mx-auto max-w-6xl px-4 py-12">
+            <h2 className="judul text-[1.5rem] text-brand-900">Papan pengumuman</h2>
+            <ul className="mt-7 gap-6 sm:columns-2 lg:columns-3">
+              {pengumuman.map((p) => (
+                <li key={p.id} className={`catatan mb-6 p-5 ${p.penting ? "catatan-penting" : ""}`}>
+                  {(p.penting || p.rwId === null) && (
+                    <p className="mb-2 text-[13px] font-semibold text-aksen-800">
+                      {p.penting ? "Perlu perhatian" : "Seluruh kampung"}
+                    </p>
                   )}
-                </p>
-                <p className="judul text-[15px] leading-snug text-brand-950">{p.judul}</p>
-                <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-tinta/70">
-                  {p.isi}
-                </p>
-              </li>
-            ))}
-          </ul>
+                  <p className="judul text-[1.05rem] leading-snug text-brand-900">{p.judul}</p>
+                  <p className="mt-2 text-[15px] leading-relaxed text-tinta/75">{p.isi}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
         </section>
       )}
 
       {/* Kabar lain */}
       <section className="mx-auto max-w-6xl px-4 py-12">
         <JudulBagian
-          kicker="Kabar warga"
           judul={`Yang sedang terjadi di ${rw.nama}`}
           tautan={`${dasar}/berita`}
         />
@@ -172,9 +154,9 @@ export default async function IsiBeranda({ lingkup }: { lingkup: Lingkup }) {
             keterangan="Kabar baru akan muncul di sini setelah dipublikasikan pengurus."
           />
         ) : (
-          <div className="grid gap-10 sm:grid-cols-3 sm:gap-8">
+          <div className={selanjutnya.length > 1 ? "grid gap-10 sm:grid-cols-3 sm:gap-8" : ""}>
             {selanjutnya.map((b) => (
-              <KartuBerita key={b.slug} berita={b} />
+              <KartuBerita key={b.slug} berita={b} utama={selanjutnya.length === 1} />
             ))}
           </div>
         )}
@@ -184,7 +166,6 @@ export default async function IsiBeranda({ lingkup }: { lingkup: Lingkup }) {
       <section className="border-y border-garis bg-white">
         <div className="mx-auto max-w-6xl px-4 py-14">
           <JudulBagian
-            kicker="Agenda"
             judul="Kegiatan yang akan berlangsung"
             keterangan="Catat tanggalnya, lalu datang. Kegiatan dalam sepekan ke depan ditandai kuning."
             tautan={`${dasar}/kegiatan`}
@@ -208,7 +189,6 @@ export default async function IsiBeranda({ lingkup }: { lingkup: Lingkup }) {
       {/* Keuangan */}
       <section className="mx-auto max-w-6xl px-4 py-14">
         <JudulBagian
-          kicker="Keterbukaan keuangan"
           judul={`Kas RT ${rw.nama} sepanjang ${tahunIni}`}
           keterangan="Angka ini hanya menghitung laporan yang sudah diperiksa Ketua RT dan disahkan Ketua RW."
           tautan={`${dasar}/keuangan`}
@@ -248,7 +228,6 @@ export default async function IsiBeranda({ lingkup }: { lingkup: Lingkup }) {
       <section className="border-y border-garis bg-white">
         <div className="mx-auto max-w-6xl px-4 py-14">
           <JudulBagian
-            kicker="Kependudukan"
             judul={`Warga ${rw.nama} dalam angka`}
             keterangan="Data agregat, tanpa identitas pribadi siapa pun."
             tautan={`${dasar}/data-warga`}
@@ -301,24 +280,25 @@ export default async function IsiBeranda({ lingkup }: { lingkup: Lingkup }) {
       {foto.length > 0 && (
         <section className="mx-auto max-w-6xl px-4 py-14">
           <JudulBagian
-            kicker="Dokumentasi"
             judul="Wajah kegiatan warga"
             tautan={`${dasar}/galeri`}
             labelTautan="Semua album"
           />
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-            {foto.map((f) => (
+          <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+            {foto.map((f, i) => (
               <Link
                 key={f.id}
                 href={`/galeri/${f.album.slug}`}
-                className="group relative aspect-square overflow-hidden rounded-xl border border-garis bg-white"
+                className={`group relative overflow-hidden bg-soga-100 ${
+                  i === 0 ? "col-span-2 aspect-[16/10] sm:row-span-2 sm:aspect-auto" : "aspect-[4/3]"
+                } ${i > 4 ? "hidden" : ""}`}
               >
                 <Image
                   src={f.url}
                   alt={f.judul ?? f.album.nama}
-                  width={300}
-                  height={300}
-                  sizes="(min-width: 1024px) 190px, (min-width: 640px) 33vw, 50vw"
+                  width={i === 0 ? 800 : 400}
+                  height={i === 0 ? 500 : 300}
+                  sizes={i === 0 ? "(min-width: 640px) 50vw, 100vw" : "(min-width: 640px) 25vw, 50vw"}
                   className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                 />
                 <span className="absolute inset-x-0 bottom-0 bg-brand-950/80 p-2 text-[11px] text-white opacity-0 transition group-hover:opacity-100">
@@ -331,34 +311,25 @@ export default async function IsiBeranda({ lingkup }: { lingkup: Lingkup }) {
       )}
 
       {/* Ajakan */}
-      <section className="mx-auto max-w-6xl px-4 pb-20">
-        <div className="overflow-hidden rounded-2xl bidang-hijau">
-          <div className="motif-kawung px-6 py-14 text-center sm:px-12">
-            <h2 className="judul mx-auto max-w-2xl text-[1.75rem] text-white sm:text-[2.15rem]">
-              Punya usulan, keluhan, atau kabar untuk warga?
-            </h2>
-            <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-brand-200">
-              Sampaikan lewat Ketua RT masing-masing atau hubungi sekretariat {rw.nama}
-              {rwPenuh?.telepon || pengaturan.telepon
-                ? ` di ${rwPenuh?.telepon || pengaturan.telepon}`
-                : ""}
-              . Laporan kas yang sudah disahkan akan langsung tampil di halaman keuangan.
-            </p>
-            <div className="mt-8 flex flex-wrap justify-center gap-3">
-              <Link
-                href={`${dasar}/profil`}
-                className="bg-aksen-400 px-5 py-3 text-sm font-semibold text-brand-950 transition hover:bg-aksen-200"
-              >
-                Lihat pengurus {rw.nama}
-              </Link>
-              <Link
-                href={`${dasar}/keuangan`}
-                className="border border-white/30 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
-              >
-                Telusuri laporan kas
-              </Link>
-            </div>
-          </div>
+      <section className="mx-auto max-w-6xl px-4 pb-6">
+        <div className="max-w-2xl border-l-4 border-aksen-400 pl-6">
+          <h2 className="judul text-[1.5rem] text-brand-900 sm:text-[1.75rem]">
+            Punya usulan, keluhan, atau kabar untuk warga?
+          </h2>
+          <p className="mt-3 text-[15px] leading-relaxed text-tinta/75">
+            Sampaikan lewat Ketua RT masing-masing atau hubungi sekretariat {rw.nama}
+            {rwPenuh?.telepon || pengaturan.telepon
+              ? ` di ${rwPenuh?.telepon || pengaturan.telepon}`
+              : ""}
+            . Nama pengurus ada di{" "}
+            <Link
+              href={`${dasar}/profil`}
+              className="font-semibold text-soga-700 underline underline-offset-4"
+            >
+              halaman profil {rw.nama}
+            </Link>
+            .
+          </p>
         </div>
       </section>
     </>
