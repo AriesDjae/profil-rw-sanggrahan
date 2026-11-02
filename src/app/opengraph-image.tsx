@@ -33,7 +33,7 @@ function Kawung({ ukuran, warna }: { ukuran: number; warna: string }) {
 export default async function GambarBagikan() {
   const [judul, teks] = await Promise.all([
     readFile(join(process.cwd(), "src/fonts/bricolage-grotesque-latin-700-normal.woff")),
-    readFile(join(process.cwd(), "src/fonts/instrument-sans-latin-500-normal.woff")),
+    readFile(join(process.cwd(), "src/fonts/gantari-latin-500-normal.woff")),
   ]);
 
   return new ImageResponse(
@@ -45,9 +45,9 @@ export default async function GambarBagikan() {
           display: "flex",
           position: "relative",
           padding: "72px 80px",
-          backgroundColor: "#133b30",
+          backgroundColor: "#162542",
           color: "#ffffff",
-          fontFamily: "Instrument Sans",
+          fontFamily: "Gantari",
         }}
       >
         <div style={{ position: "absolute", right: -190, top: 55, display: "flex", opacity: 0.2 }}>
@@ -61,7 +61,7 @@ export default async function GambarBagikan() {
               fontSize: 26,
               letterSpacing: 4,
               textTransform: "uppercase",
-              color: "#b9cfc0",
+              color: "#b4c3dc",
             }}
           >
             Portal Warga
@@ -91,12 +91,12 @@ export default async function GambarBagikan() {
             >
               Sanggrahan
             </div>
-            <div style={{ display: "flex", marginTop: 32, fontSize: 32, color: "#dce7df" }}>
+            <div style={{ display: "flex", marginTop: 32, fontSize: 32, color: "#d9e1ee" }}>
               Berita, agenda, data warga, dan laporan kas RW 01, 02, 03
             </div>
           </div>
 
-          <div style={{ display: "flex", fontSize: 26, color: "#b9cfc0" }}>
+          <div style={{ display: "flex", fontSize: 26, color: "#b4c3dc" }}>
             Semaki, Umbulharjo, Kota Yogyakarta
           </div>
         </div>
@@ -106,7 +106,7 @@ export default async function GambarBagikan() {
       ...size,
       fonts: [
         { name: "Bricolage Grotesque", data: judul, weight: 700, style: "normal" },
-        { name: "Instrument Sans", data: teks, weight: 500, style: "normal" },
+        { name: "Gantari", data: teks, weight: 500, style: "normal" },
       ],
     },
   );

@@ -1,6 +1,8 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import { IkonTautanLuar } from "@/components/ui/Ikon";
+import TandaKawung from "@/components/ui/TandaKawung";
 import { UMKM } from "@/lib/tautanLuar";
 
 export default function Footer({
@@ -17,31 +19,36 @@ export default function Footer({
   daftarRw: { nomor: number; nama: string }[];
 }) {
   return (
-    <footer className="mt-24 bidang-hijau text-brand-100 tanpa-cetak">
-      <div className="motif-kawung">
-        <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 md:grid-cols-4">
-          <div className="md:col-span-2">
+    <footer className="mt-24 text-brand-100 tanpa-cetak">
+      {/* Deret atap yang sama warnanya dengan kaki halaman, jadi halaman berakhir di
+          kampung, bukan di garis lurus. */}
+      <Image
+        src="/ilustrasi/siluet-atap.svg"
+        alt=""
+        width={1600}
+        height={70}
+        sizes="100vw"
+        className="-mb-px h-10 w-full object-cover object-bottom sm:h-auto"
+      />
+
+      <div className="bg-brand-900">
+        <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 md:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1fr)]">
+          <div>
             <div className="flex items-center gap-3">
-              <span
-                aria-hidden
-                className="grid h-10 w-10 place-items-center bg-aksen-400 text-[13px] font-bold text-brand-900"
-              >
-                RW
-              </span>
+              <TandaKawung ukuran={36} />
               <span className="judul text-lg text-white">{namaKampung}</span>
             </div>
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-brand-200">
-              Satu papan informasi untuk tiga RW. Tiap RW dikelola pengurusnya
-              sendiri; laporan kas yang tampil di sini sudah diperiksa Ketua RT
-              dan disahkan Ketua RW yang bersangkutan.
+              Satu papan informasi untuk tiga RW. Tiap RW dikelola pengurusnya sendiri, dan
+              laporan kas yang tampil di sini sudah diperiksa Ketua RT lalu disahkan Ketua RW.
             </p>
 
-            <nav aria-label="Laman tiap RW" className="mt-6 flex flex-wrap gap-2">
+            <nav aria-label="Laman tiap RW" className="mt-5 flex flex-wrap gap-x-5 gap-y-2">
               {daftarRw.map((r) => (
                 <Link
                   key={r.nomor}
                   href={`/rw/${r.nomor}`}
-                  className="border border-white/25 px-3 py-2 text-sm font-semibold text-white transition hover:border-aksen-400 hover:bg-white/5"
+                  className="text-sm font-semibold text-white underline underline-offset-4 decoration-aksen-400 hover:text-aksen-200"
                 >
                   {r.nama}
                 </Link>
@@ -54,20 +61,13 @@ export default function Footer({
             */}
             <a
               href={UMKM.url}
-              className="mt-8 inline-flex max-w-sm items-start gap-3 border border-white/25 px-4 py-4 transition hover:border-aksen-400 hover:bg-white/5"
+              className="mt-6 inline-flex max-w-sm items-baseline gap-2 text-sm text-brand-200 transition hover:text-white"
             >
-              <span className="min-w-0">
-                <span className="block text-xs font-semibold tracking-widest text-brand-300 uppercase">
-                  Situs warga lainnya
-                </span>
-                <span className="judul mt-2 block text-base text-white">
-                  {UMKM.nama}
-                </span>
-                <span className="mt-1 block text-sm text-brand-200">
-                  {UMKM.keterangan}
-                </span>
+              <span>
+                Mencari usaha tetangga? Lihat{" "}
+                <span className="font-semibold text-white">{UMKM.nama}</span>
               </span>
-              <IkonTautanLuar ukuran={14} className="mt-1 shrink-0 text-aksen-400" />
+              <IkonTautanLuar ukuran={12} className="shrink-0 text-aksen-400" />
             </a>
           </div>
 
@@ -80,7 +80,8 @@ export default function Footer({
                 { href: "/kegiatan", label: "Agenda kegiatan" },
                 { href: "/keuangan", label: "Laporan keuangan" },
                 { href: "/data-warga", label: "Data warga" },
-                { href: "/galeri", label: "Galeri foto" },
+                { href: "/galeri", label: "Galeri" },
+                { href: "/peta", label: "Peta kampung" },
               ].map((t) => (
                 <li key={t.href}>
                   <Link
@@ -131,13 +132,10 @@ export default function Footer({
         </div>
 
         <div className="border-t border-white/15">
-          <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-5 text-xs text-brand-300 sm:flex-row sm:items-center sm:justify-between">
-            <p>
-              &copy; {new Date().getFullYear()} {namaKampung}. Dikelola pengurus
-              RW 01, RW 02, dan RW 03 bersama warga.
-            </p>
-            <p>Dibangun untuk keterbukaan informasi warga.</p>
-          </div>
+          <p className="mx-auto max-w-6xl px-4 py-5 text-xs text-brand-300">
+            &copy; {new Date().getFullYear()} {namaKampung}. Dikelola pengurus RW 01, RW 02, dan
+            RW 03 bersama warga.
+          </p>
         </div>
       </div>
     </footer>

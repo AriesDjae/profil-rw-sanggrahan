@@ -227,7 +227,33 @@ try {
   cek("Isi halaman menggantikan kerangka muat", (await page.locator("[data-kerangka-muat]").count()) === 0);
   await page.unroute(tahan);
 
-  cek("Tidak ada galat konsol di halaman yang diuji", galatKonsol.length === 0, galatKonsol[0]);
+  // Peta: pustakanya baru dimuat saat terlihat, dan titik usaha tampil sesuai lingkupnya.
+  const pustakaPeta = [];
+  page.on("response", (r) => {
+    if (/leaflet/i.test(r.url())) pustakaPeta.push(r.url());
+  });
+  await page.goto(`${DASAR}/`, { waitUntil: "load" });
+  await page.waitForTimeout(600);
+  cek("Peta beranda belum dimuat sebelum digulir", (await page.locator(".leaflet-container").count()) === 0);
+  await page.locator('main .isolate').first().scrollIntoViewIfNeeded();
+  await page.waitForSelector(".pin-usaha", { state: "attached", timeout: 15000 });
+  cek("Peta beranda muncul setelah digulir", (await page.locator(".leaflet-marker-pane .pin-usaha").count()) === 26);
+
+  await page.goto(`${DASAR}/rw/3/peta`, { waitUntil: "load" });
+  await page.waitForSelector(".leaflet-marker-pane .pin-usaha", { state: "attached", timeout: 15000 });
+  cek("Peta RW 03 hanya memuat titik RW 03", (await page.locator(".leaflet-marker-pane .pin-rw-1").count()) === 0);
+
+  await page.goto(`${DASAR}/rw/2/peta`, { waitUntil: "load" });
+  cek("RW tanpa data usaha tetap punya halaman peta", (await page.locator("text=Belum ada usaha RW 02 di peta").count()) === 1);
+
+  const kebijakan = kepala.headers.get("content-security-policy") ?? "";
+  cek("CSP mengizinkan kepingan OpenStreetMap", kebijakan.includes("https://tile.openstreetmap.org"));
+
+  cek(
+    "Tidak ada galat konsol di halaman yang diuji",
+    galatKonsol.filter((g) => !g.includes("tile.openstreetmap")).length === 0,
+    galatKonsol[0],
+  );
   await ctx.close();
 
   // Sasaran #konten harus ada di setiap kerangka halaman, termasuk panel.

@@ -76,7 +76,6 @@ export default async function IsiKegiatan({
   return (
     <div className="mx-auto max-w-5xl px-4 py-12">
       <JudulBagian
-        kicker="Agenda"
         judul={`Kegiatan ${lingkup.nama}`}
         tingkat="h1"
         keterangan={
@@ -109,12 +108,22 @@ export default async function IsiKegiatan({
         <Kosong
           judul={tampilLampau ? "Belum ada arsip kegiatan" : "Belum ada agenda mendatang"}
           keterangan="Agenda baru akan muncul di sini setelah dijadwalkan pengurus."
+          aksi={
+            !tampilLampau && jumlahLampau > 0 ? (
+              <Link
+                href={`${dasar}?tampil=lampau`}
+                className="text-sm font-semibold text-soga-700 underline underline-offset-4"
+              >
+                Lihat {jumlahLampau} kegiatan yang sudah berlangsung
+              </Link>
+            ) : undefined
+          }
         />
       ) : (
         <div className="space-y-10">
           {[...perBulan.entries()].map(([bulan, daftar]) => (
             <section key={bulan}>
-              <h2 className="mb-4 flex items-center gap-3 text-sm font-bold uppercase tracking-wide text-slate-500">
+              <h2 className="mb-4 flex items-center gap-3 text-sm font-bold text-slate-500">
                 {bulan}
                 <span className="h-px flex-1 bg-slate-200" aria-hidden />
                 <span className="text-xs font-medium normal-case text-slate-400">

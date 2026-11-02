@@ -1,0 +1,236 @@
+[
+ {
+  "nama": "Asli Minimarket",
+  "slug": "asli-minimarket",
+  "rw": 1,
+  "kategori": "Lainnya",
+  "lat": -7.79472,
+  "lng": 110.3855,
+  "perkiraan": true
+ },
+ {
+  "nama": "ASLI Traditional Bakery & Catering",
+  "slug": "asli-traditional-bakery-catering",
+  "rw": 1,
+  "kategori": "Kuliner",
+  "lat": -7.7941,
+  "lng": 110.38543,
+  "perkiraan": true
+ },
+ {
+  "nama": "Barokah Tailor",
+  "slug": "barokah-tailor",
+  "rw": 1,
+  "kategori": "Fashion & Konveksi",
+  "lat": -7.79473,
+  "lng": 110.38481,
+  "perkiraan": true
+ },
+ {
+  "nama": "BKJ Computer",
+  "slug": "bkj-computer",
+  "rw": 1,
+  "kategori": "Jasa",
+  "lat": -7.79475,
+  "lng": 110.38528,
+  "perkiraan": true
+ },
+ {
+  "nama": "Bu Sarmie's Food Stall",
+  "slug": "bu-sarmies-food-stall",
+  "rw": 1,
+  "kategori": "Kuliner",
+  "lat": -7.79435,
+  "lng": 110.3855,
+  "perkiraan": true
+ },
+ {
+  "nama": "Deffan Laundry",
+  "slug": "deffan-laundry",
+  "rw": 1,
+  "kategori": "Jasa",
+  "lat": -7.79439,
+  "lng": 110.38428,
+  "perkiraan": true
+ },
+ {
+  "nama": "Digital Copy Printing",
+  "slug": "digital-copy-printing",
+  "rw": 1,
+  "kategori": "Jasa",
+  "lat": -7.79455,
+  "lng": 110.38543,
+  "perkiraan": true
+ },
+ {
+  "nama": "Mandala 483 Guesthouse",
+  "slug": "mandala-483-guesthouse",
+  "rw": 1,
+  "kategori": "Jasa",
+  "lat": -7.79476,
+  "lng": 110.38491,
+  "perkiraan": true
+ },
+ {
+  "nama": "Pacific Tailor",
+  "slug": "pacific-tailor",
+  "rw": 1,
+  "kategori": "Fashion & Konveksi",
+  "lat": -7.79404,
+  "lng": 110.38365,
+  "perkiraan": true
+ },
+ {
+  "nama": "Pak Hadi's Soto & Rice Meals",
+  "slug": "pak-hadis-soto-rice-meals",
+  "rw": 1,
+  "kategori": "Kuliner",
+  "lat": -7.79388,
+  "lng": 110.38381,
+  "perkiraan": true
+ },
+ {
+  "nama": "Pak Man's Meatball & Chicken Noodle Shop",
+  "slug": "pak-mans-meatball-chicken-noodle-shop",
+  "rw": 1,
+  "kategori": "Kuliner",
+  "lat": -7.79368,
+  "lng": 110.38371,
+  "perkiraan": true
+ },
+ {
+  "nama": "Pak Marwan's Street Food",
+  "slug": "pak-marwans-street-food",
+  "rw": 1,
+  "kategori": "Kuliner",
+  "lat": -7.79374,
+  "lng": 110.38356,
+  "perkiraan": true
+ },
+ {
+  "nama": "Pak Warto's Street Food",
+  "slug": "pak-wartos-street-food",
+  "rw": 1,
+  "kategori": "Kuliner",
+  "lat": -7.79448,
+  "lng": 110.38361,
+  "perkiraan": true
+ },
+ {
+  "nama": "Pinkan's Laundry",
+  "slug": "pinkans-laundry",
+  "rw": 1,
+  "kategori": "Jasa",
+  "lat": -7.79448,
+  "lng": 110.38539,
+  "perkiraan": true
+ },
+ {
+  "nama": "Sanggrahan Traditional Market",
+  "slug": "sanggrahan-traditional-market",
+  "rw": 1,
+  "kategori": "Lainnya",
+  "lat": -7.7939,
+  "lng": 110.38438,
+  "perkiraan": false
+ },
+ {
+  "nama": "Shoes Stain",
+  "slug": "shoes-stain",
+  "rw": 1,
+  "kategori": "Jasa",
+  "lat": -7.7942,
+  "lng": 110.38364,
+  "perkiraan": true
+ },
+ {
+  "nama": "Taman Sejati",
+  "slug": "taman-sejati",
+  "rw": 1,
+  "kategori": "Pertanian & Ternak",
+  "lat": -7.79485,
+  "lng": 110.38513,
+  "perkiraan": true
+ },
+ {
+  "nama": "Tati's Hair Salon",
+  "slug": "tatis-hair-salon",
+  "rw": 1,
+  "kategori": "Jasa",
+  "lat": -7.79488,
+  "lng": 110.38522,
+  "perkiraan": true
+ },
+ {
+  "nama": "Tujutiga Coffee Shop",
+  "slug": "tujutiga-coffee-shop",
+  "rw": 1,
+  "kategori": "Kuliner",
+  "lat": -7.79393,
+  "lng": 110.3837,
+  "perkiraan": true
+ },
+ {
+  "nama": "Bubur Manado",
+  "slug": "bubur-manado",
+  "rw": 3,
+  "kategori": "Kuliner",
+  "lat": -7.7925,
+  "lng": 110.38651,
+  "perkiraan": true
+ },
+ {
+  "nama": "Centelan Laundry",
+  "slug": "centelan-laundry",
+  "rw": 3,
+  "kategori": "Jasa",
+  "lat": -7.79312,
+  "lng": 110.3878,
+  "perkiraan": true
+ },
+ {
+  "nama": "Dapur Catering ASLI",
+  "slug": "dapur-catering-asli",
+  "rw": 3,
+  "kategori": "Kuliner",
+  "lat": -7.79382,
+  "lng": 110.38622,
+  "perkiraan": true
+ },
+ {
+  "nama": "GOLDSTONE Shoes Laundry",
+  "slug": "goldstone-shoes-laundry",
+  "rw": 3,
+  "kategori": "Jasa",
+  "lat": -7.79367,
+  "lng": 110.38774,
+  "perkiraan": true
+ },
+ {
+  "nama": "Pawon Tyandaru",
+  "slug": "pawon-tyandaru",
+  "rw": 3,
+  "kategori": "Kuliner",
+  "lat": -7.79448,
+  "lng": 110.38753,
+  "perkiraan": true
+ },
+ {
+  "nama": "Warung Lotek Gado-Gado Bu Nur",
+  "slug": "warung-lotek-gado-gado-bu-nur",
+  "rw": 3,
+  "kategori": "Kuliner",
+  "lat": -7.79234,
+  "lng": 110.38667,
+  "perkiraan": true
+ },
+ {
+  "nama": "Warung Sayur Centel",
+  "slug": "warung-sayur-centel",
+  "rw": 3,
+  "kategori": "Pertanian & Ternak",
+  "lat": -7.79225,
+  "lng": 110.38824,
+  "perkiraan": true
+ }
+]

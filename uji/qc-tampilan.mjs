@@ -28,6 +28,7 @@ const HALAMAN_PUBLIK = [
   ["data-warga-rt", "/data-warga?rt=3"],
   ["galeri", "/galeri"],
   ["galeri-album", "/galeri/kerja-bakti-saluran-air-rw-01"],
+  ["peta", "/peta"],
   ["masuk", "/masuk"],
 
   // Ketiga laman RW diperiksa satu per satu. RW 02 dan RW 03 punya isi yang
@@ -41,6 +42,7 @@ const HALAMAN_PUBLIK = [
   ["rw2-beranda", "/rw/2"],
   ["rw2-kegiatan", "/rw/2/kegiatan"],
   ["rw2-galeri", "/rw/2/galeri"],
+  ["rw2-peta", "/rw/2/peta"],
   ["rw3-beranda", "/rw/3"],
   ["rw3-keuangan", "/rw/3/keuangan"],
   ["rw3-profil", "/rw/3/profil"],
@@ -70,12 +72,15 @@ async function periksa(page, nama, ukuran, jalur) {
   const gagalMuat = [];
 
   const onConsole = (m) => {
-    if (m.type() === "error") galatKonsol.push(m.text());
+    if (m.type() === "error" && !m.location().url?.includes("tile.openstreetmap.org")) {
+      galatKonsol.push(m.text());
+    }
   };
   // Prefetch Next.js (_rsc) yang dibatalkan saat pengguna berpindah halaman
   // adalah perilaku normal, bukan kegagalan yang perlu dilaporkan.
+  // Kepingan peta datang dari server OpenStreetMap; gangguan di sana bukan cacat situs.
   const abaikanPermintaan = (url, galat = "") =>
-    url.includes("_rsc=") || galat.includes("ERR_ABORTED");
+    url.includes("_rsc=") || url.includes("tile.openstreetmap.org") || galat.includes("ERR_ABORTED");
   const onFailed = (r) => {
     const galat = r.failure()?.errorText ?? "";
     if (abaikanPermintaan(r.url(), galat)) return;
@@ -120,7 +125,7 @@ async function periksa(page, nama, ukuran, jalur) {
 
   // Gambar rusak atau tanpa alt
   const gambar = await page.evaluate(() =>
-    [...document.images].map((g) => ({
+    [...document.images].filter((g) => !g.classList.contains("leaflet-tile")).map((g) => ({
       src: g.currentSrc || g.src,
       rusak: g.complete && g.naturalWidth === 0,
       tanpaAlt: g.getAttribute("alt") === null,

@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { IkonPanahKiri } from "@/components/ui/Ikon";
+import TandaKawung from "@/components/ui/TandaKawung";
 import { ambilPengaturan } from "@/lib/pengaturan";
 import { penggunaSaatIni } from "@/lib/sesi";
 
@@ -30,44 +32,27 @@ export default async function HalamanMasuk({
 
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
-      <div className="relative hidden bidang-hijau p-12 text-white lg:flex lg:flex-col lg:justify-between">
-        <div className="absolute inset-0 motif-kawung" aria-hidden />
-        <Link href="/" className="relative flex items-center gap-3">
-          <span className="grid h-11 w-11 place-items-center rounded-xl bg-white/15 text-sm font-extrabold backdrop-blur">
-            RW
-          </span>
-          <span className="font-bold">{pengaturan.namaKampung}</span>
-        </Link>
-
-        <div className="relative max-w-md">
-          <h2 className="text-3xl font-extrabold leading-tight">
+      <div className="relative hidden flex-col justify-between overflow-hidden bg-langit lg:flex">
+        <div className="p-12">
+          <Link href="/" className="flex items-center gap-3">
+            <TandaKawung />
+            <span className="judul text-lg text-brand-900">{pengaturan.namaKampung}</span>
+          </Link>
+          <h2 className="judul mt-14 max-w-md text-[2.4rem] leading-[1.05] text-brand-900">
             Panel pengelolaan informasi warga
           </h2>
-          <p className="mt-4 leading-relaxed text-brand-100">
-            Kelola berita, agenda kegiatan, data kependudukan, dan laporan kas RT.
-            Setiap laporan keuangan melewati verifikasi Ketua RT sebelum disetujui
-            Ketua RW dan tampil untuk warga.
+          <p className="mt-4 max-w-md text-[17px] leading-relaxed text-brand-900/80">
+            Laporan kas disusun bendahara, diverifikasi Ketua RT, lalu disetujui Ketua RW sebelum
+            tampil untuk warga.
           </p>
-          <ul className="mt-8 space-y-3 text-sm text-brand-100">
-            {[
-              "Bendahara RT mencatat pemasukan dan pengeluaran kas",
-              "Ketua RT memverifikasi atau mengembalikan untuk revisi",
-              "Ketua RW memberi persetujuan akhir untuk publikasi",
-            ].map((t) => (
-              <li key={t} className="flex items-start gap-3">
-                <span className="mt-1 grid h-4 w-4 shrink-0 place-items-center rounded-full bg-white/20 text-[9px]">
-                  ✓
-                </span>
-                {t}
-              </li>
-            ))}
-          </ul>
         </div>
-
-        <p className="relative text-xs text-brand-200">
-          Halaman ini khusus pengurus. Warga dapat mengakses seluruh informasi publik
-          tanpa perlu masuk.
-        </p>
+        <Image
+          src={pengaturan.heroFoto || "/ilustrasi/panorama-kampung.svg"}
+          alt=""
+          width={1600}
+          height={440}
+          className="h-72 w-full object-cover object-[62%_100%]"
+        />
       </div>
 
       <main id="konten" tabIndex={-1} className="flex items-center justify-center px-4 py-16">

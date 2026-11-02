@@ -50,7 +50,7 @@ export default function TabelTransaksi({
       ) : (
         <div className="overflow-x-auto gulir-halus">
           <table className="w-full min-w-[36rem] text-left text-sm">
-            <thead className="text-xs uppercase tracking-wide text-slate-500">
+            <thead className="text-xs text-slate-500">
               <tr>
                 <th className="px-5 py-2.5 font-semibold">Tanggal</th>
                 <th className="px-5 py-2.5 font-semibold">Kategori</th>

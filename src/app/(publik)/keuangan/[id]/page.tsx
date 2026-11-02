@@ -140,7 +140,7 @@ export default async function DetailLaporan({
                 : "border-garis bg-white"
             }`}
           >
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <p className="text-xs font-semibold text-slate-500">
               {s.label}
             </p>
             <p className={`mt-2 text-xl font-bold tabular-nums ${s.warna}`}>{rupiah(s.nilai)}</p>
@@ -166,14 +166,14 @@ export default async function DetailLaporan({
 
       <section className="mt-10 grid gap-6 lg:grid-cols-[1.2fr_1fr]">
         <div className="rounded-2xl border border-garis bg-white p-6">
-          <h2 className="mb-5 text-sm font-bold uppercase tracking-wide text-slate-500">
+          <h2 className="mb-5 text-sm font-bold text-slate-500">
             Jejak Persetujuan
           </h2>
           <JejakPersetujuan jejak={laporan.riwayat} />
         </div>
 
         <div className="rounded-2xl border border-garis bg-white p-6">
-          <h2 className="mb-5 text-sm font-bold uppercase tracking-wide text-slate-500">
+          <h2 className="mb-5 text-sm font-bold text-slate-500">
             Pengesahan
           </h2>
           <dl className="space-y-5 text-sm">

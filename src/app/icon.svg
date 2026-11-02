@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Kampung Sanggrahan">
-  <rect width="64" height="64" rx="14" fill="#133b30"/>
+  <rect width="64" height="64" rx="14" fill="#162542"/>
   <g fill="#f3d68c">
     <ellipse cx="32" cy="17.5" rx="8" ry="13.5" transform="rotate(45 32 32)"/>
     <ellipse cx="32" cy="17.5" rx="8" ry="13.5" transform="rotate(135 32 32)"/>

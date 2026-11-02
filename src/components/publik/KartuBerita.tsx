@@ -36,7 +36,7 @@ export default function KartuBerita({
     <article
       className={`group relative ${utama ? "grid gap-6 sm:grid-cols-2 sm:items-center" : ""}`}
     >
-      <div className="overflow-hidden bg-brand-100">
+      <div className="potongan overflow-hidden bg-brand-100">
         <div className={utama ? "aspect-[4/3]" : "aspect-[16/10]"}>
           {berita.gambar ? (
             <Image
@@ -52,14 +52,14 @@ export default function KartuBerita({
               className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
             />
           ) : (
-            <div className="h-full w-full bg-brand-600" />
+            <div className="h-full w-full bg-soga-200" />
           )}
         </div>
       </div>
 
       <div className={utama ? "" : "pt-4"}>
         <p className="text-[13px] text-tinta/55">
-          {tampilkanRw ? `${berita.rw?.nama ?? "Se-kampung"} · ` : ""}
+          {tampilkanRw ? `${berita.rw?.nama ?? "Se-kampung"}, ` : ""}
           {berita.kategori}, {tanggal(berita.terbitAt)}
         </p>
 

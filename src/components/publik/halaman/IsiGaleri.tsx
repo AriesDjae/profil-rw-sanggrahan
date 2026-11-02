@@ -24,7 +24,6 @@ export default async function IsiGaleri({ lingkup }: { lingkup: Lingkup }) {
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
       <JudulBagian
-        kicker="Dokumentasi"
         judul={`Galeri Kegiatan ${lingkup.nama}`}
         tingkat="h1"
         keterangan={
@@ -45,9 +44,9 @@ export default async function IsiGaleri({ lingkup }: { lingkup: Lingkup }) {
             <Link
               key={a.id}
               href={`/galeri/${a.slug}`}
-              className="group overflow-hidden rounded-2xl border border-garis bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+              className="group block"
             >
-              <div className="grid aspect-[4/3] grid-cols-2 gap-0.5 bg-slate-100">
+              <div className="potongan grid aspect-[4/3] grid-cols-2 gap-1 bg-soga-100">
                 {a.foto.slice(0, 4).map((f, i) => (
                   <Image
                     key={f.id}
@@ -62,13 +61,13 @@ export default async function IsiGaleri({ lingkup }: { lingkup: Lingkup }) {
                   />
                 ))}
               </div>
-              <div className="p-5">
-                <h2 className="font-bold text-slate-900 transition group-hover:text-brand-700">
+              <div className="pt-3">
+                <h2 className="judul text-[1.1rem] text-brand-900 group-hover:underline underline-offset-4">
                   {a.nama}
                 </h2>
                 <p className="mt-1 text-xs text-slate-500">
-                  {!lingkup.rw ? `${a.rw?.nama ?? "Se-kampung"} · ` : ""}
-                  {tanggal(a.tanggal)} · {a._count.foto} foto
+                  {!lingkup.rw ? `${a.rw?.nama ?? "Se-kampung"}, ` : ""}
+                  {tanggal(a.tanggal)}, {a._count.foto} gambar
                 </p>
                 {a.deskripsi && (
                   <p className="mt-2 line-clamp-2 text-sm text-slate-600">{a.deskripsi}</p>

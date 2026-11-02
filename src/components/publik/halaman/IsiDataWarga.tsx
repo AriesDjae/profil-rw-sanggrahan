@@ -47,7 +47,6 @@ export default async function IsiDataWarga({
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
       <JudulBagian
-        kicker="Kependudukan"
         judul={`Data Warga ${rtTerpilih ? `${rtTerpilih.nama}` : lingkup.nama}`}
         tingkat="h1"
         keterangan="Seluruh angka pada halaman ini merupakan data agregat. Identitas pribadi warga (nama, NIK, alamat) hanya dapat diakses pengurus melalui panel administrasi."
