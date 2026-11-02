@@ -58,6 +58,11 @@ const nextConfig: NextConfig = {
             key: "Strict-Transport-Security",
             value: "max-age=31536000; includeSubDomains",
           },
+          // robots.txt hanya mencegah perayapan; tajuk ini yang mencegah
+          // halaman situs demo masuk indeks lewat tautan dari luar.
+          ...(process.env.MODE_DEMO === "nyala"
+            ? [{ key: "X-Robots-Tag", value: "noindex, nofollow" }]
+            : []),
         ],
       },
     ];
