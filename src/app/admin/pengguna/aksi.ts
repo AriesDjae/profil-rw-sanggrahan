@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
 
 import { db } from "@/lib/db";
+import { PESAN_AKUN_DEMO, akunDemoTerkunci } from "@/lib/demo";
 import { nilaiForm, type HasilAksi } from "@/lib/formulir";
 import {
   PERAN,
@@ -99,6 +100,7 @@ export async function simpanPengguna(_prev: Hasil, formData: FormData): Promise<
   if (id) {
     const target = await ambilTarget(id);
     if (!target) return { galat: "Akun tidak ditemukan.", nilai };
+    if (akunDemoTerkunci(target.email)) return { galat: PESAN_AKUN_DEMO, nilai };
     if (!bolehSentuhAkun(pengelola, target, target.rt?.rwId ?? null)) {
       return { galat: "Akun tersebut berada di luar kewenangan Anda.", nilai };
     }
@@ -156,6 +158,9 @@ export async function alihkanAktifPengguna(formData: FormData) {
 
   const u = await ambilTarget(id);
   if (!u) return;
+  if (akunDemoTerkunci(u.email)) {
+    redirect(`/admin/pengguna?galat=${encodeURIComponent(PESAN_AKUN_DEMO)}`);
+  }
   if (!bolehSentuhAkun(pengelola, u, u.rt?.rwId ?? null)) {
     redirect("/admin/pengguna?galat=Akun tersebut berada di luar kewenangan Anda.");
   }
@@ -182,6 +187,10 @@ export async function hapusPengguna(formData: FormData) {
 
   const target = await ambilTarget(id);
   if (!target) return;
+
+  if (akunDemoTerkunci(target.email)) {
+    redirect(`/admin/pengguna?galat=${encodeURIComponent(PESAN_AKUN_DEMO)}`);
+  }
 
   if (!bolehSentuhAkun(pengelola, target, target.rt?.rwId ?? null)) {
     redirect("/admin/pengguna?galat=Akun tersebut berada di luar kewenangan Anda.");

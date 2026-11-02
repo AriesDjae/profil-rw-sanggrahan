@@ -1,0 +1,55 @@
+name: Reset demo
+
+# Mengembalikan basis data situs demo ke isi seed. Situs demo membuka panel
+# pengurus bagi siapa saja, jadi isinya dipulihkan berkala.
+# Jadwal ini harus sama dengan JAM_RESET_DEMO di src/lib/demo.ts.
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: reset-demo
+  cancel-in-progress: false
+
+jobs:
+  reset:
+    # Salinan repositori tidak punya rahasianya; jangan jalan di sana.
+    if: github.repository == 'AriesDjae/profil-rw-sanggrahan'
+    runs-on: ubuntu-latest
+
+    env:
+      DATABASE_URL: ${{ secrets.DEMO_DATABASE_URL }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      # Seed mengosongkan seluruh tabel sebelum mengisinya ulang. Salah tempel
+      # alamat basis data utama di rahasia ini akan menghapus situs utama.
+      - name: Pastikan sasarannya basis data demo
+        run: |
+          case "$DATABASE_URL" in
+            */rw_demo\?*|*/rw_demo) echo "Sasaran: basis data rw_demo" ;;
+            *) echo "DEMO_DATABASE_URL tidak menunjuk basis data rw_demo. Reset dibatalkan."; exit 1 ;;
+          esac
+
+      - run: npm ci
+
+      - name: Terapkan migrasi dan isi ulang data contoh
+        run: |
+          npx prisma migrate deploy
+          npm run db:seed
+
+      - name: Segarkan cache halaman situs demo
+        env:
+          URL_DEMO: ${{ vars.URL_DEMO }}
+          RAHASIA: ${{ secrets.RAHASIA_SEGARKAN_DEMO }}
+        run: |
+          curl --fail --silent --show-error --retry 3 -X POST \
+            -H "Authorization: Bearer $RAHASIA" \
+            "$URL_DEMO/api/demo/segarkan"

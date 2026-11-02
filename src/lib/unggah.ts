@@ -4,6 +4,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { randomBytes } from "node:crypto";
 
+import { PESAN_UNGGAH_DEMO, modeDemo } from "./demo";
 import { DAPAT_DIKECILKAN, optimasiGambar } from "./gambar";
 
 const TIPE_DIIZINKAN = new Set([
@@ -63,6 +64,10 @@ export async function simpanBerkas(
   folder: string,
 ): Promise<string | null> {
   if (!berkas || typeof berkas === "string" || berkas.size === 0) return null;
+
+  // Situs demo terbuka bagi siapa saja; menerima berkas berarti menjadi
+  // tempat titip gambar sembarang orang atas nama kampung.
+  if (modeDemo()) throw new Error(PESAN_UNGGAH_DEMO);
 
   let ekstensi = periksa(berkas);
   let tipe = berkas.type;

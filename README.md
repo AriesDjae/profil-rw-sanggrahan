@@ -7,7 +7,8 @@ dalam satu situs.** Berita, agenda kegiatan, data kependudukan, galeri, dan
 laporan keuangan kas RT dengan alur persetujuan berjenjang
 **Bendahara RT → Ketua RT → Ketua RW**.
 
-[**Lihat situsnya →**](https://profil-rw-sanggrahan.vercel.app)
+[**Lihat situsnya →**](https://profil-rw-sanggrahan.vercel.app) ·
+[**Coba panel pengurus tanpa kata sandi →**](https://profil-rw-sanggrahan-demo.vercel.app/masuk)
 
 ![Next.js](https://img.shields.io/badge/Next.js-16-000000?logo=nextdotjs&logoColor=white)
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
@@ -140,7 +141,8 @@ berita, kegiatan, pengumuman, dan album galeri.
 ## Akun demo
 
 Seluruh akun hasil `npm run db:seed` memakai kata sandi **`sanggrahan123`**. Sandi
-ini hanya untuk basis data lokal dan tidak berlaku di situs demo. Sebelum dipakai
+ini berlaku di basis data lokal dan di [situs demo panel pengurus](#situs-demo-panel-pengurus),
+tetapi tidak di situs utama. Sebelum dipakai
 sungguhan, ganti semua akun sekaligus dengan `npm run akun:ganti-sandi` (keterangan
 ada di awal `prisma/ganti-sandi.ts`).
 
@@ -463,6 +465,46 @@ Langkah deploy:
 Migrasi skema **tidak** dijalankan saat build Vercel. Setelah mengubah
 `schema.prisma`, jalankan `npm run db:deploy` dari komputer sambil diarahkan ke
 basis data produksi, **sebelum** kode barunya di-deploy.
+
+### Situs demo panel pengurus
+
+Panel pengurus bisa dicoba tanpa kata sandi di
+**[profil-rw-sanggrahan-demo.vercel.app/masuk](https://profil-rw-sanggrahan-demo.vercel.app/masuk)**.
+Situs ini terpisah dari situs utama:
+
+| | Situs utama | Situs demo |
+| --- | --- | --- |
+| Proyek Vercel | `profil-rw-sanggrahan` | `profil-rw-sanggrahan-demo` |
+| Basis data Neon | `neondb` | `rw_demo` |
+| Masuk panel | surel + kata sandi | tombol satu klik per peran, atau `sanggrahan123` |
+| Unggahan berkas | Vercel Blob | dimatikan |
+| Mesin pencari | diindeks | `robots.txt` menutup semua, tajuk `X-Robots-Tag: noindex` |
+
+Kodenya sama; perbedaannya hanya variabel lingkungan (lihat `src/lib/demo.ts`):
+
+- `MODE_DEMO=nyala` **hanya** di proyek demo. Mode ini membuka panel tanpa kata
+  sandi, jadi jangan pernah dipasang di situs utama.
+- `RAHASIA_SEGARKAN_DEMO` (minimal 32 karakter) di proyek demo, untuk titik
+  `POST /api/demo/segarkan` yang mengosongkan cache halaman setelah reset.
+- `NEXT_PUBLIC_URL_DEMO` di situs utama, agar pita "Situs demo" menautkan ke
+  situs demo.
+
+Di situs demo, akun yang dipakai tombol masuk tidak bisa diubah, dinonaktifkan,
+atau dihapus, supaya pengunjung berikutnya tetap bisa masuk. Selebihnya bebas:
+pengunjung boleh membuat, menyunting, dan menghapus apa pun, termasuk menjalankan
+alur kas dari Bendahara RT sampai Ketua RW.
+
+**Reset.** `.github/workflows/reset-demo.yml` mengembalikan `rw_demo` ke isi seed
+tiap 6 jam (dan bisa dijalankan manual dari tab Actions), lalu memanggil titik
+segarkan. Workflow menolak berjalan bila `DEMO_DATABASE_URL` tidak menunjuk
+basis data `rw_demo`, karena seed mengosongkan seluruh tabel. Yang dibutuhkan
+di repositori GitHub:
+
+- rahasia `DEMO_DATABASE_URL` dan `RAHASIA_SEGARKAN_DEMO`;
+- variabel `URL_DEMO` berisi alamat situs demo.
+
+GitHub menghentikan jadwal workflow di repositori yang 60 hari tanpa commit;
+aktifkan kembali dari tab Actions bila itu terjadi.
 
 ### Pemasangan sendiri (VPS)
 

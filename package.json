@@ -26,6 +26,7 @@
     "uji:api": "node uji/api.mjs",
     "uji:integritas": "tsx uji/integritas.mts",
     "uji:masuk": "node uji/keamanan-masuk.mjs",
+    "uji:demo": "node uji/demo.mjs",
     "uji:seo": "node uji/seo-aksesibilitas.mjs",
     "akun:ganti-sandi": "tsx prisma/ganti-sandi.ts"
   },
