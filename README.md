@@ -91,6 +91,10 @@ RW yang sama dengan penggunanya.
 > pun, sehingga seed memberi keduanya tiga RT mengikuti pola RW 01 — itu **dugaan
 > yang perlu dicocokkan ke pengurus**, bukan data resmi. Perbaiki dari
 > `/admin/pengaturan`; tidak perlu mengubah kode.
+>
+> Halaman publik menampilkan pita **"Situs demo"** agar pengunjung tidak mengira
+> data contoh itu data warga sungguhan. Setelah situs memakai data asli, matikan
+> pita dengan `LABEL_DATA_CONTOH=mati` lalu bangun ulang.
 
 ---
 

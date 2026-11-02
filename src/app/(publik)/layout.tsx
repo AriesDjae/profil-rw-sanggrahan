@@ -1,5 +1,6 @@
 import Footer from "@/components/publik/Footer";
 import Header from "@/components/publik/Header";
+import LabelDataContoh from "@/components/publik/LabelDataContoh";
 import { ambilPengaturan } from "@/lib/pengaturan";
 import { daftarRw } from "@/lib/rw";
 
@@ -20,6 +21,7 @@ export default async function LayoutPublik({
 
   return (
     <div className="flex min-h-screen flex-col">
+      <LabelDataContoh />
       <Header
         namaKampung={pengaturan.namaKampung}
         tagline={pengaturan.tagline}
