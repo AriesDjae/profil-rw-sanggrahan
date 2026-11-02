@@ -8,6 +8,7 @@ import bcrypt from "bcryptjs";
 import { z } from "zod";
 
 import { db } from "@/lib/db";
+import { AKUN_DEMO, modeDemo } from "@/lib/demo";
 import type { Peran } from "@/lib/konstanta";
 import {
   LAMA_KUNCI_MENIT,
@@ -98,6 +99,35 @@ export async function masuk(
   });
 
   redirect(tujuanAman(next));
+}
+
+/**
+ * Masuk satu klik ke salah satu akun demo. Hanya berlaku di situs demo; di
+ * situs utama aksi ini tidak melakukan apa-apa selain kembali ke /masuk,
+ * sekalipun dipanggil langsung tanpa tombolnya.
+ */
+export async function masukDemo(formData: FormData) {
+  if (!modeDemo()) redirect("/masuk");
+
+  const akun = AKUN_DEMO.find((a) => a.kunci === formData.get("akun"));
+  if (!akun) redirect("/masuk");
+
+  const pengguna = await db.user.findUnique({
+    where: { email: akun.email },
+    include: { rt: { select: { rwId: true } } },
+  });
+  // Akun bisa sesaat tidak ada ketika basis data demo sedang di-reset.
+  if (!pengguna || !pengguna.aktif) redirect("/masuk?galat=demo");
+
+  await buatSesi({
+    uid: pengguna.id,
+    peran: pengguna.peran as Peran,
+    rwId: pengguna.rt ? pengguna.rt.rwId : pengguna.rwId,
+    rtId: pengguna.rtId,
+    nama: pengguna.nama,
+  });
+
+  redirect("/admin");
 }
 
 export async function keluar() {

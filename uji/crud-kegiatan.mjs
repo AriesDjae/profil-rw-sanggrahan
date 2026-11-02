@@ -29,7 +29,7 @@ async function masuk(browser, email) {
   await page.goto(`${DASAR}/masuk`);
   await page.fill("#email", email);
   await page.fill("#kataSandi", SANDI);
-  await page.click('button[type="submit"]');
+  await page.click('form:has(#kataSandi) button[type="submit"]');
   await page.waitForURL(/\/admin/, { timeout: 20000 });
   return { ctx, page };
 }

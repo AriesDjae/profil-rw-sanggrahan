@@ -237,7 +237,7 @@ try {
   cek("Halaman masuk punya sasaran lewati", (await panel.locator("main#konten").count()) === 1);
   await panel.fill("#email", "admin@sanggrahan.id");
   await panel.fill("#kataSandi", SANDI);
-  await panel.click('button[type="submit"]');
+  await panel.click('form:has(#kataSandi) button[type="submit"]');
   await panel.waitForURL(/\/admin/, { timeout: 20000 });
   cek("Panel punya sasaran lewati", (await panel.locator("main#konten").count()) === 1);
   await panel.goto(`${DASAR}/halaman-ngawur`);

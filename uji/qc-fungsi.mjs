@@ -42,7 +42,7 @@ async function masuk(browser, email) {
   await page.goto(`${DASAR}/masuk`);
   await page.fill("#email", email);
   await page.fill("#kataSandi", SANDI);
-  await page.click('button[type="submit"]');
+  await page.click('form:has(#kataSandi) button[type="submit"]');
   await page.waitForURL(/\/admin/, { timeout: 20000 });
   return { ctx, page };
 }
@@ -375,7 +375,7 @@ try {
   await pNonaktif.goto(`${DASAR}/masuk`);
   await pNonaktif.fill("#email", emailBaru);
   await pNonaktif.fill("#kataSandi", SANDI);
-  await pNonaktif.click('button[type="submit"]');
+  await pNonaktif.click('form:has(#kataSandi) button[type="submit"]');
   await pNonaktif.waitForSelector('p[role="alert"]', { timeout: 15000 });
   cek(
     "akun nonaktif ditolak saat masuk",
@@ -386,7 +386,7 @@ try {
   await pNonaktif.goto(`${DASAR}/masuk`);
   await pNonaktif.fill("#email", "admin@sanggrahan.id");
   await pNonaktif.fill("#kataSandi", "salah-sekali");
-  await pNonaktif.click('button[type="submit"]');
+  await pNonaktif.click('form:has(#kataSandi) button[type="submit"]');
   await pNonaktif.waitForSelector('p[role="alert"]', { timeout: 15000 });
   cek(
     "kata sandi salah ditolak",

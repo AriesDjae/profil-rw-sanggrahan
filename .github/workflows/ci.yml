@@ -54,3 +54,18 @@ jobs:
           npx next start -p 3311 &
           npx wait-on --timeout 60000 http://localhost:3311/masuk
           npm run uji
+
+      # Situs demo memakai kode yang sama dengan MODE_DEMO=nyala. robots.txt dan
+      # tajuk noindex ditetapkan saat build, jadi build ulang dengan mode itu dan
+      # mulai dari data seed yang bersih, seperti sesudah reset terjadwal.
+      - name: Uji situs demo
+        env:
+          MODE_DEMO: nyala
+          RAHASIA_SEGARKAN_DEMO: rahasia-segarkan-khusus-ci-minimal-32-karakter
+        run: |
+          pkill -f "next start" || true
+          npm run db:seed
+          npm run build
+          npx next start -p 3312 &
+          npx wait-on --timeout 60000 http://localhost:3312/masuk
+          DASAR=http://localhost:3312 npm run uji:demo

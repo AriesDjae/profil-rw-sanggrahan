@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import Sidebar, { type ItemMenu } from "@/components/admin/Sidebar";
 import { db } from "@/lib/db";
+import { JAM_RESET_DEMO, modeDemo } from "@/lib/demo";
 import { LABEL_PERAN, PERAN, STATUS_LAPORAN } from "@/lib/konstanta";
 import { lingkupRw, wajibMasuk } from "@/lib/otorisasi";
 import { labelRt } from "@/lib/rw";
@@ -107,6 +108,25 @@ export default async function LayoutAdmin({
       />
 
       <div className="min-w-0 flex-1">
+        {modeDemo() && (
+          <aside
+            aria-label="Catatan mode demo"
+            className="border-b border-aksen-200 bg-aksen-50 px-5 py-2 text-sm text-aksen-800 sm:px-8"
+          >
+            <strong className="font-semibold">Mode demo.</strong> Perubahan Anda terlihat oleh
+            pengunjung lain dan dihapus saat reset tiap {JAM_RESET_DEMO} jam. Unggahan berkas
+            dimatikan.{" "}
+            {/* /masuk mengalihkan pengguna yang masih masuk, jadi keluar dulu. */}
+            <form action={keluar} className="inline">
+              <button
+                type="submit"
+                className="font-semibold underline decoration-aksen-400 underline-offset-2"
+              >
+                Ganti peran
+              </button>
+            </form>
+          </aside>
+        )}
         <header className="hidden items-center justify-between border-b border-slate-200 bg-white px-8 py-4 lg:flex">
           <div>
             <p className="text-sm font-semibold text-slate-900">

@@ -16,7 +16,7 @@ const browser = await bukaPeramban();
 async function cobaMasuk(page, email, sandi) {
   await page.fill("#email", email);
   await page.fill("#kataSandi", sandi);
-  await page.click('button[type="submit"]');
+  await page.click('form:has(#kataSandi) button[type="submit"]');
 }
 
 try {
@@ -65,6 +65,14 @@ try {
   cek("Header X-Frame-Options terpasang", r.headers.get("x-frame-options") === "DENY");
   cek("Header nosniff terpasang", r.headers.get("x-content-type-options") === "nosniff");
   cek("Header CSP terpasang", (r.headers.get("content-security-policy") ?? "").includes("default-src"));
+
+  // ---------- Mode demo tertutup di situs utama ----------
+  // Server uji ini berjalan tanpa MODE_DEMO, sama seperti situs utama.
+  const htmlMasuk = await r.text();
+  cek("Tidak ada tombol masuk demo", !htmlMasuk.includes("Coba tanpa kata sandi"));
+  cek("Tidak ada tajuk noindex untuk seluruh situs", !r.headers.get("x-robots-tag"));
+  const segarkan = await fetch(`${DASAR}/api/demo/segarkan`, { method: "POST" });
+  cek("Titik segarkan demo tidak ada", segarkan.status === 404, `status ${segarkan.status}`);
 } finally {
   await browser.close();
 }
