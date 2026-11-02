@@ -13,7 +13,7 @@ const KEBIJAKAN_KONTEN = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline'${pengembangan ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https://*.public.blob.vercel-storage.com",
+  "img-src 'self' data: blob: https://*.public.blob.vercel-storage.com https://tile.openstreetmap.org",
   "font-src 'self'",
   "object-src 'none'",
   "base-uri 'self'",

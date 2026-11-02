@@ -16,9 +16,8 @@ export type KegiatanKartu = {
 };
 
 /**
- * Satu baris agenda, disusun seperti jadwal ronda: tanggal di kolom kiri,
- * keterangan di kanan, dipisahkan garis. Kegiatan dalam sepekan ditandai
- * kunyit agar langsung terlihat.
+ * Satu baris agenda: tanggal di kolom kiri, keterangan di kanan, dipisahkan
+ * garis. Kegiatan dalam sepekan ditandai agar langsung terlihat.
  */
 export default function KartuKegiatan({
   kegiatan,
@@ -34,18 +33,13 @@ export default function KartuKegiatan({
 
   return (
     <article className="group flex min-w-0 gap-5 border-t border-garis py-5 first:border-t-0">
-      <div
-        className={`w-14 shrink-0 border-l-[3px] pl-3 ${
-          segera ? "border-aksen-400" : "border-garis"
-        }`}
-      >
-        <p className="judul text-[1.35rem] leading-none text-brand-900">
-          {mulai.getDate()}
-        </p>
-        <p className="mt-1 text-[11px] font-semibold text-tinta/60">
+      {/* Tanggal seperti kalender sobek di dinding; merah bila tinggal sepekan lagi. */}
+      <div className="w-14 shrink-0 overflow-hidden rounded-md border border-garis bg-white text-center">
+        <p className={`py-0.5 text-[11px] font-semibold text-white ${segera ? "bg-merah" : "bg-brand-700"}`}>
           {NAMA_BULAN[mulai.getMonth()].slice(0, 3)}
         </p>
-        <p className="text-[11px] text-tinta/40">{mulai.getFullYear()}</p>
+        <p className="judul pt-1.5 text-[1.45rem] leading-none text-brand-900">{mulai.getDate()}</p>
+        <p className="pt-0.5 pb-1 text-[11px] text-tinta/60">{mulai.getFullYear()}</p>
       </div>
 
       <div className="min-w-0 flex-1">

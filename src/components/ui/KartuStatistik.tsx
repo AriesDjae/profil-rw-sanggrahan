@@ -29,7 +29,7 @@ export default function KartuStatistik({
   return (
     <div className={`rounded-2xl border p-5 shadow-sm ${gaya[nada]}`}>
       <div className="flex items-start justify-between gap-3">
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</p>
+        <p className="text-xs font-semibold text-slate-500">{label}</p>
         {ikon && <span className="text-slate-400">{ikon}</span>}
       </div>
       <p className={`mt-3 text-2xl font-bold tabular-nums tracking-tight ${warnaNilai[nada]}`}>

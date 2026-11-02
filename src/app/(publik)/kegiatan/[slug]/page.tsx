@@ -154,7 +154,7 @@ export default async function DetailKegiatan({
           <dl className="mt-6 grid gap-4 rounded-2xl bg-kertas p-5 sm:grid-cols-2">
             {rincian.map((r) => (
               <div key={r.label}>
-                <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                <dt className="text-xs font-semibold text-slate-500">
                   {r.label}
                 </dt>
                 <dd className="mt-1 text-sm font-medium text-slate-900">{r.nilai}</dd>
@@ -163,7 +163,7 @@ export default async function DetailKegiatan({
           </dl>
 
           <div className="mt-8">
-            <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-slate-500">
+            <h2 className="mb-3 text-sm font-bold text-slate-500">
               Keterangan
             </h2>
             <Paragraf teks={kegiatan.deskripsi} />

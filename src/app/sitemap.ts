@@ -9,7 +9,7 @@ import { URL_SITUS } from "@/lib/situs";
 // tidak membacanya lebih sering dari itu.
 export const revalidate = 3600;
 
-const HALAMAN = ["", "/profil", "/berita", "/kegiatan", "/keuangan", "/data-warga", "/galeri"];
+const HALAMAN = ["", "/profil", "/berita", "/kegiatan", "/keuangan", "/data-warga", "/galeri", "/peta"];
 
 /** Hanya isi yang memang terbuka untuk warga. Draf dan laporan berproses tidak ikut. */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

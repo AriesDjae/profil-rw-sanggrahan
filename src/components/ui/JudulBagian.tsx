@@ -1,12 +1,7 @@
 import Link from "next/link";
 
-/**
- * Kepala bagian bergaya papan: garis pemisah di atas, label pendek dengan
- * huruf biasa (bukan kapital renggang), lalu judul. Garis inilah yang
- * memisahkan bagian, bukan kotak berbayang.
- */
+/** Judul satu bagian halaman. Jarak dan ukuran huruf yang memisahkan, bukan garis atau kotak. */
 export default function JudulBagian({
-  kicker,
   judul,
   keterangan,
   tautan,
@@ -14,7 +9,6 @@ export default function JudulBagian({
   terang = false,
   tingkat = "h2",
 }: {
-  kicker?: string;
   judul: string;
   keterangan?: string;
   tautan?: string;
@@ -26,22 +20,12 @@ export default function JudulBagian({
   const Judul = tingkat;
 
   return (
-    <div className={`mb-8 border-t pt-5 ${terang ? "border-white/25" : "border-garis"}`}>
-      {kicker && (
-        <p
-          className={`mb-3 text-[13px] font-medium ${
-            terang ? "text-aksen-200" : "text-brand-700"
-          }`}
-        >
-          {kicker}
-        </p>
-      )}
-
+    <div className="mb-8">
       <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-3">
         <Judul
-          className={`judul max-w-2xl text-[1.75rem] sm:text-[2.15rem] ${
-            terang ? "text-white" : "text-brand-950"
-          }`}
+          className={`judul max-w-2xl ${
+            tingkat === "h1" ? "text-[2.1rem] sm:text-[2.75rem]" : "text-[1.6rem] sm:text-[2rem]"
+          } ${terang ? "text-white" : "text-brand-900"}`}
         >
           {judul}
         </Judul>
@@ -49,8 +33,8 @@ export default function JudulBagian({
         {tautan && (
           <Link
             href={tautan}
-            className={`shrink-0 pb-1 text-sm font-semibold underline-offset-4 hover:underline ${
-              terang ? "text-white" : "text-brand-700"
+            className={`shrink-0 pb-1 text-sm font-semibold underline underline-offset-4 ${
+              terang ? "text-white" : "text-soga-700 hover:text-soga-800"
             }`}
           >
             {labelTautan}
